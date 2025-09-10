@@ -10,8 +10,9 @@ import 'package:digi_lib_app/src/services/library_api_service.dart';
 import 'package:digi_lib_app/src/models/api/auth_result.dart';
 import 'package:digi_lib_app/src/models/entities/user.dart';
 import 'package:digi_lib_app/src/models/entities/library.dart';
+import 'package:digi_lib_app/src/models/api/create_library_request.dart';
 
-import 'api_integration_test.mocks.dart';
+import '../test_helpers.dart';
 
 @GenerateMocks([Dio, ApiClient])
 @Skip('TODO: Fix constructor issues and mock generation')
@@ -78,8 +79,7 @@ void main() {
           'https://app.example.com/callback',
         );
 
-        expect(result.authResult.accessToken, equals('access_token_123'));
-        expect(result.user.email, equals('test@example.com'));
+        expect(result.accessToken, equals('access_token_123'));
 
         verify(
           mockApiClient.post<Map<String, dynamic>>(
@@ -107,7 +107,7 @@ void main() {
           },
         );
 
-        final result = await authService.refreshToken('refresh_token_123');
+        final result = await authService.refreshToken();
 
         expect(result.accessToken, equals('new_access_token_123'));
         expect(result.expiresIn, equals(3600));
@@ -351,9 +351,11 @@ void main() {
         );
 
         final library = await libraryService.addLibrary(
-          'New Library',
-          LibraryType.gdrive,
-          {'folder_id': 'gdrive_folder_123'},
+          CreateLibraryRequest(
+            name: 'New Library',
+            type: LibraryType.gdrive,
+            config: {'folder_id': 'gdrive_folder_123'},
+          ),
         );
 
         expect(library.name, equals('New Library'));

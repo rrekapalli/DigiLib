@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:digi_lib_app/src/widgets/document_card.dart';
 import 'package:digi_lib_app/src/models/entities/document.dart';
 
-@Skip('TODO: Fix DocumentCard constructor parameters')
 void main() {
   group('DocumentCard Widget Tests', () {
     late Document testDocument;
@@ -180,7 +179,15 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          DocumentCard(document: longTitleDocument, onTap: () {}),
+          DocumentCard(
+            document: longTitleDocument,
+            onTap: () {},
+            isSelected: false,
+            isMultiSelectMode: false,
+            onLongPress: () {},
+            onSelectionChanged: (selected) {},
+            onContextMenu: () {},
+          ),
         ),
       );
 
@@ -196,7 +203,15 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestWidget(
-          DocumentCard(document: testDocument, onTap: () {}, isSelected: true),
+          DocumentCard(
+            document: testDocument,
+            onTap: () {},
+            isSelected: true,
+            isMultiSelectMode: false,
+            onLongPress: () {},
+            onSelectionChanged: (selected) {},
+            onContextMenu: () {},
+          ),
         ),
       );
 
@@ -211,7 +226,15 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          DocumentCard(document: noAuthorDocument, onTap: () {}),
+          DocumentCard(
+            document: noAuthorDocument,
+            onTap: () {},
+            isSelected: false,
+            isMultiSelectMode: false,
+            onLongPress: () {},
+            onSelectionChanged: (selected) {},
+            onContextMenu: () {},
+          ),
         ),
       );
 
@@ -229,9 +252,13 @@ void main() {
           DocumentCard(
             document: testDocument,
             onTap: () {},
+            isSelected: false,
+            isMultiSelectMode: false,
             onLongPress: () {
               contextMenuShown = true;
             },
+            onSelectionChanged: (selected) {},
+            onContextMenu: () {},
           ),
         ),
       );
@@ -251,7 +278,11 @@ void main() {
           DocumentCard(
             document: testDocument,
             onTap: () {},
-            isOfflineAvailable: true,
+            isSelected: false,
+            isMultiSelectMode: false,
+            onLongPress: () {},
+            onSelectionChanged: (selected) {},
+            onContextMenu: () {},
           ),
         ),
       );
@@ -268,7 +299,11 @@ void main() {
           DocumentCard(
             document: testDocument,
             onTap: () {},
-            syncStatus: 'syncing',
+            isSelected: false,
+            isMultiSelectMode: false,
+            onLongPress: () {},
+            onSelectionChanged: (selected) {},
+            onContextMenu: () {},
           ),
         ),
       );

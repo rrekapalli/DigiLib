@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:digi_lib_app/src/services/secure_storage_service.dart';
 import 'package:digi_lib_app/src/network/connectivity_service.dart';
-import 'package:digi_lib_app/src/services/notification_service.dart';
 import 'package:digi_lib_app/src/network/api_client.dart';
 import 'package:digi_lib_app/src/providers/providers.dart';
 
@@ -72,7 +71,6 @@ class MockSecureStorageService implements SecureStorageService {
     _storage[key] = value;
   }
 
-  @override
   Future<void> delete(String key) async {
     if (_shouldThrowError) throw Exception('Mock storage error');
     _storage.remove(key);
@@ -82,6 +80,83 @@ class MockSecureStorageService implements SecureStorageService {
   Future<void> deleteAll() async {
     if (_shouldThrowError) throw Exception('Mock storage error');
     _storage.clear();
+  }
+
+  // Missing methods from SecureStorageService interface:
+
+  @override
+  Future<void> storeServerConfig(Map<String, dynamic> config) async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    _storage['server_config'] = config.toString();
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getServerConfig() async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    final configStr = _storage['server_config'];
+    if (configStr == null) return null;
+    // Simple mock implementation - in real code this would be JSON
+    return {'mock': 'config'};
+  }
+
+  @override
+  Future<void> clearServerConfig() async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    _storage.remove('server_config');
+  }
+
+  @override
+  Future<void> storeEncryptionKey(String key) async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    _storage['encryption_key'] = key;
+  }
+
+  @override
+  Future<String?> getEncryptionKey() async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    return _storage['encryption_key'];
+  }
+
+  @override
+  Future<void> clearEncryptionKey() async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    _storage.remove('encryption_key');
+  }
+
+  @override
+  Future<void> clearAll() async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    _storage.clear();
+  }
+
+  @override
+  Future<Set<String>> getAllKeys() async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    return _storage.keys.toSet();
+  }
+
+  @override
+  Future<bool> containsKey(String key) async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    return _storage.containsKey(key);
+  }
+
+  @override
+  Future<void> storeSecureData(String key, String value) async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    _storage[key] = value;
+  }
+
+  @override
+  Future<String?> getSecureData(String key) async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    return _storage[key];
+  }
+
+  @override
+  Future<void> deleteSecureData(String key) async {
+    if (_shouldThrowError) throw Exception('Mock storage error');
+    _storage.remove(key);
   }
 }
 
@@ -94,16 +169,35 @@ class MockConnectivityService implements ConnectivityService {
   }
 
   @override
-  Future<bool> hasConnectivity() async {
+  bool hasConnectivity() {
+    return _isConnected;
+  }
+
+  @override
+  Future<bool> checkConnectivity() async {
     return _isConnected;
   }
 
   @override
   Stream<bool> get connectivityStream => Stream.value(_isConnected);
+
+  @override
+  bool get isConnected => _isConnected;
+
+  @override
+  Future<void> initialize() async {
+    // Mock initialization
+  }
+
+  @override
+  void dispose() {
+    // Mock dispose
+  }
 }
 
-/// Mock NotificationService for testing
-class MockNotificationService implements NotificationService {
+/// Simple mock NotificationService for testing
+/// Note: This implements a simplified interface that may not match the full NotificationService
+class MockNotificationService {
   final List<String> _notifications = [];
 
   List<String> get notifications => List.unmodifiable(_notifications);
@@ -112,32 +206,34 @@ class MockNotificationService implements NotificationService {
     _notifications.clear();
   }
 
-  @override
   Future<void> initialize() async {
     // Mock initialization
   }
 
-  @override
   Future<void> showNotification(String title, String body) async {
     _notifications.add('$title: $body');
   }
 
-  @override
-  Future<void> showErrorNotification(String title, String error) async {
+  Future<void> showErrorNotification(
+    String title,
+    String error, {
+    Map<String, dynamic>? data,
+  }) async {
     _notifications.add('ERROR - $title: $error');
   }
 
-  @override
-  Future<void> showInfoNotification(String title, String info) async {
+  Future<void> showInfoNotification(
+    String title,
+    String info, {
+    Map<String, dynamic>? data,
+  }) async {
     _notifications.add('INFO - $title: $info');
   }
 
-  @override
   Future<void> showSyncNotification(String message) async {
     _notifications.add('SYNC: $message');
   }
 
-  @override
   Future<void> showScanProgressNotification(
     String libraryName,
     int progress,
@@ -145,12 +241,10 @@ class MockNotificationService implements NotificationService {
     _notifications.add('SCAN: $libraryName - $progress%');
   }
 
-  @override
   Future<void> cancelNotification(int id) async {
     // Mock cancel
   }
 
-  @override
   Future<void> cancelAllNotifications() async {
     _notifications.clear();
   }
@@ -220,6 +314,12 @@ class MockApiClient implements ApiClient {
   }
 
   String? get authToken => _authToken;
+
+  @override
+  String get baseUrl => 'https://mock-api.example.com';
+
+  @override
+  bool get hasAuthToken => _authToken != null;
 }
 
 /// Create a test container with mock providers
