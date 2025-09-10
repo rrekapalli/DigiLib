@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'job_queue_service.dart';
-import 'sync_service.dart';
 import '../network/connectivity_service.dart';
 
 /// Priority levels for background tasks
@@ -100,7 +99,6 @@ class BackgroundTaskService {
   );
 
   final JobQueueService _jobQueueService;
-  final SyncService _syncService;
   final ConnectivityService _connectivityService;
 
   final Map<String, BackgroundTask> _pendingTasks = {};
@@ -119,10 +117,8 @@ class BackgroundTaskService {
 
   BackgroundTaskService({
     required JobQueueService jobQueueService,
-    required SyncService syncService,
     required ConnectivityService connectivityService,
   }) : _jobQueueService = jobQueueService,
-       _syncService = syncService,
        _connectivityService = connectivityService;
 
   /// Stream of task results

@@ -531,18 +531,22 @@ class CompactOfflineActionQueueIndicator extends StatelessWidget {
   }
 
   Color _getBackgroundColor(ThemeData theme) {
-    if (queueStatus.hasErrors)
+    if (queueStatus.hasErrors) {
       return theme.colorScheme.errorContainer.withValues(alpha: 0.1);
-    if (queueStatus.processingJobs > 0)
+    }
+    if (queueStatus.processingJobs > 0) {
       return Colors.orange.withValues(alpha: 0.1);
+    }
     return Colors.blue.withValues(alpha: 0.1);
   }
 
   Color _getBorderColor(ThemeData theme) {
-    if (queueStatus.hasErrors)
+    if (queueStatus.hasErrors) {
       return theme.colorScheme.error.withValues(alpha: 0.3);
-    if (queueStatus.processingJobs > 0)
+    }
+    if (queueStatus.processingJobs > 0) {
       return Colors.orange.withValues(alpha: 0.3);
+    }
     return Colors.blue.withValues(alpha: 0.3);
   }
 }

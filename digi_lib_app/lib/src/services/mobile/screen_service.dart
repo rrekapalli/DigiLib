@@ -6,7 +6,6 @@ import '../../utils/constants.dart';
 
 /// Service for managing screen orientation and display settings on mobile
 class ScreenService {
-  static Orientation? _lockedOrientation;
   static double? _lockedBrightness;
 
   /// Set preferred screen orientations
@@ -31,7 +30,6 @@ class ScreenService {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    _lockedOrientation = Orientation.portrait;
   }
 
   /// Lock screen to landscape mode
@@ -42,7 +40,6 @@ class ScreenService {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    _lockedOrientation = Orientation.landscape;
   }
 
   /// Allow all orientations
@@ -55,7 +52,6 @@ class ScreenService {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    _lockedOrientation = null;
   }
 
   /// Get current orientation
@@ -303,7 +299,6 @@ class ScreenService {
 
     try {
       await disableReadingMode();
-      _lockedOrientation = null;
       _lockedBrightness = null;
       AppLogger.info('Screen service disposed');
     } catch (e) {

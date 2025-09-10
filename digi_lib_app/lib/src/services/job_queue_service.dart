@@ -28,12 +28,7 @@ enum JobType {
 }
 
 /// Enum for job status
-enum JobStatus {
-  pending,
-  processing,
-  completed,
-  failed,
-}
+enum JobStatus { pending, processing, completed, failed }
 
 /// Model for a job in the queue
 class Job {
@@ -84,16 +79,13 @@ class Job {
 class JobQueueService {
   final DatabaseHelper _databaseHelper;
   Timer? _retryTimer;
-  final StreamController<JobQueueStatus> _statusController = StreamController<JobQueueStatus>.broadcast();
-  
-  // Circuit breaker for database errors
-  final int _consecutiveErrors = 0;
-  DateTime? _lastErrorTime;
-  static const int _maxConsecutiveErrors = 5;
-  static const Duration _circuitBreakerCooldown = Duration(minutes: 5);
+  final StreamController<JobQueueStatus> _statusController =
+      StreamController<JobQueueStatus>.broadcast();
+
+  // Circuit breaker for database errors (to be implemented)
 
   JobQueueService({DatabaseHelper? databaseHelper})
-      : _databaseHelper = databaseHelper ?? DatabaseHelper.instance {
+    : _databaseHelper = databaseHelper ?? DatabaseHelper.instance {
     _initializeRetryScheduler();
   }
 
@@ -110,7 +102,11 @@ class JobQueueService {
   }
 
   /// Add a new job to the queue
-  Future<void> addJob(JobType type, Map<String, dynamic> payload, {DateTime? scheduledAt}) async {
+  Future<void> addJob(
+    JobType type,
+    Map<String, dynamic> payload, {
+    DateTime? scheduledAt,
+  }) async {
     try {
       final db = await _databaseHelper.database;
       final job = Job(
@@ -128,7 +124,8 @@ class JobQueueService {
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } catch (e) {
-      if (e.toString().contains('journal_mode') || e.toString().contains('WAL')) {
+      if (e.toString().contains('journal_mode') ||
+          e.toString().contains('WAL')) {
         // Database configuration error - skip this operation
         return;
       }
@@ -141,7 +138,7 @@ class JobQueueService {
   Future<List<Job>> getPendingJobs() async {
     final db = await _databaseHelper.database;
     final now = DateTime.now().millisecondsSinceEpoch;
-    
+
     final List<Map<String, dynamic>> maps = await db.query(
       'jobs_queue',
       where: 'status = ? AND (scheduled_at IS NULL OR scheduled_at <= ?)',
@@ -166,11 +163,13 @@ class JobQueueService {
   }
 
   /// Update job status
-  Future<void> updateJobStatus(String jobId, JobStatus status, {String? error}) async {
+  Future<void> updateJobStatus(
+    String jobId,
+    JobStatus status, {
+    String? error,
+  }) async {
     final db = await _databaseHelper.database;
-    final updateData = <String, dynamic>{
-      'status': status.name,
-    };
+    final updateData = <String, dynamic>{'status': status.name};
 
     if (error != null) {
       updateData['last_error'] = error;
@@ -196,11 +195,7 @@ class JobQueueService {
   /// Mark job as completed and remove from queue
   Future<void> completeJob(String jobId) async {
     final db = await _databaseHelper.database;
-    await db.delete(
-      'jobs_queue',
-      where: 'id = ?',
-      whereArgs: [jobId],
-    );
+    await db.delete('jobs_queue', where: 'id = ?', whereArgs: [jobId]);
   }
 
   /// Mark job as failed
@@ -208,10 +203,7 @@ class JobQueueService {
     final db = await _databaseHelper.database;
     await db.update(
       'jobs_queue',
-      {
-        'status': JobStatus.failed.name,
-        'last_error': error,
-      },
+      {'status': JobStatus.failed.name, 'last_error': error},
       where: 'id = ?',
       whereArgs: [jobId],
     );
@@ -232,7 +224,7 @@ class JobQueueService {
   Future<void> clearOldJobs({Duration age = const Duration(days: 7)}) async {
     final db = await _databaseHelper.database;
     final cutoffTime = DateTime.now().subtract(age).millisecondsSinceEpoch;
-    
+
     await db.delete(
       'jobs_queue',
       where: 'status = ? AND created_at < ?',
@@ -285,7 +277,7 @@ class JobQueueService {
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
       attempts: map['attempts'] as int,
       lastError: map['last_error'] as String?,
-      scheduledAt: map['scheduled_at'] != null 
+      scheduledAt: map['scheduled_at'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['scheduled_at'] as int)
           : null,
     );
@@ -296,22 +288,23 @@ class JobQueueService {
     try {
       final db = await _databaseHelper.database;
       final now = DateTime.now().millisecondsSinceEpoch;
-      
+
       // Get failed jobs that are ready for retry
       final List<Map<String, dynamic>> maps = await db.query(
         'jobs_queue',
-        where: 'status = ? AND attempts < ? AND (scheduled_at IS NULL OR scheduled_at <= ?)',
+        where:
+            'status = ? AND attempts < ? AND (scheduled_at IS NULL OR scheduled_at <= ?)',
         whereArgs: [JobStatus.failed.name, 5, now], // Max 5 retry attempts
         orderBy: 'created_at ASC',
       );
 
       for (final map in maps) {
         final job = _mapToJob(map);
-        
+
         // Calculate exponential backoff delay
         final backoffDelay = _calculateBackoffDelay(job.attempts);
         final nextRetryTime = DateTime.now().add(backoffDelay);
-        
+
         // Schedule job for retry
         await db.update(
           'jobs_queue',
@@ -322,16 +315,18 @@ class JobQueueService {
           where: 'id = ?',
           whereArgs: [job.id],
         );
-        
-        debugPrint('Scheduled job ${job.id} for retry in ${backoffDelay.inSeconds} seconds');
+
+        debugPrint(
+          'Scheduled job ${job.id} for retry in ${backoffDelay.inSeconds} seconds',
+        );
       }
 
       // Update status
       await _updateQueueStatus();
-      
     } catch (e) {
       // Don't spam the logs with database errors - just log once and return
-      if (e.toString().contains('journal_mode') || e.toString().contains('WAL')) {
+      if (e.toString().contains('journal_mode') ||
+          e.toString().contains('WAL')) {
         // This is the WAL mode error - we've already handled it in database configuration
         return;
       }
@@ -353,14 +348,14 @@ class JobQueueService {
     final pendingCount = await getJobCount(JobStatus.pending);
     final processingCount = await getJobCount(JobStatus.processing);
     final failedCount = await getJobCount(JobStatus.failed);
-    
+
     final status = JobQueueStatus(
       pendingJobs: pendingCount,
       processingJobs: processingCount,
       failedJobs: failedCount,
       lastUpdated: DateTime.now(),
     );
-    
+
     _statusController.add(status);
   }
 
@@ -369,7 +364,7 @@ class JobQueueService {
     // This would integrate with platform-specific background services
     // For Android: WorkManager
     // For iOS: Background App Refresh
-    
+
     if (defaultTargetPlatform == TargetPlatform.android) {
       await _scheduleAndroidBackgroundSync();
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
@@ -381,14 +376,18 @@ class JobQueueService {
   Future<void> _scheduleAndroidBackgroundSync() async {
     // This would use a platform channel to schedule WorkManager tasks
     // For now, we'll just log the intent
-    debugPrint('Scheduling Android background sync (WorkManager integration needed)');
+    debugPrint(
+      'Scheduling Android background sync (WorkManager integration needed)',
+    );
   }
 
   /// Schedule background sync for iOS using Background App Refresh
   Future<void> _scheduleIOSBackgroundSync() async {
     // This would use a platform channel to schedule background tasks
     // For now, we'll just log the intent
-    debugPrint('Scheduling iOS background sync (Background App Refresh integration needed)');
+    debugPrint(
+      'Scheduling iOS background sync (Background App Refresh integration needed)',
+    );
   }
 
   /// Get jobs that need conflict resolution
@@ -405,9 +404,12 @@ class JobQueueService {
   }
 
   /// Resolve a conflicted job by choosing a resolution strategy
-  Future<void> resolveConflict(String jobId, ConflictResolution resolution) async {
+  Future<void> resolveConflict(
+    String jobId,
+    ConflictResolution resolution,
+  ) async {
     final db = await _databaseHelper.database;
-    
+
     switch (resolution) {
       case ConflictResolution.useLocal:
         // Retry the job (use local version)
@@ -422,12 +424,12 @@ class JobQueueService {
           whereArgs: [jobId],
         );
         break;
-        
+
       case ConflictResolution.useServer:
         // Mark job as completed (accept server version)
         await completeJob(jobId);
         break;
-        
+
       case ConflictResolution.merge:
         // For now, treat as use local (merge logic would be entity-specific)
         await db.update(
@@ -442,7 +444,7 @@ class JobQueueService {
         );
         break;
     }
-    
+
     await _updateQueueStatus();
   }
 
@@ -474,7 +476,7 @@ class JobQueueStatus {
 
 /// Conflict resolution strategies
 enum ConflictResolution {
-  useLocal,   // Keep local changes
-  useServer,  // Accept server changes
-  merge,      // Attempt to merge changes
+  useLocal, // Keep local changes
+  useServer, // Accept server changes
+  merge, // Attempt to merge changes
 }

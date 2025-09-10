@@ -175,7 +175,7 @@ class SyncStatusScreen extends ConsumerWidget {
     if (status.failedActions > 0) {
       issues.add('${status.failedActions} failed actions');
     }
-    if (status.syncProgress.status == SyncStatus.error) {
+    if (status.syncProgress.status == ui.SyncStatus.error) {
       issues.add('Sync error');
     }
 

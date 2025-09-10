@@ -6,8 +6,6 @@ import 'package:screen_retriever/screen_retriever.dart';
 
 /// Service for managing desktop window behavior and settings
 class DesktopWindowService {
-  static const String _windowStateKey = 'window_state';
-
   /// Initialize desktop window settings
   static Future<void> initialize() async {
     if (!_isDesktop) return;
