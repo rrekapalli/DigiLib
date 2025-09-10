@@ -55,7 +55,7 @@ class BookmarkService {
       final localBookmarks = await _repository.getBookmarksByDocumentId(documentId);
       
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverBookmarks = await _apiService.getBookmarks(documentId);
           
@@ -96,7 +96,7 @@ class BookmarkService {
       await _repository.insertBookmark(bookmark);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final request = CreateBookmarkRequest(pageNumber: pageNumber, note: note);
           final serverBookmark = await _apiService.addBookmark(documentId, request);
@@ -153,7 +153,7 @@ class BookmarkService {
       await _repository.markBookmarkAsUnsynced(bookmarkId);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final request = UpdateBookmarkRequest(note: note);
           final serverBookmark = await _apiService.updateBookmark(bookmarkId, request);
@@ -195,7 +195,7 @@ class BookmarkService {
       await _repository.deleteBookmark(bookmarkId);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           await _apiService.deleteBookmark(bookmarkId);
         } catch (e) {
@@ -248,7 +248,7 @@ class BookmarkService {
 
   /// Process offline bookmark actions
   Future<void> processOfflineActions() async {
-    if (!await _connectivityService.hasConnectivity()) {
+    if (!_connectivityService.hasConnectivity()) {
       return; // Skip if offline
     }
 

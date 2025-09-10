@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'mobile_ui_service.dart';
 import 'background_service.dart';
 import 'gesture_service.dart';
 import 'notification_service.dart';

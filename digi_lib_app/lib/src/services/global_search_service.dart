@@ -32,7 +32,7 @@ class GlobalSearchService {
     }
 
     // Check connectivity
-    final isOnline = await _connectivityService.hasConnectivity();
+    final isOnline = _connectivityService.hasConnectivity();
     
     if (isOnline) {
       try {
@@ -115,7 +115,7 @@ class GlobalSearchService {
     int page = 1,
     int limit = 50,
   }) async {
-    final isOnline = await _connectivityService.hasConnectivity();
+    final isOnline = _connectivityService.hasConnectivity();
     
     if (isOnline) {
       try {
@@ -155,7 +155,7 @@ class GlobalSearchService {
   }) async {
     if (partialQuery.trim().isEmpty) return [];
 
-    final isOnline = await _connectivityService.hasConnectivity();
+    final isOnline = _connectivityService.hasConnectivity();
     
     if (isOnline) {
       try {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/entities/comment.dart';
 import '../models/ui/text_selection_anchor.dart';
-import '../services/comment_service.dart';
 import '../providers/comment_provider.dart';
 import '../widgets/comment_bubble.dart';
 import '../widgets/comment_creation_dialog.dart';

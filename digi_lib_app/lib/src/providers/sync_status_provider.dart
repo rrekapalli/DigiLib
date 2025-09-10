@@ -219,8 +219,9 @@ class CombinedSyncStatus {
   /// Overall sync health status
   SyncHealthStatus get healthStatus {
     if (hasConflicts) return SyncHealthStatus.conflicts;
-    if (syncProgress.status == ui.SyncStatus.error)
+    if (syncProgress.status == ui.SyncStatus.error) {
       return SyncHealthStatus.error;
+    }
     if (jobQueueStatus.hasErrors) return SyncHealthStatus.error;
     if (isOffline && pendingActions > 0) return SyncHealthStatus.offline;
     if (isSyncing) return SyncHealthStatus.syncing;

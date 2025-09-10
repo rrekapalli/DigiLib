@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/ui/text_selection_anchor.dart';
 import '../providers/comment_provider.dart';
 import '../providers/auth_provider.dart';
-import '../services/comment_service.dart';
 
 /// Dialog for creating new comments
 class CommentCreationDialog extends ConsumerStatefulWidget {

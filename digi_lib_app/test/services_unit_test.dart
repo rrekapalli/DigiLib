@@ -111,15 +111,15 @@ void main() {
 
       test('should report connectivity status', () async {
         // Default is connected
-        expect(await mockConnectivity.hasConnectivity(), isTrue);
+        expect(mockConnectivity.hasConnectivity(), isTrue);
         
         // Set to disconnected
         mockConnectivity.setConnected(false);
-        expect(await mockConnectivity.hasConnectivity(), isFalse);
+        expect(mockConnectivity.hasConnectivity(), isFalse);
         
         // Set back to connected
         mockConnectivity.setConnected(true);
-        expect(await mockConnectivity.hasConnectivity(), isTrue);
+        expect(mockConnectivity.hasConnectivity(), isTrue);
       });
 
       test('should provide connectivity stream', () async {

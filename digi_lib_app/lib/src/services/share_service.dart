@@ -76,7 +76,7 @@ class ShareService {
       await _repository.insertShare(share);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverShare = await _apiService.createShare(request);
 
@@ -127,7 +127,7 @@ class ShareService {
       final localShares = await _repository.getSharesByOwnerId(ownerId);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverShares = await _apiService.getShares();
 
@@ -161,7 +161,7 @@ class ShareService {
       final localShares = await _repository.getSharedWithUser(userEmail);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverShares = await _apiService.getSharedWithMe();
 
@@ -216,7 +216,7 @@ class ShareService {
       await _repository.markShareAsUnsynced(shareId);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverShare = await _apiService.updateSharePermission(
             shareId,
@@ -263,7 +263,7 @@ class ShareService {
       await _repository.deleteShare(shareId);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           await _apiService.deleteShare(shareId);
         } catch (e) {
@@ -297,7 +297,7 @@ class ShareService {
       final localShares = await _repository.getSharesBySubjectId(subjectId);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverShares = await _apiService.getSharesBySubject(subjectId);
 
@@ -390,7 +390,7 @@ class ShareService {
 
   /// Process offline share actions
   Future<void> processOfflineActions() async {
-    if (!await _connectivityService.hasConnectivity()) {
+    if (!_connectivityService.hasConnectivity()) {
       return; // Skip if offline
     }
 

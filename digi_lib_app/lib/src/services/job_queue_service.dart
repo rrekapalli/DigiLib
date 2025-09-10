@@ -87,7 +87,7 @@ class JobQueueService {
   final StreamController<JobQueueStatus> _statusController = StreamController<JobQueueStatus>.broadcast();
   
   // Circuit breaker for database errors
-  int _consecutiveErrors = 0;
+  final int _consecutiveErrors = 0;
   DateTime? _lastErrorTime;
   static const int _maxConsecutiveErrors = 5;
   static const Duration _circuitBreakerCooldown = Duration(minutes: 5);

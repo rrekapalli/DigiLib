@@ -307,7 +307,7 @@ class _CloudProviderConfigState extends State<CloudProviderConfig> {
         const SizedBox(height: 12),
         
         DropdownButtonFormField<String>(
-          value: _config['region'] ?? 'us-east-1',
+          initialValue: _config['region'] ?? 'us-east-1',
           decoration: const InputDecoration(
             labelText: 'Region',
             border: OutlineInputBorder(),

@@ -182,7 +182,7 @@ class _SearchFiltersPanelState extends ConsumerState<SearchFiltersPanel> {
 
   Widget _buildLibraryDropdown(List<Library> libraries) {
     return DropdownButtonFormField<String>(
-      value: _selectedLibraryId,
+      initialValue: _selectedLibraryId,
       decoration: const InputDecoration(
         hintText: 'All libraries',
         isDense: true,

@@ -150,15 +150,15 @@ class GestureService {
   }) {
     if (!_isMobile) return child;
     
-    double _baseAngle = 0.0;
+    double baseAngle = 0.0;
     
     return GestureDetector(
       onScaleStart: (details) {
-        _baseAngle = 0.0;
+        baseAngle = 0.0;
         onRotationStart?.call();
       },
       onScaleUpdate: (details) {
-        final angle = details.rotation - _baseAngle;
+        final angle = details.rotation - baseAngle;
         onRotationUpdate?.call(angle);
       },
       onScaleEnd: (details) {

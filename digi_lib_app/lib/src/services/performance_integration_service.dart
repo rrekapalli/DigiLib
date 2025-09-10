@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'performance_monitoring_service.dart';
 import 'memory_optimization_service.dart';
-import '../network/performance_aware_api_client.dart';
-import '../database/performance_aware_database.dart';
 
 /// Service that integrates all performance monitoring components
 class PerformanceIntegrationService {
@@ -411,7 +409,7 @@ class PerformanceReport {
         .where((r) => r.priority == RecommendationPriority.high)
         .length;
     
-    return 'Performance Report: ${criticalRecommendations} critical, ${highRecommendations} high priority issues';
+    return 'Performance Report: $criticalRecommendations critical, $highRecommendations high priority issues';
   }
 
   Map<String, dynamic> toJson() => {

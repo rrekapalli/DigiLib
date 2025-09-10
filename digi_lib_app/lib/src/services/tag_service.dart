@@ -57,7 +57,7 @@ class TagService {
           : await _repository.getAllTags();
       
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverTags = await _apiService.getTags();
           
@@ -104,7 +104,7 @@ class TagService {
       await _repository.insertTag(tag);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final request = CreateTagRequest(name: name);
           final serverTag = await _apiService.createTag(request);
@@ -149,7 +149,7 @@ class TagService {
       await _repository.deleteTag(tagId);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           await _apiService.deleteTag(tagId);
         } catch (e) {
@@ -185,7 +185,7 @@ class TagService {
       await _repository.addTagToDocument(documentId, tagId);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final request = AddTagToDocumentRequest(tagId: tagId);
           await _apiService.addTagToDocument(documentId, request);
@@ -217,7 +217,7 @@ class TagService {
       await _repository.removeTagFromDocument(documentId, tagId);
 
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           await _apiService.removeTagFromDocument(documentId, tagId);
         } catch (e) {
@@ -248,7 +248,7 @@ class TagService {
       final localTags = await _repository.getDocumentTags(documentId);
       
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverTags = await _apiService.getDocumentTags(documentId);
           
@@ -276,7 +276,7 @@ class TagService {
       final localDocuments = await _repository.getDocumentsByTag(tagId);
       
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverDocuments = await _apiService.getDocumentsByTag(tagId);
           
@@ -301,7 +301,7 @@ class TagService {
       final localTags = await _repository.searchTags(query, ownerId: ownerId);
       
       // If online, try to get server results
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverTags = await _apiService.searchTags(query);
           
@@ -333,7 +333,7 @@ class TagService {
       final localTags = await _repository.getPopularTags(limit: limit);
       
       // If online, try to get server results
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverTags = await _apiService.getPopularTags(limit: limit);
           
@@ -379,7 +379,7 @@ class TagService {
       final limitedLocal = localSuggestions.take(limit).toList();
       
       // If online, try to get server suggestions
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverSuggestions = await _apiService.searchTags(partialName, limit: limit);
           
@@ -442,7 +442,7 @@ class TagService {
 
   /// Process offline tag actions
   Future<void> processOfflineActions() async {
-    if (!await _connectivityService.hasConnectivity()) {
+    if (!_connectivityService.hasConnectivity()) {
       return; // Skip if offline
     }
 

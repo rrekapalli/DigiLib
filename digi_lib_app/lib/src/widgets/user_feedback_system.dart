@@ -378,7 +378,7 @@ class _DetailedFeedbackDialogState extends State<DetailedFeedbackDialog> {
             
             // Category selection
             DropdownButtonFormField<String>(
-              value: _selectedCategory,
+              initialValue: _selectedCategory,
               decoration: const InputDecoration(
                 labelText: 'Category',
                 hintText: 'Select feedback category',

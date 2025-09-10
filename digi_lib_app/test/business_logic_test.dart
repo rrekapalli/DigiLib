@@ -340,11 +340,13 @@ AuthenticationState transitionToUnauthenticated(AuthenticationState current) {
 }
 
 bool isValidDocumentMetadata(Map<String, dynamic> metadata) {
-  if (metadata['title'] == null || metadata['title'].toString().isEmpty)
+  if (metadata['title'] == null || metadata['title'].toString().isEmpty) {
     return false;
+  }
   if (metadata['filename'] == null ||
-      !metadata['filename'].toString().contains('.'))
+      !metadata['filename'].toString().contains('.')) {
     return false;
+  }
   if (metadata['sizeBytes'] != null && metadata['sizeBytes'] < 0) return false;
   return true;
 }
@@ -465,7 +467,7 @@ Map<String, dynamic> mergeChanges(
     if (key == 'tags') {
       final localTags = value as List<String>? ?? [];
       final serverTags = server['tags'] as List<String>? ?? [];
-      merged['tags'] = [...localTags, ...serverTags].toSet().toList();
+      merged['tags'] = <dynamic>{...localTags, ...serverTags}.toList();
     } else if (!server.containsKey(key)) {
       merged[key] = value;
     }

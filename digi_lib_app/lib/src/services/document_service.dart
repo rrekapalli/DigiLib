@@ -74,7 +74,7 @@ class DocumentService {
       final localDocuments = await _documentRepository.findAll(query: query);
       
       // If online, try to sync with server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverResponse = await _apiService.getDocuments(
             libraryId: libraryId,
@@ -110,7 +110,7 @@ class DocumentService {
       final localDocuments = await _documentRepository.findByTagId(tagId, limit: limit, offset: offset);
       
       // If online, try to get server data
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final page = offset != null && limit != null ? (offset ~/ limit) + 1 : 1;
           final serverDocuments = await _tagRepository.getDocumentsByTag(tagId);
@@ -198,7 +198,7 @@ class DocumentService {
       final localResults = await _documentRepository.search(query);
       
       // If online, try to get server search results
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           // Note: This would require a search endpoint in DocumentApiService
           // For now, we'll use the local search results
@@ -240,7 +240,7 @@ class DocumentService {
       final localDocument = await _documentRepository.findById(documentId);
       
       // If online, try to get latest from server
-      if (await _connectivityService.hasConnectivity()) {
+      if (_connectivityService.hasConnectivity()) {
         try {
           final serverDocument = await _apiService.getDocument(documentId);
           

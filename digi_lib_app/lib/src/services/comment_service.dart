@@ -110,7 +110,7 @@ class CommentService {
 
       // If online and comment not found locally, try server
       if (localComment == null &&
-          await _connectivityService.hasConnectivity()) {
+          _connectivityService.hasConnectivity()) {
         try {
           final serverComment = await _apiService.getComment(commentId);
 
