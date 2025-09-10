@@ -91,33 +91,31 @@ class TaskResult {
 }
 
 /// Background task status
-enum TaskStatus {
-  pending,
-  running,
-  completed,
-  failed,
-  cancelled,
-}
+enum TaskStatus { pending, running, completed, failed, cancelled }
 
 /// Service for orchestrating background tasks with isolate management
 class BackgroundTaskService {
-  static const MethodChannel _channel = MethodChannel('digi_lib_app/background_tasks');
-  
+  static const MethodChannel _channel = MethodChannel(
+    'digi_lib_app/background_tasks',
+  );
+
   final JobQueueService _jobQueueService;
   final SyncService _syncService;
   final ConnectivityService _connectivityService;
-  
+
   final Map<String, BackgroundTask> _pendingTasks = {};
   final Map<String, TaskStatus> _taskStatuses = {};
   final Map<String, Isolate> _runningIsolates = {};
   final Map<String, ReceivePort> _isolateReceivePorts = {};
-  
+
   Timer? _taskScheduler;
   Timer? _cleanupTimer;
   bool _isServiceRunning = false;
-  
-  final StreamController<TaskResult> _taskResultController = StreamController<TaskResult>.broadcast();
-  final StreamController<Map<String, TaskStatus>> _taskStatusController = StreamController<Map<String, TaskStatus>>.broadcast();
+
+  final StreamController<TaskResult> _taskResultController =
+      StreamController<TaskResult>.broadcast();
+  final StreamController<Map<String, TaskStatus>> _taskStatusController =
+      StreamController<Map<String, TaskStatus>>.broadcast();
 
   BackgroundTaskService({
     required JobQueueService jobQueueService,
@@ -131,7 +129,8 @@ class BackgroundTaskService {
   Stream<TaskResult> get taskResultStream => _taskResultController.stream;
 
   /// Stream of task status updates
-  Stream<Map<String, TaskStatus>> get taskStatusStream => _taskStatusController.stream;
+  Stream<Map<String, TaskStatus>> get taskStatusStream =>
+      _taskStatusController.stream;
 
   /// Check if service is running
   bool get isRunning => _isServiceRunning;
@@ -147,26 +146,25 @@ class BackgroundTaskService {
     }
 
     debugPrint('Initializing BackgroundTaskService');
-    
+
     try {
       // Initialize platform-specific background services
       await _initializePlatformServices();
-      
+
       // Start task scheduler
       _startTaskScheduler();
-      
+
       // Start cleanup timer
       _startCleanupTimer();
-      
+
       // Listen to connectivity changes
       _connectivityService.connectivityStream.listen(_onConnectivityChanged);
-      
+
       // Listen to job queue changes
       _jobQueueService.statusStream.listen(_onJobQueueStatusChanged);
-      
+
       _isServiceRunning = true;
       debugPrint('BackgroundTaskService initialized successfully');
-      
     } catch (e) {
       debugPrint('Failed to initialize BackgroundTaskService: $e');
       rethrow;
@@ -195,14 +193,15 @@ class BackgroundTaskService {
   /// Schedule a background task
   Future<void> scheduleTask(BackgroundTask task) async {
     debugPrint('Scheduling background task: ${task.id} (${task.type.name})');
-    
+
     _pendingTasks[task.id] = task;
     _taskStatuses[task.id] = TaskStatus.pending;
-    
+
     _notifyStatusChange();
-    
+
     // If task should run immediately and conditions are met, execute it
-    if (task.scheduledAt.isBefore(DateTime.now()) || task.scheduledAt.isAtSameMomentAs(DateTime.now())) {
+    if (task.scheduledAt.isBefore(DateTime.now()) ||
+        task.scheduledAt.isAtSameMomentAs(DateTime.now())) {
       await _tryExecuteTask(task);
     }
   }
@@ -210,7 +209,7 @@ class BackgroundTaskService {
   /// Cancel a scheduled task
   Future<void> cancelTask(String taskId) async {
     debugPrint('Cancelling task: $taskId');
-    
+
     // Cancel running isolate if exists
     final isolate = _runningIsolates[taskId];
     if (isolate != null) {
@@ -219,11 +218,11 @@ class BackgroundTaskService {
       _isolateReceivePorts[taskId]?.close();
       _isolateReceivePorts.remove(taskId);
     }
-    
+
     // Update status
     _taskStatuses[taskId] = TaskStatus.cancelled;
     _pendingTasks.remove(taskId);
-    
+
     _notifyStatusChange();
   }
 
@@ -252,7 +251,11 @@ class BackgroundTaskService {
 
     final now = DateTime.now();
     final readyTasks = _pendingTasks.values
-        .where((task) => task.scheduledAt.isBefore(now) || task.scheduledAt.isAtSameMomentAs(now))
+        .where(
+          (task) =>
+              task.scheduledAt.isBefore(now) ||
+              task.scheduledAt.isAtSameMomentAs(now),
+        )
         .toList();
 
     // Sort by priority (highest first)
@@ -285,70 +288,72 @@ class BackgroundTaskService {
   /// Execute a background task in an isolate
   Future<void> _executeTask(BackgroundTask task) async {
     debugPrint('Executing task: ${task.id}');
-    
+
     _taskStatuses[task.id] = TaskStatus.running;
     _notifyStatusChange();
-    
+
     final startTime = DateTime.now();
-    
+
     try {
       // Create receive port for isolate communication
       final receivePort = ReceivePort();
       _isolateReceivePorts[task.id] = receivePort;
-      
+
       // Spawn isolate
       final isolate = await Isolate.spawn(
         _taskExecutor,
-        _TaskExecutorParams(
-          task: task,
-          sendPort: receivePort.sendPort,
-        ),
+        _TaskExecutorParams(task: task, sendPort: receivePort.sendPort),
       );
-      
+
       _runningIsolates[task.id] = isolate;
-      
+
       // Listen for results with timeout
       final completer = Completer<TaskResult>();
       late StreamSubscription subscription;
-      
+
       subscription = receivePort.listen((message) {
         if (message is TaskResult) {
           subscription.cancel();
           completer.complete(message);
         } else if (message is String && message.startsWith('ERROR:')) {
           subscription.cancel();
-          completer.complete(TaskResult(
-            taskId: task.id,
-            success: false,
-            error: message.substring(6),
-            executionTime: DateTime.now().difference(startTime),
-          ));
+          completer.complete(
+            TaskResult(
+              taskId: task.id,
+              success: false,
+              error: message.substring(6),
+              executionTime: DateTime.now().difference(startTime),
+            ),
+          );
         }
       });
-      
+
       // Wait for result with timeout
       final timeout = task.timeout ?? const Duration(minutes: 10);
       final result = await completer.future.timeout(timeout);
-      
+
       // Clean up
       isolate.kill(priority: Isolate.immediate);
       _runningIsolates.remove(task.id);
       _isolateReceivePorts.remove(task.id);
       receivePort.close();
-      
+
       // Update status
-      _taskStatuses[task.id] = result.success ? TaskStatus.completed : TaskStatus.failed;
+      _taskStatuses[task.id] = result.success
+          ? TaskStatus.completed
+          : TaskStatus.failed;
       _pendingTasks.remove(task.id);
-      
+
       // Notify result
       _taskResultController.add(result);
       _notifyStatusChange();
-      
-      debugPrint('Task ${task.id} ${result.success ? 'completed' : 'failed'} in ${result.executionTime.inSeconds}s');
-      
+
+      debugPrint(
+        'Task ${task.id} ${result.success ? 'completed' : 'failed'} in ${result.executionTime.inSeconds}s',
+      );
     } catch (e) {
       debugPrint('Task ${task.id} execution error: $e');
-      
+
       // Clean up on error
       final isolate = _runningIsolates[task.id];
       if (isolate != null) {
@@ -357,11 +362,11 @@ class BackgroundTaskService {
       }
       _isolateReceivePorts[task.id]?.close();
       _isolateReceivePorts.remove(task.id);
-      
+
       // Update status
       _taskStatuses[task.id] = TaskStatus.failed;
       _pendingTasks.remove(task.id);
-      
+
       // Create error result
       final result = TaskResult(
         taskId: task.id,
@@ -369,7 +374,7 @@ class BackgroundTaskService {
         error: e.toString(),
         executionTime: DateTime.now().difference(startTime),
       );
-      
+
       _taskResultController.add(result);
       _notifyStatusChange();
     }
@@ -380,9 +385,9 @@ class BackgroundTaskService {
     try {
       final task = params.task;
       final sendPort = params.sendPort;
-      
+
       TaskResult result;
-      
+
       switch (task.type) {
         case BackgroundTaskType.sync:
           result = await _executeSyncTask(task);
@@ -400,9 +405,8 @@ class BackgroundTaskService {
           result = await _executeNotificationTask(task);
           break;
       }
-      
+
       sendPort.send(result);
-      
     } catch (e) {
       params.sendPort.send('ERROR: $e');
     }
@@ -411,12 +415,12 @@ class BackgroundTaskService {
   /// Execute sync task
   static Future<TaskResult> _executeSyncTask(BackgroundTask task) async {
     final startTime = DateTime.now();
-    
+
     try {
       // This would integrate with the actual sync service
       // For now, simulate sync operation
       await Future.delayed(const Duration(seconds: 2));
-      
+
       return TaskResult(
         taskId: task.id,
         success: true,
@@ -434,13 +438,15 @@ class BackgroundTaskService {
   }
 
   /// Execute document processing task
-  static Future<TaskResult> _executeDocumentProcessingTask(BackgroundTask task) async {
+  static Future<TaskResult> _executeDocumentProcessingTask(
+    BackgroundTask task,
+  ) async {
     final startTime = DateTime.now();
-    
+
     try {
       // Simulate document processing
       await Future.delayed(const Duration(seconds: 5));
-      
+
       return TaskResult(
         taskId: task.id,
         success: true,
@@ -458,13 +464,15 @@ class BackgroundTaskService {
   }
 
   /// Execute cache cleanup task
-  static Future<TaskResult> _executeCacheCleanupTask(BackgroundTask task) async {
+  static Future<TaskResult> _executeCacheCleanupTask(
+    BackgroundTask task,
+  ) async {
     final startTime = DateTime.now();
-    
+
     try {
       // Simulate cache cleanup
       await Future.delayed(const Duration(seconds: 1));
-      
+
       return TaskResult(
         taskId: task.id,
         success: true,
@@ -484,11 +492,11 @@ class BackgroundTaskService {
   /// Execute indexing task
   static Future<TaskResult> _executeIndexingTask(BackgroundTask task) async {
     final startTime = DateTime.now();
-    
+
     try {
       // Simulate indexing
       await Future.delayed(const Duration(seconds: 3));
-      
+
       return TaskResult(
         taskId: task.id,
         success: true,
@@ -506,13 +514,15 @@ class BackgroundTaskService {
   }
 
   /// Execute notification task
-  static Future<TaskResult> _executeNotificationTask(BackgroundTask task) async {
+  static Future<TaskResult> _executeNotificationTask(
+    BackgroundTask task,
+  ) async {
     final startTime = DateTime.now();
-    
+
     try {
       // Simulate notification processing
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       return TaskResult(
         taskId: task.id,
         success: true,
@@ -551,27 +561,27 @@ class BackgroundTaskService {
         scheduledAt: DateTime.now(),
         requiresNetwork: true,
       );
-      
+
       scheduleTask(syncTask);
     }
   }
 
   /// Clean up completed tasks
   Future<void> _cleanupCompletedTasks() async {
-    final cutoffTime = DateTime.now().subtract(const Duration(hours: 1));
-    
     final completedTaskIds = _taskStatuses.entries
-        .where((entry) => 
-            entry.value == TaskStatus.completed || 
-            entry.value == TaskStatus.failed ||
-            entry.value == TaskStatus.cancelled)
+        .where(
+          (entry) =>
+              entry.value == TaskStatus.completed ||
+              entry.value == TaskStatus.failed ||
+              entry.value == TaskStatus.cancelled,
+        )
         .map((entry) => entry.key)
         .toList();
-    
+
     for (final taskId in completedTaskIds) {
       _taskStatuses.remove(taskId);
     }
-    
+
     if (completedTaskIds.isNotEmpty) {
       debugPrint('Cleaned up ${completedTaskIds.length} completed tasks');
       _notifyStatusChange();
@@ -584,7 +594,9 @@ class BackgroundTaskService {
   }
 
   /// Schedule periodic sync task
-  Future<void> schedulePeriodicSync({Duration interval = const Duration(minutes: 15)}) async {
+  Future<void> schedulePeriodicSync({
+    Duration interval = const Duration(minutes: 15),
+  }) async {
     final task = BackgroundTask(
       id: 'periodic_sync_${DateTime.now().millisecondsSinceEpoch}',
       type: BackgroundTaskType.sync,
@@ -593,12 +605,14 @@ class BackgroundTaskService {
       scheduledAt: DateTime.now().add(interval),
       requiresNetwork: true,
     );
-    
+
     await scheduleTask(task);
   }
 
   /// Schedule cache cleanup task
-  Future<void> scheduleCacheCleanup({Duration delay = const Duration(hours: 1)}) async {
+  Future<void> scheduleCacheCleanup({
+    Duration delay = const Duration(hours: 1),
+  }) async {
     final task = BackgroundTask(
       id: 'cache_cleanup_${DateTime.now().millisecondsSinceEpoch}',
       type: BackgroundTaskType.cacheCleanup,
@@ -607,7 +621,7 @@ class BackgroundTaskService {
       scheduledAt: DateTime.now().add(delay),
       requiresNetwork: false,
     );
-    
+
     await scheduleTask(task);
   }
 
@@ -617,7 +631,7 @@ class BackgroundTaskService {
     for (final status in _taskStatuses.values) {
       statusCounts[status] = (statusCounts[status] ?? 0) + 1;
     }
-    
+
     return {
       'total_tasks': _taskStatuses.length,
       'pending_tasks': _pendingTasks.length,
@@ -630,33 +644,33 @@ class BackgroundTaskService {
   /// Dispose resources and cleanup
   Future<void> dispose() async {
     debugPrint('Disposing BackgroundTaskService');
-    
+
     _isServiceRunning = false;
-    
+
     // Cancel timers
     _taskScheduler?.cancel();
     _cleanupTimer?.cancel();
-    
+
     // Kill all running isolates
     for (final isolate in _runningIsolates.values) {
       isolate.kill(priority: Isolate.immediate);
     }
     _runningIsolates.clear();
-    
+
     // Close receive ports
     for (final port in _isolateReceivePorts.values) {
       port.close();
     }
     _isolateReceivePorts.clear();
-    
+
     // Clear pending tasks
     _pendingTasks.clear();
     _taskStatuses.clear();
-    
+
     // Close streams
     await _taskResultController.close();
     await _taskStatusController.close();
-    
+
     debugPrint('BackgroundTaskService disposed');
   }
 }
@@ -666,8 +680,5 @@ class _TaskExecutorParams {
   final BackgroundTask task;
   final SendPort sendPort;
 
-  const _TaskExecutorParams({
-    required this.task,
-    required this.sendPort,
-  });
+  const _TaskExecutorParams({required this.task, required this.sendPort});
 }

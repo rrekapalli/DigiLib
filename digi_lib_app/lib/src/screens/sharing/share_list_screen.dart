@@ -102,7 +102,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen>
 
         return RefreshIndicator(
           onRefresh: () async {
-            ref.refresh(sharedWithMeProvider);
+            final _ = ref.refresh(sharedWithMeProvider);
           },
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -428,8 +428,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen>
   }
 
   void _copyShareLink(Share share) {
-    // TODO: Generate and copy actual share link
-    final link = 'https://app.example.com/shared/${share.subjectId}';
+    // TODO: Generate and copy actual share link for ${share.subjectId}
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

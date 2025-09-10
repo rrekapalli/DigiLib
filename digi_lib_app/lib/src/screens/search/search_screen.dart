@@ -25,13 +25,13 @@ class SearchScreen extends ConsumerStatefulWidget {
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  
+
   String _currentQuery = '';
   SearchFilters? _currentFilters;
   bool _showFilters = false;
   bool _showSuggestions = false;
   bool _isSearching = false;
-  
+
   UnifiedSearchResults? _searchResults;
   List<String> _searchSuggestions = [];
   List<String> _searchHistory = [];
@@ -115,10 +115,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
     try {
       final searchService = ref.read(searchServiceProvider);
-      
+
       // Save to history
       await searchService.saveSearchToHistory(query);
-      
+
       // Perform search
       final results = await searchService.search(
         query,
@@ -130,7 +130,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           _searchResults = results;
           _isSearching = false;
         });
-        
+
         // Update history
         _loadSearchHistory();
       }
@@ -158,7 +158,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     setState(() {
       _currentFilters = filters;
     });
-    
+
     // Re-search if we have a current query
     if (_currentQuery.isNotEmpty) {
       _performSearch(_currentQuery);
@@ -213,7 +213,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             tooltip: 'Saved Searches',
           ),
           IconButton(
-            icon: Icon(_showFilters ? Icons.filter_list : Icons.filter_list_outlined),
+            icon: Icon(
+              _showFilters ? Icons.filter_list : Icons.filter_list_outlined,
+            ),
             onPressed: _toggleFilters,
             tooltip: 'Filters',
           ),
@@ -257,9 +259,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             decoration: BoxDecoration(
               color: colorScheme.surface,
               border: Border(
-                bottom: BorderSide(
-                  color: colorScheme.outline.withOpacity(0.2),
-                ),
+                bottom: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
               ),
             ),
             child: SearchInputField(
@@ -280,9 +280,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
 
           // Content area
-          Expanded(
-            child: _buildContent(),
-          ),
+          Expanded(child: _buildContent()),
         ],
       ),
     );
@@ -418,21 +416,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   void _navigateToSavedSearches() async {
     final result = await Navigator.of(context).push<Map<String, dynamic>>(
-      MaterialPageRoute(
-        builder: (context) => const SavedSearchesScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const SavedSearchesScreen()),
     );
 
     if (result != null) {
       // Load the saved search
       final query = result['query'] as String;
       final filters = result['filters'] as SearchFilters?;
-      
+
       _searchController.text = query;
       setState(() {
         _currentFilters = filters;
       });
-      
+
       _performSearch(query);
     }
   }
@@ -456,17 +452,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => SaveSearchDialog(
-        query: _currentQuery,
-        filters: _currentFilters,
-      ),
+      builder: (context) =>
+          SaveSearchDialog(query: _currentQuery, filters: _currentFilters),
     );
 
     if (result != null) {
       try {
-        final savedSearchService = SavedSearchService(
-          DatabaseHelper.instance,
-        );
+        final savedSearchService = SavedSearchService(DatabaseHelper.instance);
 
         await savedSearchService.saveSearch(
           name: result['name'] as String,
@@ -496,11 +488,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     if (format == null) return;
 
     try {
-      final savedSearchService = SavedSearchService(
-        DatabaseHelper.instance,
-      );
+      final savedSearchService = SavedSearchService(DatabaseHelper.instance);
 
-      final exportData = await savedSearchService.exportSearchResults(
+      await savedSearchService.exportSearchResults(
         results: _searchResults!.results,
         format: format,
         query: _currentQuery,
@@ -509,9 +499,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       // In a real app, you would save this to a file or share it
       // For now, just show a success message
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Results exported as $format')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Results exported as $format')));
       }
     } catch (e) {
       if (mounted) {
@@ -564,9 +554,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     if (_searchResults == null || _searchResults!.results.isEmpty) return;
 
     try {
-      final savedSearchService = SavedSearchService(
-        DatabaseHelper.instance,
-      );
+      final savedSearchService = SavedSearchService(DatabaseHelper.instance);
 
       final shareData = await savedSearchService.shareSearchResults(
         results: _searchResults!.results,
@@ -611,7 +599,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
     final currentPage = _searchResults!.pagination.page;
     final totalPages = _searchResults!.pagination.totalPages;
-    
+
     if (currentPage >= totalPages) return;
 
     setState(() {
@@ -646,7 +634,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           _isSearching = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load more results: ${e.toString()}')),
+          SnackBar(
+            content: Text('Failed to load more results: ${e.toString()}'),
+          ),
         );
       }
     }

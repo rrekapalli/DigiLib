@@ -10,10 +10,12 @@ class NativeRenderingDiagnosticsScreen extends ConsumerStatefulWidget {
   const NativeRenderingDiagnosticsScreen({super.key});
 
   @override
-  ConsumerState<NativeRenderingDiagnosticsScreen> createState() => _NativeRenderingDiagnosticsScreenState();
+  ConsumerState<NativeRenderingDiagnosticsScreen> createState() =>
+      _NativeRenderingDiagnosticsScreenState();
 }
 
-class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderingDiagnosticsScreen> {
+class _NativeRenderingDiagnosticsScreenState
+    extends ConsumerState<NativeRenderingDiagnosticsScreen> {
   LibraryAvailabilityInfo? _availabilityInfo;
   bool _isLoading = false;
 
@@ -51,7 +53,6 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final renderingInfo = ref.watch(nativeRenderingInfoProvider);
     final config = ref.watch(nativeRenderingConfigProvider);
 
@@ -111,9 +112,12 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
     );
   }
 
-  Widget _buildCurrentStatusCard(BuildContext context, NativeRenderingInfo info) {
+  Widget _buildCurrentStatusCard(
+    BuildContext context,
+    NativeRenderingInfo info,
+  ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -127,22 +131,44 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
               ),
             ),
             const SizedBox(height: 12),
-            
-            _buildStatusRow('Implementation', info.implementationName, 
-                info.currentImplementation != NativeRenderingImplementation.mock),
-            _buildStatusRow('FFI Available', info.isFFIAvailable ? 'Yes' : 'No', info.isFFIAvailable),
-            _buildStatusRow('Platform Channel Available', info.isPlatformChannelAvailable ? 'Yes' : 'No', info.isPlatformChannelAvailable),
-            _buildStatusRow('Mock Mode', info.isMockMode ? 'Yes' : 'No', !info.isMockMode),
-            _buildStatusRow('Native Rendering Available', info.isNativeRenderingAvailable ? 'Yes' : 'No', info.isNativeRenderingAvailable),
+
+            _buildStatusRow(
+              'Implementation',
+              info.implementationName,
+              info.currentImplementation != NativeRenderingImplementation.mock,
+            ),
+            _buildStatusRow(
+              'FFI Available',
+              info.isFFIAvailable ? 'Yes' : 'No',
+              info.isFFIAvailable,
+            ),
+            _buildStatusRow(
+              'Platform Channel Available',
+              info.isPlatformChannelAvailable ? 'Yes' : 'No',
+              info.isPlatformChannelAvailable,
+            ),
+            _buildStatusRow(
+              'Mock Mode',
+              info.isMockMode ? 'Yes' : 'No',
+              !info.isMockMode,
+            ),
+            _buildStatusRow(
+              'Native Rendering Available',
+              info.isNativeRenderingAvailable ? 'Yes' : 'No',
+              info.isNativeRenderingAvailable,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildConfigurationCard(BuildContext context, NativeRenderingConfig config) {
+  Widget _buildConfigurationCard(
+    BuildContext context,
+    NativeRenderingConfig config,
+  ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -156,24 +182,48 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
               ),
             ),
             const SizedBox(height: 12),
-            
-            _buildConfigRow('Preferred Implementation', _getImplementationName(config.preferredImplementation)),
-            _buildConfigRow('Native Fallback', config.nativeFallbackEnabled ? 'Enabled' : 'Disabled'),
+
+            _buildConfigRow(
+              'Preferred Implementation',
+              _getImplementationName(config.preferredImplementation),
+            ),
+            _buildConfigRow(
+              'Native Fallback',
+              config.nativeFallbackEnabled ? 'Enabled' : 'Disabled',
+            ),
             _buildConfigRow('Default DPI', '${config.defaultDpi}'),
-            _buildConfigRow('Default Format', config.defaultFormat.toUpperCase()),
-            _buildConfigRow('Performance Monitoring', config.performanceMonitoringEnabled ? 'Enabled' : 'Disabled'),
-            
+            _buildConfigRow(
+              'Default Format',
+              config.defaultFormat.toUpperCase(),
+            ),
+            _buildConfigRow(
+              'Performance Monitoring',
+              config.performanceMonitoringEnabled ? 'Enabled' : 'Disabled',
+            ),
+
             const SizedBox(height: 16),
-            
+
             // Configuration controls
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                _buildImplementationChip(NativeRenderingImplementation.auto, config),
-                _buildImplementationChip(NativeRenderingImplementation.ffi, config),
-                _buildImplementationChip(NativeRenderingImplementation.platformChannel, config),
-                _buildImplementationChip(NativeRenderingImplementation.mock, config),
+                _buildImplementationChip(
+                  NativeRenderingImplementation.auto,
+                  config,
+                ),
+                _buildImplementationChip(
+                  NativeRenderingImplementation.ffi,
+                  config,
+                ),
+                _buildImplementationChip(
+                  NativeRenderingImplementation.platformChannel,
+                  config,
+                ),
+                _buildImplementationChip(
+                  NativeRenderingImplementation.mock,
+                  config,
+                ),
               ],
             ),
           ],
@@ -184,7 +234,7 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
 
   Widget _buildLibraryAvailabilityCard(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -198,13 +248,19 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
               ),
             ),
             const SizedBox(height: 12),
-            
+
             if (_availabilityInfo != null) ...[
               _buildInfoRow('Library Name', _availabilityInfo!.libraryName),
-              _buildInfoRow('Available', _availabilityInfo!.isAvailable ? 'Yes' : 'No'),
-              _buildInfoRow('Available Paths', '${_availabilityInfo!.availablePaths.length}'),
+              _buildInfoRow(
+                'Available',
+                _availabilityInfo!.isAvailable ? 'Yes' : 'No',
+              ),
+              _buildInfoRow(
+                'Available Paths',
+                '${_availabilityInfo!.availablePaths.length}',
+              ),
               _buildInfoRow('Errors', '${_availabilityInfo!.errors.length}'),
-              
+
               if (_availabilityInfo!.availablePaths.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
@@ -214,12 +270,16 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
                   ),
                 ),
                 const SizedBox(height: 4),
-                ..._availabilityInfo!.availablePaths.map((path) => 
-                  Padding(
+                ..._availabilityInfo!.availablePaths.map(
+                  (path) => Padding(
                     padding: const EdgeInsets.only(left: 16, bottom: 2),
                     child: Row(
                       children: [
-                        const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 16,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -234,7 +294,7 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
                   ),
                 ),
               ],
-              
+
               if (_availabilityInfo!.errors.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
@@ -244,15 +304,19 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
                   ),
                 ),
                 const SizedBox(height: 4),
-                ..._availabilityInfo!.errors.entries.map((entry) => 
-                  Padding(
+                ..._availabilityInfo!.errors.entries.map(
+                  (entry) => Padding(
                     padding: const EdgeInsets.only(left: 16, bottom: 4),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.error, color: Colors.red, size: 16),
+                            const Icon(
+                              Icons.error,
+                              color: Colors.red,
+                              size: 16,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -290,7 +354,7 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
 
   Widget _buildImplementationTestCard(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -304,26 +368,30 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
               ),
             ),
             const SizedBox(height: 12),
-            
+
             const Text('Test each implementation to verify functionality:'),
             const SizedBox(height: 12),
-            
+
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
                 ElevatedButton.icon(
-                  onPressed: () => _testImplementation(NativeRenderingImplementation.ffi),
+                  onPressed: () =>
+                      _testImplementation(NativeRenderingImplementation.ffi),
                   icon: const Icon(Icons.speed),
                   label: const Text('Test FFI'),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () => _testImplementation(NativeRenderingImplementation.platformChannel),
+                  onPressed: () => _testImplementation(
+                    NativeRenderingImplementation.platformChannel,
+                  ),
                   icon: const Icon(Icons.phone_android),
                   label: const Text('Test Platform Channel'),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () => _testImplementation(NativeRenderingImplementation.mock),
+                  onPressed: () =>
+                      _testImplementation(NativeRenderingImplementation.mock),
                   icon: const Icon(Icons.bug_report),
                   label: const Text('Test Mock'),
                 ),
@@ -337,7 +405,7 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
 
   Widget _buildTroubleshootingCard(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -351,10 +419,10 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
               ),
             ),
             const SizedBox(height: 12),
-            
+
             const Text('Common issues and solutions:'),
             const SizedBox(height: 8),
-            
+
             _buildTroubleshootingItem(
               'Native library not found',
               'Ensure the native library is installed and accessible. Check the available paths above.',
@@ -395,9 +463,7 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
-          Expanded(
-            child: Text(value),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );
@@ -415,9 +481,7 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
-          Expanded(
-            child: Text(value),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );
@@ -435,23 +499,26 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
-          Expanded(
-            child: Text(value),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );
   }
 
-  Widget _buildImplementationChip(NativeRenderingImplementation implementation, NativeRenderingConfig config) {
+  Widget _buildImplementationChip(
+    NativeRenderingImplementation implementation,
+    NativeRenderingConfig config,
+  ) {
     final isSelected = config.preferredImplementation == implementation;
-    
+
     return FilterChip(
       label: Text(_getImplementationName(implementation)),
       selected: isSelected,
       onSelected: (selected) {
         if (selected) {
-          ref.read(nativeRenderingConfigProvider.notifier).setPreferredImplementation(implementation);
+          ref
+              .read(nativeRenderingConfigProvider.notifier)
+              .setPreferredImplementation(implementation);
         }
       },
     );
@@ -459,7 +526,7 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
 
   Widget _buildTroubleshootingItem(String title, String description) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Column(
@@ -496,16 +563,22 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
     }
   }
 
-  Future<void> _testImplementation(NativeRenderingImplementation implementation) async {
+  Future<void> _testImplementation(
+    NativeRenderingImplementation implementation,
+  ) async {
     try {
       // Force the implementation
       NativeRenderingFactory.reset();
-      
+
       final worker = switch (implementation) {
-        NativeRenderingImplementation.ffi => NativeRenderingFactory.getInstance(),
-        NativeRenderingImplementation.platformChannel => NativeRenderingFactory.getInstance(forcePlatformChannel: true),
-        NativeRenderingImplementation.mock => NativeRenderingFactory.getInstance(testMode: true),
-        NativeRenderingImplementation.auto => NativeRenderingFactory.getInstance(),
+        NativeRenderingImplementation.ffi =>
+          NativeRenderingFactory.getInstance(),
+        NativeRenderingImplementation.platformChannel =>
+          NativeRenderingFactory.getInstance(forcePlatformChannel: true),
+        NativeRenderingImplementation.mock =>
+          NativeRenderingFactory.getInstance(testMode: true),
+        NativeRenderingImplementation.auto =>
+          NativeRenderingFactory.getInstance(),
       };
 
       if (!worker.isAvailable) {
@@ -514,11 +587,13 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
 
       // Test basic functionality
       final pageCount = await worker.getPageCount('/test/path.pdf');
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${_getImplementationName(implementation)} test successful (mock page count: $pageCount)'),
+            content: Text(
+              '${_getImplementationName(implementation)} test successful (mock page count: $pageCount)',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -527,7 +602,9 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${_getImplementationName(implementation)} test failed: $e'),
+            content: Text(
+              '${_getImplementationName(implementation)} test failed: $e',
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -548,25 +625,21 @@ class _NativeRenderingDiagnosticsScreenState extends ConsumerState<NativeRenderi
 
   void _copyDiagnosticsReport() {
     if (_availabilityInfo == null) return;
-    
+
     final report = _availabilityInfo!.getDetailedReport();
     Clipboard.setData(ClipboardData(text: report));
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Diagnostics report copied to clipboard'),
-      ),
+      const SnackBar(content: Text('Diagnostics report copied to clipboard')),
     );
   }
 
   void _resetFactory() {
     NativeRenderingFactory.reset();
     _loadDiagnostics();
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Native rendering factory reset'),
-      ),
+      const SnackBar(content: Text('Native rendering factory reset')),
     );
   }
 }

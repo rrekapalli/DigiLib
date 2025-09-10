@@ -14,7 +14,8 @@ class TagManagementScreen extends ConsumerStatefulWidget {
   const TagManagementScreen({super.key});
 
   @override
-  ConsumerState<TagManagementScreen> createState() => _TagManagementScreenState();
+  ConsumerState<TagManagementScreen> createState() =>
+      _TagManagementScreenState();
 }
 
 class _TagManagementScreenState extends ConsumerState<TagManagementScreen>
@@ -38,9 +39,6 @@ class _TagManagementScreenState extends ConsumerState<TagManagementScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tag Management'),
@@ -114,7 +112,7 @@ class _TagManagementScreenState extends ConsumerState<TagManagementScreen>
               ),
             ),
           ),
-          
+
           // Tab content
           Expanded(
             child: TabBarView(
@@ -138,7 +136,7 @@ class _TagManagementScreenState extends ConsumerState<TagManagementScreen>
 
   Widget _buildTagListTab() {
     final tagState = ref.watch(tagProvider);
-    
+
     if (tagState.isLoading && tagState.tags.isEmpty) {
       return const Center(
         child: Column(
@@ -193,14 +191,16 @@ class _TagManagementScreenState extends ConsumerState<TagManagementScreen>
             Icon(
               Icons.label_outline,
               size: 80,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 24),
             Text(
               _searchQuery.isNotEmpty ? 'No matching tags' : 'No tags yet',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
@@ -208,7 +208,9 @@ class _TagManagementScreenState extends ConsumerState<TagManagementScreen>
                   ? 'Try adjusting your search or create a new tag.'
                   : 'Create your first tag to organize your documents.',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -259,18 +261,11 @@ class _TagManagementScreenState extends ConsumerState<TagManagementScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.folder_special,
-            size: 80,
-            color: Colors.grey,
-          ),
+          Icon(Icons.folder_special, size: 80, color: Colors.grey),
           SizedBox(height: 24),
           Text(
             'Tag Organization',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 8),
           Text(
@@ -285,9 +280,10 @@ class _TagManagementScreenState extends ConsumerState<TagManagementScreen>
 
   List<Tag> _filterAndSortTags(List<Tag> tags) {
     var filtered = tags.where((tag) {
-      final matchesSearch = _searchQuery.isEmpty ||
+      final matchesSearch =
+          _searchQuery.isEmpty ||
           tag.name.toLowerCase().contains(_searchQuery.toLowerCase());
-      
+
       // Note: For unused filter, we'd need to implement getTagUsageCount
       // For now, we'll just filter by search
       return matchesSearch;

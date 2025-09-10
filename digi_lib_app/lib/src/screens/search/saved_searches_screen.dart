@@ -13,7 +13,8 @@ class SavedSearchesScreen extends ConsumerStatefulWidget {
   const SavedSearchesScreen({super.key});
 
   @override
-  ConsumerState<SavedSearchesScreen> createState() => _SavedSearchesScreenState();
+  ConsumerState<SavedSearchesScreen> createState() =>
+      _SavedSearchesScreenState();
 }
 
 class _SavedSearchesScreenState extends ConsumerState<SavedSearchesScreen> {
@@ -72,17 +73,17 @@ class _SavedSearchesScreenState extends ConsumerState<SavedSearchesScreen> {
       if (mounted) {
         Navigator.of(context).pop({
           'query': savedSearch.query,
-          'filters': savedSearch.filters != null 
+          'filters': savedSearch.filters != null
               ? SearchFilters(
                   libraryId: savedSearch.filters!['library_id'],
                   tags: savedSearch.filters!['tags']?.cast<String>(),
                   fileTypes: savedSearch.filters!['file_types']?.cast<String>(),
                   authors: savedSearch.filters!['authors']?.cast<String>(),
-                  dateFrom: savedSearch.filters!['date_from'] != null 
-                      ? DateTime.parse(savedSearch.filters!['date_from']) 
+                  dateFrom: savedSearch.filters!['date_from'] != null
+                      ? DateTime.parse(savedSearch.filters!['date_from'])
                       : null,
-                  dateTo: savedSearch.filters!['date_to'] != null 
-                      ? DateTime.parse(savedSearch.filters!['date_to']) 
+                  dateTo: savedSearch.filters!['date_to'] != null
+                      ? DateTime.parse(savedSearch.filters!['date_to'])
                       : null,
                 )
               : null,
@@ -123,17 +124,17 @@ class _SavedSearchesScreenState extends ConsumerState<SavedSearchesScreen> {
       builder: (context) => SaveSearchDialog(
         initialName: savedSearch.name,
         query: savedSearch.query,
-        filters: savedSearch.filters != null 
+        filters: savedSearch.filters != null
             ? SearchFilters(
                 libraryId: savedSearch.filters!['library_id'],
                 tags: savedSearch.filters!['tags']?.cast<String>(),
                 fileTypes: savedSearch.filters!['file_types']?.cast<String>(),
                 authors: savedSearch.filters!['authors']?.cast<String>(),
-                dateFrom: savedSearch.filters!['date_from'] != null 
-                    ? DateTime.parse(savedSearch.filters!['date_from']) 
+                dateFrom: savedSearch.filters!['date_from'] != null
+                    ? DateTime.parse(savedSearch.filters!['date_from'])
                     : null,
-                dateTo: savedSearch.filters!['date_to'] != null 
-                    ? DateTime.parse(savedSearch.filters!['date_to']) 
+                dateTo: savedSearch.filters!['date_to'] != null
+                    ? DateTime.parse(savedSearch.filters!['date_to'])
                     : null,
               )
             : null,
@@ -187,8 +188,6 @@ class _SavedSearchesScreenState extends ConsumerState<SavedSearchesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Saved Searches'),
@@ -247,11 +246,7 @@ class _SavedSearchesScreenState extends ConsumerState<SavedSearchesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: colorScheme.error,
-            ),
+            Icon(Icons.error_outline, size: 64, color: colorScheme.error),
             const SizedBox(height: 16),
             Text(
               'Error Loading Searches',
@@ -264,10 +259,7 @@ class _SavedSearchesScreenState extends ConsumerState<SavedSearchesScreen> {
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _loadData,
-              child: const Text('Retry'),
-            ),
+            FilledButton(onPressed: _loadData, child: const Text('Retry')),
           ],
         ),
       ),
@@ -284,16 +276,9 @@ class _SavedSearchesScreenState extends ConsumerState<SavedSearchesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.bookmark_border,
-              size: 64,
-              color: colorScheme.outline,
-            ),
+            Icon(Icons.bookmark_border, size: 64, color: colorScheme.outline),
             const SizedBox(height: 16),
-            Text(
-              'No Saved Searches',
-              style: theme.textTheme.headlineSmall,
-            ),
+            Text('No Saved Searches', style: theme.textTheme.headlineSmall),
             const SizedBox(height: 8),
             Text(
               'Save your frequent searches for quick access',
@@ -316,7 +301,8 @@ class _SavedSearchesScreenState extends ConsumerState<SavedSearchesScreen> {
         initialChildSize: 0.7,
         maxChildSize: 0.9,
         minChildSize: 0.5,
-        builder: (context, scrollController) => _buildAnalyticsSheet(scrollController),
+        builder: (context, scrollController) =>
+            _buildAnalyticsSheet(scrollController),
       ),
     );
   }
@@ -351,10 +337,7 @@ class _SavedSearchesScreenState extends ConsumerState<SavedSearchesScreen> {
             padding: const EdgeInsets.all(AppConstants.defaultPadding),
             child: Row(
               children: [
-                Text(
-                  'Search Analytics',
-                  style: theme.textTheme.headlineSmall,
-                ),
+                Text('Search Analytics', style: theme.textTheme.headlineSmall),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.close),
@@ -429,7 +412,11 @@ class _SavedSearchesScreenState extends ConsumerState<SavedSearchesScreen> {
     );
   }
 
-  Widget _buildAnalyticsChip(String text, Color backgroundColor, Color textColor) {
+  Widget _buildAnalyticsChip(
+    String text,
+    Color backgroundColor,
+    Color textColor,
+  ) {
     final theme = Theme.of(context);
 
     return Container(

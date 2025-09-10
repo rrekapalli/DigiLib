@@ -33,14 +33,10 @@ class OAuthSignInScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Header
-                    Icon(
-                      Icons.login,
-                      size: 80,
-                      color: colorScheme.primary,
-                    ),
-                    
+                    Icon(Icons.login, size: 80, color: colorScheme.primary),
+
                     const SizedBox(height: 24),
-                    
+
                     Text(
                       'Sign in to your account',
                       style: theme.textTheme.headlineSmall?.copyWith(
@@ -49,9 +45,9 @@ class OAuthSignInScreen extends ConsumerWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     Text(
                       'Choose your preferred sign-in method',
                       style: theme.textTheme.bodyLarge?.copyWith(
@@ -59,12 +55,12 @@ class OAuthSignInScreen extends ConsumerWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    
+
                     const SizedBox(height: 48),
-                    
+
                     // OAuth providers
                     _buildOAuthProviders(context, ref, authState),
-                    
+
                     // Mock sign-in for development
                     if (kDebugMode) ...[
                       const SizedBox(height: 24),
@@ -73,7 +69,7 @@ class OAuthSignInScreen extends ConsumerWidget {
                       Text(
                         'Development Mode',
                         style: theme.textTheme.titleSmall?.copyWith(
-                          color: colorScheme.onSurface.withOpacity(0.7),
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -81,14 +77,21 @@ class OAuthSignInScreen extends ConsumerWidget {
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: authState.isLoading ? null : () => _navigateToMockSignIn(context),
+                          onPressed: authState.isLoading
+                              ? null
+                              : () => _navigateToMockSignIn(context),
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 24,
+                            ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+                              borderRadius: BorderRadius.circular(
+                                AppConstants.defaultBorderRadius,
+                              ),
                             ),
                             side: BorderSide(
-                              color: Colors.orange.withOpacity(0.3),
+                              color: Colors.orange.withValues(alpha: 0.3),
                               width: 1.5,
                             ),
                           ),
@@ -113,9 +116,9 @@ class OAuthSignInScreen extends ConsumerWidget {
                         ),
                       ),
                     ],
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Loading indicator
                     if (authState.isLoading) ...[
                       const CircularProgressIndicator(),
@@ -128,14 +131,16 @@ class OAuthSignInScreen extends ConsumerWidget {
                         textAlign: TextAlign.center,
                       ),
                     ],
-                    
+
                     // Error message
                     if (authState.hasError) ...[
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: colorScheme.errorContainer,
-                          borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+                          borderRadius: BorderRadius.circular(
+                            AppConstants.defaultBorderRadius,
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -158,14 +163,15 @@ class OAuthSignInScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                       TextButton(
-                        onPressed: () => ref.read(authProvider.notifier).clearError(),
+                        onPressed: () =>
+                            ref.read(authProvider.notifier).clearError(),
                         child: const Text('Try Again'),
                       ),
                     ],
                   ],
                 ),
               ),
-              
+
               // Help text
               Text(
                 'Having trouble signing in?\nContact support for assistance',
@@ -182,12 +188,17 @@ class OAuthSignInScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildOAuthProviders(BuildContext context, WidgetRef ref, AuthState authState) {
+  Widget _buildOAuthProviders(
+    BuildContext context,
+    WidgetRef ref,
+    AuthState authState,
+  ) {
     final providers = [
       {
         'id': 'google',
         'name': 'Google',
-        'icon': Icons.g_mobiledata, // Using built-in icon, in real app would use custom Google icon
+        'icon': Icons
+            .g_mobiledata, // Using built-in icon, in real app would use custom Google icon
         'color': const Color(0xFF4285F4),
       },
       {
@@ -205,18 +216,22 @@ class OAuthSignInScreen extends ConsumerWidget {
     ];
 
     return Column(
-      children: providers.map((provider) => Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: _buildProviderButton(
-          context,
-          ref,
-          provider['id'] as String,
-          provider['name'] as String,
-          provider['icon'] as IconData,
-          provider['color'] as Color,
-          authState.isLoading,
-        ),
-      )).toList(),
+      children: providers
+          .map(
+            (provider) => Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _buildProviderButton(
+                context,
+                ref,
+                provider['id'] as String,
+                provider['name'] as String,
+                provider['icon'] as IconData,
+                provider['color'] as Color,
+                authState.isLoading,
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 
@@ -230,29 +245,26 @@ class OAuthSignInScreen extends ConsumerWidget {
     bool isLoading,
   ) {
     final theme = Theme.of(context);
-    
+
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton(
-        onPressed: isLoading ? null : () => _signInWithProvider(context, ref, providerId),
+        onPressed: isLoading
+            ? null
+            : () => _signInWithProvider(context, ref, providerId),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+            borderRadius: BorderRadius.circular(
+              AppConstants.defaultBorderRadius,
+            ),
           ),
-          side: BorderSide(
-            color: color.withValues(alpha: 0.3),
-            width: 1.5,
-          ),
+          side: BorderSide(color: color.withValues(alpha: 0.3), width: 1.5),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 24,
-            ),
+            Icon(icon, color: color, size: 24),
             const SizedBox(width: 12),
             Text(
               'Continue with $providerName',
@@ -280,7 +292,11 @@ class OAuthSignInScreen extends ConsumerWidget {
     }
   }
 
-  void _signInWithProvider(BuildContext context, WidgetRef ref, String providerId) {
+  void _signInWithProvider(
+    BuildContext context,
+    WidgetRef ref,
+    String providerId,
+  ) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => OAuthWebViewScreen(providerId: providerId),
@@ -289,10 +305,8 @@ class OAuthSignInScreen extends ConsumerWidget {
   }
 
   void _navigateToMockSignIn(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const MockSignInScreen(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const MockSignInScreen()));
   }
 }

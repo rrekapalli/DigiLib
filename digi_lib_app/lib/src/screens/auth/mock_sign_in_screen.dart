@@ -42,9 +42,9 @@ class _MockSignInScreenState extends ConsumerState<MockSignInScreen> {
                       size: 80,
                       color: colorScheme.primary,
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     Text(
                       'Mock Authentication',
                       style: theme.textTheme.headlineSmall?.copyWith(
@@ -53,26 +53,26 @@ class _MockSignInScreenState extends ConsumerState<MockSignInScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     Text(
                       'This is a test authentication screen\nfor development purposes',
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    
+
                     const SizedBox(height: 48),
-                    
+
                     if (_isLoading) ...[
                       const CircularProgressIndicator(),
                       const SizedBox(height: 16),
                       Text(
                         'Signing you in...',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurface.withOpacity(0.7),
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     ] else ...[
@@ -83,7 +83,9 @@ class _MockSignInScreenState extends ConsumerState<MockSignInScreen> {
                           style: FilledButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+                              borderRadius: BorderRadius.circular(
+                                AppConstants.defaultBorderRadius,
+                              ),
                             ),
                           ),
                           child: const Text(
@@ -95,9 +97,9 @@ class _MockSignInScreenState extends ConsumerState<MockSignInScreen> {
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
@@ -105,7 +107,9 @@ class _MockSignInScreenState extends ConsumerState<MockSignInScreen> {
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+                              borderRadius: BorderRadius.circular(
+                                AppConstants.defaultBorderRadius,
+                              ),
                             ),
                           ),
                           child: const Text(
@@ -121,12 +125,14 @@ class _MockSignInScreenState extends ConsumerState<MockSignInScreen> {
                   ],
                 ),
               ),
-              
+
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceVariant,
-                  borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(
+                    AppConstants.defaultBorderRadius,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,7 +220,9 @@ class _MockSignInScreenState extends ConsumerState<MockSignInScreen> {
   Future<void> _testNetworkConnectivity() async {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Testing network connectivity... Check debug console for results.'),
+        content: Text(
+          'Testing network connectivity... Check debug console for results.',
+        ),
       ),
     );
 
