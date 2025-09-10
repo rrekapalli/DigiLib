@@ -29,7 +29,7 @@ class _SaveSearchDialogState extends State<SaveSearchDialog> {
   @override
   void initState() {
     super.initState();
-    
+
     if (widget.initialName != null) {
       _nameController.text = widget.initialName!;
       _isValid = widget.initialName!.trim().isNotEmpty;
@@ -38,9 +38,9 @@ class _SaveSearchDialogState extends State<SaveSearchDialog> {
       _nameController.text = _generateDefaultName();
       _isValid = true;
     }
-    
+
     _nameController.addListener(_validateInput);
-    
+
     // Focus and select all text for easy editing
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _nameFocusNode.requestFocus();
@@ -70,24 +70,22 @@ class _SaveSearchDialogState extends State<SaveSearchDialog> {
   String _generateDefaultName() {
     final query = widget.query.trim();
     if (query.isEmpty) return 'Untitled Search';
-    
+
     // Capitalize first letter and limit length
-    final name = query.length > 30 
-        ? '${query.substring(0, 30)}...' 
-        : query;
-    
+    final name = query.length > 30 ? '${query.substring(0, 30)}...' : query;
+
     return name[0].toUpperCase() + name.substring(1);
   }
 
   void _save() {
     if (!_isValid) return;
-    
+
     final result = {
       'name': _nameController.text.trim(),
       'query': widget.query,
       'filters': widget.filters,
     };
-    
+
     Navigator.of(context).pop(result);
   }
 
@@ -147,9 +145,13 @@ class _SaveSearchDialogState extends State<SaveSearchDialog> {
               labelText: 'Search Name',
               hintText: 'Enter a name for this search',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+                borderRadius: BorderRadius.circular(
+                  AppConstants.defaultBorderRadius,
+                ),
               ),
-              errorText: _nameController.text.trim().isEmpty && _nameController.text.isNotEmpty
+              errorText:
+                  _nameController.text.trim().isEmpty &&
+                      _nameController.text.isNotEmpty
                   ? 'Name cannot be empty'
                   : null,
             ),
@@ -180,56 +182,59 @@ class _SaveSearchDialogState extends State<SaveSearchDialog> {
 
     // Library filter
     if (filters.libraryId != null) {
-      filterItems.add(_buildFilterItem(
-        'Library',
-        'Specific library selected',
-        Icons.folder,
-      ));
+      filterItems.add(
+        _buildFilterItem('Library', 'Specific library selected', Icons.folder),
+      );
     }
 
     // Tags filter
     if (filters.tags != null && filters.tags!.isNotEmpty) {
-      filterItems.add(_buildFilterItem(
-        'Tags',
-        '${filters.tags!.length} tags selected',
-        Icons.label,
-      ));
+      filterItems.add(
+        _buildFilterItem(
+          'Tags',
+          '${filters.tags!.length} tags selected',
+          Icons.label,
+        ),
+      );
     }
 
     // File types filter
     if (filters.fileTypes != null && filters.fileTypes!.isNotEmpty) {
-      filterItems.add(_buildFilterItem(
-        'File Types',
-        filters.fileTypes!.join(', ').toUpperCase(),
-        Icons.description,
-      ));
+      filterItems.add(
+        _buildFilterItem(
+          'File Types',
+          filters.fileTypes!.join(', ').toUpperCase(),
+          Icons.description,
+        ),
+      );
     }
 
     // Authors filter
     if (filters.authors != null && filters.authors!.isNotEmpty) {
-      filterItems.add(_buildFilterItem(
-        'Authors',
-        '${filters.authors!.length} authors selected',
-        Icons.person,
-      ));
+      filterItems.add(
+        _buildFilterItem(
+          'Authors',
+          '${filters.authors!.length} authors selected',
+          Icons.person,
+        ),
+      );
     }
 
     // Date range filter
     if (filters.dateFrom != null || filters.dateTo != null) {
       String dateText = 'Date range selected';
       if (filters.dateFrom != null && filters.dateTo != null) {
-        dateText = '${_formatDate(filters.dateFrom!)} - ${_formatDate(filters.dateTo!)}';
+        dateText =
+            '${_formatDate(filters.dateFrom!)} - ${_formatDate(filters.dateTo!)}';
       } else if (filters.dateFrom != null) {
         dateText = 'From ${_formatDate(filters.dateFrom!)}';
       } else if (filters.dateTo != null) {
         dateText = 'Until ${_formatDate(filters.dateTo!)}';
       }
-      
-      filterItems.add(_buildFilterItem(
-        'Date Range',
-        dateText,
-        Icons.date_range,
-      ));
+
+      filterItems.add(
+        _buildFilterItem('Date Range', dateText, Icons.date_range),
+      );
     }
 
     if (filterItems.isEmpty) {
@@ -240,11 +245,9 @@ class _SaveSearchDialogState extends State<SaveSearchDialog> {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withOpacity(0.3),
+        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: colorScheme.primary.withOpacity(0.3),
-        ),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,11 +274,7 @@ class _SaveSearchDialogState extends State<SaveSearchDialog> {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 8),
           Expanded(
             child: RichText(
