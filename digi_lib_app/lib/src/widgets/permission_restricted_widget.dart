@@ -23,10 +23,9 @@ class PermissionRestrictedWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final permissionAsync = ref.watch(sharePermissionProvider((
-      subjectId: subjectId,
-      userEmail: userEmail,
-    )));
+    final permissionAsync = ref.watch(
+      sharePermissionProvider((subjectId: subjectId, userEmail: userEmail)),
+    );
 
     return permissionAsync.when(
       data: (userPermission) {
@@ -41,7 +40,10 @@ class PermissionRestrictedWidget extends ConsumerWidget {
     );
   }
 
-  bool _hasPermission(SharePermission? userPermission, SharePermission required) {
+  bool _hasPermission(
+    SharePermission? userPermission,
+    SharePermission required,
+  ) {
     if (userPermission == null) return false;
 
     // Permission hierarchy: full > comment > view
@@ -49,8 +51,8 @@ class PermissionRestrictedWidget extends ConsumerWidget {
       case SharePermission.view:
         return true; // All permissions include view
       case SharePermission.comment:
-        return userPermission == SharePermission.comment || 
-               userPermission == SharePermission.full;
+        return userPermission == SharePermission.comment ||
+            userPermission == SharePermission.full;
       case SharePermission.full:
         return userPermission == SharePermission.full;
     }
@@ -64,7 +66,7 @@ class PermissionRestrictedWidget extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
+        color: Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -113,45 +115,46 @@ class ConditionalActionButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final permissionAsync = ref.watch(sharePermissionProvider((
-      subjectId: subjectId,
-      userEmail: userEmail,
-    )));
+    final permissionAsync = ref.watch(
+      sharePermissionProvider((subjectId: subjectId, userEmail: userEmail)),
+    );
 
     return permissionAsync.when(
       data: (userPermission) {
-        final hasPermission = _hasPermission(userPermission, requiredPermission);
-        
+        final hasPermission = _hasPermission(
+          userPermission,
+          requiredPermission,
+        );
+
         return Tooltip(
-          message: tooltip ?? (hasPermission 
-            ? '' 
-            : 'Requires ${_getPermissionLabel(requiredPermission)} permission'),
+          message:
+              tooltip ??
+              (hasPermission
+                  ? ''
+                  : 'Requires ${_getPermissionLabel(requiredPermission)} permission'),
           child: ElevatedButton(
             onPressed: hasPermission ? onPressed : null,
             child: child,
           ),
         );
       },
-      loading: () => ElevatedButton(
-        onPressed: null,
-        child: child,
-      ),
-      error: (_, __) => ElevatedButton(
-        onPressed: null,
-        child: child,
-      ),
+      loading: () => ElevatedButton(onPressed: null, child: child),
+      error: (_, __) => ElevatedButton(onPressed: null, child: child),
     );
   }
 
-  bool _hasPermission(SharePermission? userPermission, SharePermission required) {
+  bool _hasPermission(
+    SharePermission? userPermission,
+    SharePermission required,
+  ) {
     if (userPermission == null) return false;
 
     switch (required) {
       case SharePermission.view:
         return true;
       case SharePermission.comment:
-        return userPermission == SharePermission.comment || 
-               userPermission == SharePermission.full;
+        return userPermission == SharePermission.comment ||
+            userPermission == SharePermission.full;
       case SharePermission.full:
         return userPermission == SharePermission.full;
     }
@@ -180,20 +183,22 @@ class SharedAnnotationVisibilityToggle extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SharedAnnotationVisibilityToggle> createState() => 
+  ConsumerState<SharedAnnotationVisibilityToggle> createState() =>
       _SharedAnnotationVisibilityToggleState();
 }
 
-class _SharedAnnotationVisibilityToggleState 
+class _SharedAnnotationVisibilityToggleState
     extends ConsumerState<SharedAnnotationVisibilityToggle> {
   bool _showSharedAnnotations = true;
 
   @override
   Widget build(BuildContext context) {
-    final isSharedAsync = ref.watch(isSharedProvider((
-      subjectId: widget.documentId,
-      userEmail: widget.userEmail,
-    )));
+    final isSharedAsync = ref.watch(
+      isSharedProvider((
+        subjectId: widget.documentId,
+        userEmail: widget.userEmail,
+      )),
+    );
 
     return isSharedAsync.when(
       data: (isShared) {
@@ -203,7 +208,9 @@ class _SharedAnnotationVisibilityToggleState
 
         return SwitchListTile(
           title: const Text('Show Shared Annotations'),
-          subtitle: const Text('Display comments and bookmarks from other users'),
+          subtitle: const Text(
+            'Display comments and bookmarks from other users',
+          ),
           value: _showSharedAnnotations,
           onChanged: (value) {
             setState(() {
@@ -233,10 +240,9 @@ class CollaborationStatusBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sharesCountAsync = ref.watch(sharesCountProvider(subjectId));
-    final permissionAsync = ref.watch(sharePermissionProvider((
-      subjectId: subjectId,
-      userEmail: userEmail,
-    )));
+    final permissionAsync = ref.watch(
+      sharePermissionProvider((subjectId: subjectId, userEmail: userEmail)),
+    );
     final theme = Theme.of(context);
 
     return Container(
@@ -244,9 +250,7 @@ class CollaborationStatusBar extends ConsumerWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
         border: Border(
-          bottom: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.2),
-          ),
+          bottom: BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
         ),
       ),
       child: Row(
@@ -267,7 +271,9 @@ class CollaborationStatusBar extends ConsumerWidget {
                 children: [
                   const Icon(Icons.people, size: 16),
                   const SizedBox(width: 4),
-                  Text('Shared with $count ${count == 1 ? 'person' : 'people'}'),
+                  Text(
+                    'Shared with $count ${count == 1 ? 'person' : 'people'}',
+                  ),
                 ],
               );
             },

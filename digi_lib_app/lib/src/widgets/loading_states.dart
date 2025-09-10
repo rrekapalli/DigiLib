@@ -22,10 +22,7 @@ class LoadingSpinner extends StatelessWidget {
     return SizedBox(
       width: size ?? 32,
       height: size ?? 32,
-      child: CircularProgressIndicator(
-        color: color,
-        strokeWidth: strokeWidth,
-      ),
+      child: CircularProgressIndicator(color: color, strokeWidth: strokeWidth),
     );
   }
 }
@@ -123,7 +120,7 @@ class LoadingOverlay extends StatelessWidget {
         child,
         if (isLoading)
           Container(
-            color: overlayColor ?? Colors.black.withOpacity(0.3),
+            color: overlayColor ?? Colors.black.withValues(alpha: 0.3),
             child: LoadingWidget(type: loadingType, message: loadingMessage),
           ),
       ],
@@ -177,9 +174,8 @@ class _SkeletonLoaderState extends State<_SkeletonLoader>
               width: widget.size,
               height: 20,
               decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest.withValues(alpha: _animation.value),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest
+                    .withValues(alpha: _animation.value),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -188,9 +184,8 @@ class _SkeletonLoaderState extends State<_SkeletonLoader>
               width: widget.size * 0.7,
               height: 16,
               decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest.withValues(alpha: _animation.value),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest
+                    .withValues(alpha: _animation.value),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -199,9 +194,8 @@ class _SkeletonLoaderState extends State<_SkeletonLoader>
               width: widget.size * 0.9,
               height: 16,
               decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest.withValues(alpha: _animation.value),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest
+                    .withValues(alpha: _animation.value),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -267,7 +261,9 @@ class _ShimmerLoaderState extends State<_ShimmerLoader>
               ],
               colors: [
                 Theme.of(context).colorScheme.surfaceContainerHighest,
-                Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                 Theme.of(context).colorScheme.surfaceContainerHighest,
               ],
             ),

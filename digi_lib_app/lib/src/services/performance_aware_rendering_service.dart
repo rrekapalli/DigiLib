@@ -80,16 +80,16 @@ class PerformanceAwareRenderingService {
   }) async {
     final stopwatch = Stopwatch()..start();
     final startTime = DateTime.now();
-    
+
     try {
       await _baseRenderingService.preloadPages(
         documentId,
         pageNumbers,
         dpi: dpi,
       );
-      
+
       stopwatch.stop();
-      
+
       _performanceService.recordRenderingMetric(
         RenderingMetrics(
           documentId: documentId,
@@ -100,7 +100,7 @@ class PerformanceAwareRenderingService {
           timestamp: startTime,
         ),
       );
-      
+
       // Record performance metric for the batch operation
       _performanceService.recordPerformanceMetric(
         PerformanceMetrics(
@@ -116,7 +116,7 @@ class PerformanceAwareRenderingService {
       );
     } catch (e) {
       stopwatch.stop();
-      
+
       _performanceService.recordRenderingMetric(
         RenderingMetrics(
           documentId: documentId,
@@ -127,7 +127,7 @@ class PerformanceAwareRenderingService {
           timestamp: startTime,
         ),
       );
-      
+
       rethrow;
     }
   }
@@ -136,36 +136,31 @@ class PerformanceAwareRenderingService {
   Future<void> clearDocumentCache(String documentId) async {
     final stopwatch = Stopwatch()..start();
     final startTime = DateTime.now();
-    
+
     try {
       await _baseRenderingService.clearDocumentCache(documentId);
       stopwatch.stop();
-      
+
       _performanceService.recordPerformanceMetric(
         PerformanceMetrics(
           operation: 'clear_document_cache',
           duration: stopwatch.elapsed,
-          additionalData: {
-            'document_id': documentId,
-          },
+          additionalData: {'document_id': documentId},
           timestamp: startTime,
         ),
       );
     } catch (e) {
       stopwatch.stop();
-      
+
       _performanceService.recordPerformanceMetric(
         PerformanceMetrics(
           operation: 'clear_document_cache_failed',
           duration: stopwatch.elapsed,
-          additionalData: {
-            'document_id': documentId,
-            'error': e.toString(),
-          },
+          additionalData: {'document_id': documentId, 'error': e.toString()},
           timestamp: startTime,
         ),
       );
-      
+
       rethrow;
     }
   }
@@ -174,11 +169,11 @@ class PerformanceAwareRenderingService {
   Future<prs.RenderingStatistics> getRenderingStatistics() async {
     final stopwatch = Stopwatch()..start();
     final startTime = DateTime.now();
-    
+
     try {
       final stats = await _baseRenderingService.getRenderingStatistics();
       stopwatch.stop();
-      
+
       _performanceService.recordPerformanceMetric(
         PerformanceMetrics(
           operation: 'get_rendering_statistics',
@@ -186,22 +181,20 @@ class PerformanceAwareRenderingService {
           timestamp: startTime,
         ),
       );
-      
+
       return stats;
     } catch (e) {
       stopwatch.stop();
-      
+
       _performanceService.recordPerformanceMetric(
         PerformanceMetrics(
           operation: 'get_rendering_statistics_failed',
           duration: stopwatch.elapsed,
-          additionalData: {
-            'error': e.toString(),
-          },
+          additionalData: {'error': e.toString()},
           timestamp: startTime,
         ),
       );
-      
+
       rethrow;
     }
   }
@@ -215,27 +208,30 @@ class PerformanceAwareRenderingService {
   ) async {
     final stopwatch = Stopwatch()..start();
     final startTime = DateTime.now();
-    
+
     try {
       final result = await operation();
       stopwatch.stop();
-      
+
       // Determine rendering method and calculate size
       String renderingMethod = operationType;
       int? imageSizeBytes;
-      
+
       if (result is prs.PageRenderResult) {
-        renderingMethod = result.fromCache ? 'cache' : (result.fromNative ? 'native' : 'server');
+        renderingMethod = result.fromCache
+            ? 'cache'
+            : (result.fromNative ? 'native' : 'server');
         imageSizeBytes = result.imageData.length;
       } else if (result is Uint8List) {
         imageSizeBytes = result.length;
         renderingMethod = 'native';
-      } else if (result is RenderResponse && operationType == 'get_render_url') {
+      } else if (result is RenderResponse &&
+          operationType == 'get_render_url') {
         renderingMethod = 'server';
       } else if (result is bool && operationType == 'check_cache') {
         renderingMethod = 'cache_check';
       }
-      
+
       _performanceService.recordRenderingMetric(
         RenderingMetrics(
           documentId: documentId,
@@ -246,11 +242,11 @@ class PerformanceAwareRenderingService {
           timestamp: startTime,
         ),
       );
-      
+
       return result;
     } catch (e) {
       stopwatch.stop();
-      
+
       _performanceService.recordRenderingMetric(
         RenderingMetrics(
           documentId: documentId,
@@ -261,15 +257,17 @@ class PerformanceAwareRenderingService {
           timestamp: startTime,
         ),
       );
-      
+
       rethrow;
     }
   }
 
   /// Get rendering performance statistics
   Map<String, dynamic> getRenderingStats() {
-    final recentMetrics = _performanceService.getRecentRenderingMetrics(limit: 100);
-    
+    final recentMetrics = _performanceService.getRecentRenderingMetrics(
+      limit: 100,
+    );
+
     if (recentMetrics.isEmpty) {
       return {
         'total_renders': 0,
@@ -278,23 +276,23 @@ class PerformanceAwareRenderingService {
         'slow_renders': 0,
       };
     }
-    
+
     final totalDuration = recentMetrics
         .map((m) => m.duration.inMilliseconds)
         .reduce((a, b) => a + b);
-    
+
     final avgDuration = totalDuration / recentMetrics.length;
-    
+
     final methodCounts = <String, int>{};
     for (final metric in recentMetrics) {
-      methodCounts[metric.renderingMethod] = 
+      methodCounts[metric.renderingMethod] =
           (methodCounts[metric.renderingMethod] ?? 0) + 1;
     }
-    
+
     final slowRenders = recentMetrics
         .where((m) => m.duration.inMilliseconds > 2000)
         .length;
-    
+
     return {
       'total_renders': recentMetrics.length,
       'avg_duration_ms': avgDuration,
@@ -307,12 +305,15 @@ class PerformanceAwareRenderingService {
   /// Calculate cache hit rate from rendering metrics
   double _calculateCacheHitRate(List<RenderingMetrics> metrics) {
     if (metrics.isEmpty) return 0.0;
-    
+
     final cacheHits = metrics
-        .where((m) => m.renderingMethod.contains('cache') || 
-                     m.duration.inMilliseconds < 100)
+        .where(
+          (m) =>
+              m.renderingMethod.contains('cache') ||
+              m.duration.inMilliseconds < 100,
+        )
         .length;
-    
+
     return (cacheHits / metrics.length) * 100;
   }
 
@@ -320,11 +321,11 @@ class PerformanceAwareRenderingService {
   Future<void> optimizePerformance() async {
     final stats = getRenderingStats();
     final slowRenders = stats['slow_renders'] as int;
-    
+
     if (slowRenders > 10) {
-      // Get rendering statistics to identify problematic documents
-      final renderingStats = await getRenderingStatistics();
-      
+      // Optimize rendering when too many slow renders detected
+      await getRenderingStatistics();
+
       _performanceService.recordPerformanceMetric(
         PerformanceMetrics(
           operation: 'auto_optimize_rendering',
@@ -337,12 +338,12 @@ class PerformanceAwareRenderingService {
         ),
       );
     }
-    
+
     final cacheHitRate = stats['cache_hit_rate'] as double;
     if (cacheHitRate < 50.0) {
       // Preload commonly accessed pages
       // This would require additional logic to determine which pages to preload
-      
+
       _performanceService.recordPerformanceMetric(
         PerformanceMetrics(
           operation: 'auto_optimize_rendering',

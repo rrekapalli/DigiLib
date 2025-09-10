@@ -148,8 +148,8 @@ class SyncConflictService {
     ConflictResolution resolution,
   ) async {
     try {
-      // Find the conflict
-      final conflict = _currentConflicts.firstWhere(
+      // Verify the conflict exists
+      _currentConflicts.firstWhere(
         (c) => c.id == conflictId,
         orElse: () => throw ArgumentError('Conflict not found: $conflictId'),
       );

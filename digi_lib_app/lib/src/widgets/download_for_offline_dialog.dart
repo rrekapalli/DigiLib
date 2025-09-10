@@ -18,7 +18,8 @@ class DownloadForOfflineDialog extends StatefulWidget {
   });
 
   @override
-  State<DownloadForOfflineDialog> createState() => _DownloadForOfflineDialogState();
+  State<DownloadForOfflineDialog> createState() =>
+      _DownloadForOfflineDialogState();
 }
 
 class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
@@ -40,7 +41,7 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return AlertDialog(
       title: Row(
         children: [
@@ -60,7 +61,9 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
               Container(
                 padding: const EdgeInsets.all(12.0),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.3,
+                  ),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Column(
@@ -81,7 +84,8 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    if (widget.currentlyCachedPages != null && widget.currentlyCachedPages! > 0) ...[
+                    if (widget.currentlyCachedPages != null &&
+                        widget.currentlyCachedPages! > 0) ...[
                       const SizedBox(height: 4.0),
                       Text(
                         '${widget.currentlyCachedPages} pages already cached',
@@ -93,9 +97,9 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 20.0),
-              
+
               // Download scope
               Text(
                 'Download Scope',
@@ -105,14 +109,14 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
               ),
               const SizedBox(height: 8.0),
               _buildScopeOptions(theme),
-              
+
               if (_selectedScope == DownloadScope.pageRange) ...[
                 const SizedBox(height: 12.0),
                 _buildPageRangeSelector(theme),
               ],
-              
+
               const SizedBox(height: 20.0),
-              
+
               // Quality settings
               Text(
                 'Quality Settings',
@@ -122,9 +126,9 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
               ),
               const SizedBox(height: 8.0),
               _buildQualityOptions(theme),
-              
+
               const SizedBox(height: 20.0),
-              
+
               // Additional options
               Text(
                 'Additional Options',
@@ -134,9 +138,9 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
               ),
               const SizedBox(height: 8.0),
               _buildAdditionalOptions(theme),
-              
+
               const SizedBox(height: 20.0),
-              
+
               // Download settings
               Text(
                 'Download Settings',
@@ -146,9 +150,9 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
               ),
               const SizedBox(height: 8.0),
               _buildDownloadSettings(theme),
-              
+
               const SizedBox(height: 16.0),
-              
+
               // Estimated size and time
               _buildEstimateInfo(theme),
             ],
@@ -195,10 +199,13 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
           },
           dense: true,
         ),
-        if (widget.currentlyCachedPages != null && widget.currentlyCachedPages! < widget.totalPages)
+        if (widget.currentlyCachedPages != null &&
+            widget.currentlyCachedPages! < widget.totalPages)
           RadioListTile<DownloadScope>(
             title: const Text('Missing Pages Only'),
-            subtitle: Text('Download ${widget.totalPages - widget.currentlyCachedPages!} uncached pages'),
+            subtitle: Text(
+              'Download ${widget.totalPages - widget.currentlyCachedPages!} uncached pages',
+            ),
             value: DownloadScope.missingOnly,
             groupValue: _selectedScope,
             onChanged: (value) {
@@ -214,7 +221,7 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
 
   Widget _buildPageRangeSelector(ThemeData theme) {
     if (_pageRange == null) return const SizedBox.shrink();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -330,11 +337,11 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
   Widget _buildEstimateInfo(ThemeData theme) {
     final estimatedSize = _calculateEstimatedSize();
     final estimatedTime = _calculateEstimatedTime();
-    
+
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withOpacity(0.1),
+        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Column(
@@ -385,10 +392,10 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
 
   String _calculateEstimatedSize() {
     int pagesToDownload = _getPagesToDownload();
-    
+
     // Estimate based on quality and options
     double baseSizePerPage = 0.5; // MB per page at medium quality
-    
+
     switch (_selectedQuality) {
       case DownloadQuality.high:
         baseSizePerPage = 1.2;
@@ -400,17 +407,17 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
         baseSizePerPage = 0.2;
         break;
     }
-    
+
     double totalSize = pagesToDownload * baseSizePerPage;
-    
+
     if (_downloadThumbnails) {
       totalSize += pagesToDownload * 0.05; // 50KB per thumbnail
     }
-    
+
     if (_downloadText) {
       totalSize += pagesToDownload * 0.01; // 10KB per page text
     }
-    
+
     if (totalSize < 1) {
       return '${(totalSize * 1024).toInt()} KB';
     } else {
@@ -420,10 +427,10 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
 
   String _calculateEstimatedTime() {
     int pagesToDownload = _getPagesToDownload();
-    
+
     // Estimate 2-5 seconds per page depending on quality and connection
     double secondsPerPage = 3.0;
-    
+
     switch (_selectedQuality) {
       case DownloadQuality.high:
         secondsPerPage = 5.0;
@@ -435,9 +442,9 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
         secondsPerPage = 2.0;
         break;
     }
-    
+
     int totalSeconds = (pagesToDownload * secondsPerPage).toInt();
-    
+
     if (totalSeconds < 60) {
       return '$totalSeconds seconds';
     } else if (totalSeconds < 3600) {
@@ -471,25 +478,17 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
       downloadText: _downloadText,
       wifiOnly: _wifiOnly,
     );
-    
+
     widget.onDownload(options);
     Navigator.of(context).pop();
   }
 }
 
 /// Enum for download scope options
-enum DownloadScope {
-  fullDocument,
-  pageRange,
-  missingOnly,
-}
+enum DownloadScope { fullDocument, pageRange, missingOnly }
 
 /// Enum for download quality options
-enum DownloadQuality {
-  high,
-  medium,
-  low,
-}
+enum DownloadQuality { high, medium, low }
 
 /// Model for download options
 class DownloadOptions {
@@ -527,7 +526,7 @@ class DownloadOptions {
       'documentId': documentId,
       'scope': scope.name,
       'quality': quality.name,
-      'pageRange': pageRange != null 
+      'pageRange': pageRange != null
           ? {'start': pageRange!.start.toInt(), 'end': pageRange!.end.toInt()}
           : null,
       'downloadThumbnails': downloadThumbnails,

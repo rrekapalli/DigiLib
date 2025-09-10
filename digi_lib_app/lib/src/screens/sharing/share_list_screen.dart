@@ -454,6 +454,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen>
           ),
           ElevatedButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
               Navigator.of(context).pop();
 
               try {
@@ -464,7 +465,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen>
                 await shareNotifier.deleteShare(share.id);
 
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     const SnackBar(
                       content: Text('Access revoked successfully'),
                       backgroundColor: Colors.green,
@@ -473,7 +474,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen>
                 }
               } catch (error) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text('Failed to revoke access: $error'),
                       backgroundColor: Colors.red,

@@ -75,12 +75,14 @@ class _CommentListScreenState extends ConsumerState<CommentListScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
               Navigator.of(context).pop();
-              await ref.read(commentNotifierProvider.notifier)
+              await ref
+                  .read(commentNotifierProvider.notifier)
                   .deleteComment(comment.id, widget.documentId);
-              
+
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   const SnackBar(
                     content: Text('Comment deleted'),
                     behavior: SnackBarBehavior.floating,
@@ -102,12 +104,13 @@ class _CommentListScreenState extends ConsumerState<CommentListScreen> {
   void _navigateToComment(Comment comment) {
     if (comment.pageNumber != null) {
       // Navigate to the comment page in the reader
-      ref.read(readerStateProvider(widget.documentId).notifier)
+      ref
+          .read(readerStateProvider(widget.documentId).notifier)
           .goToPage(comment.pageNumber!);
-      
+
       // Close the comment screen
       Navigator.of(context).pop();
-      
+
       // Call callback if provided
       widget.onCommentSelected?.call();
     }
@@ -115,10 +118,13 @@ class _CommentListScreenState extends ConsumerState<CommentListScreen> {
 
   List<Comment> _filterComments(List<Comment> comments) {
     if (_searchQuery.isEmpty) return comments;
-    
+
     return comments.where((comment) {
-      final pageMatch = comment.pageNumber?.toString().contains(_searchQuery) ?? false;
-      final contentMatch = comment.content?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false;
+      final pageMatch =
+          comment.pageNumber?.toString().contains(_searchQuery) ?? false;
+      final contentMatch =
+          comment.content?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+          false;
       return pageMatch || contentMatch;
     }).toList();
   }
@@ -126,7 +132,9 @@ class _CommentListScreenState extends ConsumerState<CommentListScreen> {
   @override
   Widget build(BuildContext context) {
     final document = ref.watch(currentDocumentProvider(widget.documentId));
-    final commentsAsync = ref.watch(documentCommentsProvider(widget.documentId));
+    final commentsAsync = ref.watch(
+      documentCommentsProvider(widget.documentId),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -184,11 +192,7 @@ class _CommentListScreenState extends ConsumerState<CommentListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red,
-          ),
+          const Icon(Icons.error_outline, size: 64, color: Colors.red),
           const SizedBox(height: 16),
           Text(
             'Failed to load document',
@@ -210,13 +214,16 @@ class _CommentListScreenState extends ConsumerState<CommentListScreen> {
     );
   }
 
-  Widget _buildCommentsList(Document document, AsyncValue<List<Comment>> commentsAsync) {
+  Widget _buildCommentsList(
+    Document document,
+    AsyncValue<List<Comment>> commentsAsync,
+  ) {
     return commentsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => _buildCommentsErrorView(error),
       data: (comments) {
         final filteredComments = _filterComments(comments);
-        
+
         if (filteredComments.isEmpty) {
           return _buildEmptyView();
         }
@@ -230,9 +237,7 @@ class _CommentListScreenState extends ConsumerState<CommentListScreen> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 border: Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                  ),
+                  bottom: BorderSide(color: Theme.of(context).dividerColor),
                 ),
               ),
               child: Column(
@@ -256,7 +261,7 @@ class _CommentListScreenState extends ConsumerState<CommentListScreen> {
                 ],
               ),
             ),
-            
+
             // Comments list
             Expanded(
               child: ListView.builder(
@@ -265,7 +270,10 @@ class _CommentListScreenState extends ConsumerState<CommentListScreen> {
                 itemBuilder: (context, index) {
                   final comment = filteredComments[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     child: CommentBubble(
                       comment: comment,
                       isExpanded: true,
@@ -288,11 +296,7 @@ class _CommentListScreenState extends ConsumerState<CommentListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.comment_outlined,
-            size: 64,
-            color: Colors.grey,
-          ),
+          const Icon(Icons.comment_outlined, size: 64, color: Colors.grey),
           const SizedBox(height: 16),
           Text(
             'Failed to load comments',
@@ -333,7 +337,7 @@ class _CommentListScreenState extends ConsumerState<CommentListScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            _searchQuery.isNotEmpty 
+            _searchQuery.isNotEmpty
                 ? 'Try adjusting your search terms'
                 : 'Add comments to annotate your document',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -404,7 +408,7 @@ class CompactCommentList extends ConsumerWidget {
         }
 
         final displayComments = comments.take(maxItems).toList();
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -426,20 +430,28 @@ class CompactCommentList extends ConsumerWidget {
                 ],
               ),
             ),
-            
+
             // Comment list
-            ...displayComments.map((comment) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-              child: CommentBubble(
-                comment: comment,
-                onTap: () => onCommentTap?.call(comment),
-                showActions: false,
+            ...displayComments.map(
+              (comment) => Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 2,
+                ),
+                child: CommentBubble(
+                  comment: comment,
+                  onTap: () => onCommentTap?.call(comment),
+                  showActions: false,
+                ),
               ),
-            )),
-            
+            ),
+
             if (comments.length > maxItems)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Text(
                   '${comments.length - maxItems} more comment${comments.length - maxItems == 1 ? '' : 's'}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(

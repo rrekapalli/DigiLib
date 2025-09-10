@@ -6,7 +6,6 @@ import '../../utils/constants.dart';
 /// Service for handling automatic updates on desktop platforms
 class AutoUpdaterService {
   static bool _isInitialized = false;
-  static String? _updateUrl;
 
   /// Initialize auto updater
   static Future<void> initialize({
@@ -17,8 +16,6 @@ class AutoUpdaterService {
     if (!_isDesktop || _isInitialized) return;
 
     try {
-      _updateUrl = updateUrl;
-
       // Set update feed URL
       await autoUpdater.setFeedURL(updateUrl);
 

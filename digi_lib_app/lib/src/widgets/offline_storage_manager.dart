@@ -22,7 +22,7 @@ class OfflineStorageStats {
     this.lastCleanup,
   });
 
-  double get cacheUsagePercentage => 
+  double get cacheUsagePercentage =>
       maxCacheSizeBytes > 0 ? (totalSizeBytes / maxCacheSizeBytes) : 0.0;
 
   double get documentCachePercentage =>
@@ -55,7 +55,7 @@ class OfflineStorageManager extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       margin: const EdgeInsets.all(16.0),
       child: Padding(
@@ -65,10 +65,7 @@ class OfflineStorageManager extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.storage,
-                  color: theme.colorScheme.primary,
-                ),
+                Icon(Icons.storage, color: theme.colorScheme.primary),
                 const SizedBox(width: 8.0),
                 Text(
                   'Offline Storage',
@@ -78,22 +75,22 @@ class OfflineStorageManager extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16.0),
-            
+
             // Storage usage overview
             _buildStorageOverview(context),
-            
+
             const SizedBox(height: 16.0),
-            
+
             // Cache statistics
             _buildCacheStatistics(context),
-            
+
             const SizedBox(height: 16.0),
-            
+
             // Storage actions
             _buildStorageActions(context),
-            
+
             if (stats.isNearLimit) ...[
               const SizedBox(height: 16.0),
               _buildStorageWarning(context),
@@ -106,7 +103,7 @@ class OfflineStorageManager extends StatelessWidget {
 
   Widget _buildStorageOverview(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -117,7 +114,7 @@ class OfflineStorageManager extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8.0),
-        
+
         // Storage usage bar
         Container(
           height: 8.0,
@@ -136,9 +133,9 @@ class OfflineStorageManager extends StatelessWidget {
             ),
           ),
         ),
-        
+
         const SizedBox(height: 8.0),
-        
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -158,7 +155,7 @@ class OfflineStorageManager extends StatelessWidget {
 
   Widget _buildCacheStatistics(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -169,7 +166,7 @@ class OfflineStorageManager extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12.0),
-        
+
         Row(
           children: [
             Expanded(
@@ -193,9 +190,9 @@ class OfflineStorageManager extends StatelessWidget {
             ),
           ],
         ),
-        
+
         const SizedBox(height: 12.0),
-        
+
         if (stats.lastCleanup != null)
           Text(
             'Last cleanup: ${_formatDateTime(stats.lastCleanup!)}',
@@ -215,20 +212,16 @@ class OfflineStorageManager extends StatelessWidget {
     IconData icon,
   ) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            color: theme.colorScheme.primary,
-            size: 24.0,
-          ),
+          Icon(icon, color: theme.colorScheme.primary, size: 24.0),
           const SizedBox(height: 8.0),
           Text(
             value,
@@ -236,15 +229,14 @@ class OfflineStorageManager extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall,
-          ),
+          Text(label, style: theme.textTheme.bodySmall),
           const SizedBox(height: 4.0),
           LinearProgressIndicator(
             value: percentage,
             backgroundColor: theme.colorScheme.surfaceContainerHighest,
-            valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              theme.colorScheme.primary,
+            ),
           ),
         ],
       ),
@@ -253,7 +245,7 @@ class OfflineStorageManager extends StatelessWidget {
 
   Widget _buildStorageActions(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -264,7 +256,7 @@ class OfflineStorageManager extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12.0),
-        
+
         Wrap(
           spacing: 8.0,
           runSpacing: 8.0,
@@ -275,20 +267,20 @@ class OfflineStorageManager extends StatelessWidget {
                 icon: const Icon(Icons.cleaning_services),
                 label: const Text('Clean Up'),
               ),
-            
+
             if (onManageDocuments != null)
               OutlinedButton.icon(
                 onPressed: onManageDocuments,
                 icon: const Icon(Icons.manage_accounts),
                 label: const Text('Manage'),
               ),
-            
+
             OutlinedButton.icon(
               onPressed: () => _showCacheLimitDialog(context),
               icon: const Icon(Icons.settings),
               label: const Text('Settings'),
             ),
-            
+
             if (onClearAllCache != null)
               OutlinedButton.icon(
                 onPressed: () => _showClearAllConfirmation(context),
@@ -306,18 +298,18 @@ class OfflineStorageManager extends StatelessWidget {
 
   Widget _buildStorageWarning(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: stats.isAtLimit 
-            ? theme.colorScheme.errorContainer.withOpacity(0.1)
-            : Colors.orange.withOpacity(0.1),
+        color: stats.isAtLimit
+            ? theme.colorScheme.errorContainer.withValues(alpha: 0.1)
+            : Colors.orange.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8.0),
         border: Border.all(
-          color: stats.isAtLimit 
-              ? theme.colorScheme.error.withOpacity(0.3)
-              : Colors.orange.withOpacity(0.3),
+          color: stats.isAtLimit
+              ? theme.colorScheme.error.withValues(alpha: 0.3)
+              : Colors.orange.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -333,18 +325,24 @@ class OfflineStorageManager extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  stats.isAtLimit ? 'Storage Limit Reached' : 'Storage Nearly Full',
+                  stats.isAtLimit
+                      ? 'Storage Limit Reached'
+                      : 'Storage Nearly Full',
                   style: theme.textTheme.titleSmall?.copyWith(
-                    color: stats.isAtLimit ? theme.colorScheme.error : Colors.orange,
+                    color: stats.isAtLimit
+                        ? theme.colorScheme.error
+                        : Colors.orange,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  stats.isAtLimit 
+                  stats.isAtLimit
                       ? 'Clear some cached content to free up space.'
                       : 'Consider cleaning up cached content or increasing the storage limit.',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: stats.isAtLimit ? theme.colorScheme.error : Colors.orange,
+                    color: stats.isAtLimit
+                        ? theme.colorScheme.error
+                        : Colors.orange,
                   ),
                 ),
               ],
@@ -379,7 +377,7 @@ class OfflineStorageManager extends StatelessWidget {
         content: const Text(
           'This will remove all cached documents and pages. '
           'You will need to re-download content for offline access.\n\n'
-          'Are you sure you want to continue?'
+          'Are you sure you want to continue?',
         ),
         actions: [
           TextButton(
@@ -405,14 +403,15 @@ class OfflineStorageManager extends StatelessWidget {
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
   String _formatDateTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays} days ago';
     } else if (difference.inHours > 0) {
@@ -430,10 +429,7 @@ class _CacheLimitDialog extends StatefulWidget {
   final int currentLimit;
   final Function(int newLimit)? onUpdateLimit;
 
-  const _CacheLimitDialog({
-    required this.currentLimit,
-    this.onUpdateLimit,
-  });
+  const _CacheLimitDialog({required this.currentLimit, this.onUpdateLimit});
 
   @override
   State<_CacheLimitDialog> createState() => _CacheLimitDialogState();
@@ -442,9 +438,9 @@ class _CacheLimitDialog extends StatefulWidget {
 class _CacheLimitDialogState extends State<_CacheLimitDialog> {
   late double _selectedLimit;
   final List<int> _presetLimits = [
-    100 * 1024 * 1024,    // 100 MB
-    500 * 1024 * 1024,    // 500 MB
-    1024 * 1024 * 1024,   // 1 GB
+    100 * 1024 * 1024, // 100 MB
+    500 * 1024 * 1024, // 500 MB
+    1024 * 1024 * 1024, // 1 GB
     2 * 1024 * 1024 * 1024, // 2 GB
     5 * 1024 * 1024 * 1024, // 5 GB
   ];
@@ -458,7 +454,7 @@ class _CacheLimitDialogState extends State<_CacheLimitDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return AlertDialog(
       title: const Text('Cache Size Limit'),
       content: Column(
@@ -470,7 +466,7 @@ class _CacheLimitDialogState extends State<_CacheLimitDialog> {
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 16.0),
-          
+
           Text(
             'Current limit: ${_formatBytes(_selectedLimit.toInt())}',
             style: theme.textTheme.titleSmall?.copyWith(
@@ -478,7 +474,7 @@ class _CacheLimitDialogState extends State<_CacheLimitDialog> {
             ),
           ),
           const SizedBox(height: 16.0),
-          
+
           // Preset options
           Text(
             'Quick Options:',
@@ -487,7 +483,7 @@ class _CacheLimitDialogState extends State<_CacheLimitDialog> {
             ),
           ),
           const SizedBox(height: 8.0),
-          
+
           Wrap(
             spacing: 8.0,
             children: _presetLimits.map((limit) {
@@ -504,9 +500,9 @@ class _CacheLimitDialogState extends State<_CacheLimitDialog> {
               );
             }).toList(),
           ),
-          
+
           const SizedBox(height: 16.0),
-          
+
           // Custom slider
           Text(
             'Custom Size:',
@@ -546,7 +542,8 @@ class _CacheLimitDialogState extends State<_CacheLimitDialog> {
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 }

@@ -30,16 +30,12 @@ class OfflineModeIndicator extends StatelessWidget {
 
   Widget _buildBanner(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return MaterialBanner(
       backgroundColor: Colors.orange.shade50,
       content: Row(
         children: [
-          Icon(
-            Icons.cloud_off,
-            color: Colors.orange.shade700,
-            size: 20.0,
-          ),
+          Icon(Icons.cloud_off, color: Colors.orange.shade700, size: 20.0),
           const SizedBox(width: 12.0),
           Expanded(
             child: Column(
@@ -78,7 +74,7 @@ class OfflineModeIndicator extends StatelessWidget {
 
   Widget _buildIndicator(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -86,19 +82,12 @@ class OfflineModeIndicator extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.orange.shade50,
           borderRadius: BorderRadius.circular(16.0),
-          border: Border.all(
-            color: Colors.orange.shade300,
-            width: 1.0,
-          ),
+          border: Border.all(color: Colors.orange.shade300, width: 1.0),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.cloud_off,
-              size: 16.0,
-              color: Colors.orange.shade700,
-            ),
+            Icon(Icons.cloud_off, size: 16.0, color: Colors.orange.shade700),
             const SizedBox(width: 6.0),
             Text(
               'Offline',
@@ -110,7 +99,10 @@ class OfflineModeIndicator extends StatelessWidget {
             if (pendingActions != null && pendingActions! > 0) ...[
               const SizedBox(width: 4.0),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6.0,
+                  vertical: 2.0,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade700,
                   borderRadius: BorderRadius.circular(10.0),
@@ -153,7 +145,7 @@ class OfflineLimitationsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       margin: const EdgeInsets.all(16.0),
       child: Padding(
@@ -178,9 +170,9 @@ class OfflineLimitationsCard extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16.0),
-            
+
             Text(
               'Available Features:',
               style: theme.textTheme.titleSmall?.copyWith(
@@ -198,9 +190,9 @@ class OfflineLimitationsCard extends StatelessWidget {
                 'View reading progress',
               ],
             ),
-            
+
             const SizedBox(height: 16.0),
-            
+
             Text(
               'Limited Features:',
               style: theme.textTheme.titleSmall?.copyWith(
@@ -219,13 +211,15 @@ class OfflineLimitationsCard extends StatelessWidget {
               ],
               isLimited: true,
             ),
-            
+
             if (pendingActions != null && pendingActions! > 0) ...[
               const SizedBox(height: 16.0),
               Container(
                 padding: const EdgeInsets.all(12.0),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                  color: theme.colorScheme.primaryContainer.withValues(
+                    alpha: 0.3,
+                  ),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Column(
@@ -276,7 +270,7 @@ class OfflineLimitationsCard extends StatelessWidget {
     bool isLimited = false,
   }) {
     final theme = Theme.of(context);
-    
+
     return Column(
       children: available.map((feature) {
         return Padding(
@@ -286,17 +280,17 @@ class OfflineLimitationsCard extends StatelessWidget {
               Icon(
                 isLimited ? Icons.block : Icons.check_circle,
                 size: 16.0,
-                color: isLimited 
-                    ? theme.colorScheme.error 
-                    : Colors.green,
+                color: isLimited ? theme.colorScheme.error : Colors.green,
               ),
               const SizedBox(width: 8.0),
               Expanded(
                 child: Text(
                   feature,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: isLimited 
-                        ? theme.colorScheme.onSurfaceVariant.withOpacity(0.7)
+                    color: isLimited
+                        ? theme.colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.7,
+                          )
                         : theme.colorScheme.onSurface,
                   ),
                 ),

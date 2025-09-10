@@ -7,10 +7,7 @@ import '../utils/constants.dart';
 class OfflineModeBanner extends ConsumerWidget {
   final Widget child;
 
-  const OfflineModeBanner({
-    super.key,
-    required this.child,
-  });
+  const OfflineModeBanner({super.key, required this.child});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,7 +26,9 @@ class OfflineModeBanner extends ConsumerWidget {
               color: Theme.of(context).colorScheme.errorContainer,
               border: Border(
                 bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.2),
                 ),
               ),
             ),
@@ -52,7 +51,9 @@ class OfflineModeBanner extends ConsumerWidget {
                 TextButton(
                   onPressed: () => _showOfflineInfo(context),
                   style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                    foregroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onErrorContainer,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     minimumSize: const Size(0, 32),
                   ),
@@ -92,7 +93,7 @@ class OfflineInfoDialog extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: AppConstants.defaultPadding),
-          
+
           // Available features
           _buildFeatureList(
             context,
@@ -107,9 +108,9 @@ class OfflineInfoDialog extends StatelessWidget {
             Icons.check_circle_outline,
             Colors.green,
           ),
-          
+
           const SizedBox(height: AppConstants.defaultPadding),
-          
+
           // Limited features
           _buildFeatureList(
             context,
@@ -124,14 +125,14 @@ class OfflineInfoDialog extends StatelessWidget {
             Icons.warning_amber_outlined,
             Colors.orange,
           ),
-          
+
           const SizedBox(height: AppConstants.defaultPadding),
-          
+
           Text(
             'Your changes will be automatically synced when you\'re back online.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontStyle: FontStyle.italic,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
           ),
         ],
       ),
@@ -160,31 +161,30 @@ class OfflineInfoDialog extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: color,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(color: color),
             ),
           ],
         ),
         const SizedBox(height: 4),
-        ...features.map((feature) => Padding(
-          padding: const EdgeInsets.only(left: 20, bottom: 2),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '• ',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              Expanded(
-                child: Text(
-                  feature,
-                  style: Theme.of(context).textTheme.bodySmall,
+        ...features.map(
+          (feature) => Padding(
+            padding: const EdgeInsets.only(left: 20, bottom: 2),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('• ', style: Theme.of(context).textTheme.bodySmall),
+                Expanded(
+                  child: Text(
+                    feature,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        )),
+        ),
       ],
     );
   }
@@ -220,9 +220,13 @@ class OfflineDegradedWidget extends ConsumerWidget {
             margin: const EdgeInsets.all(AppConstants.defaultPadding),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+              borderRadius: BorderRadius.circular(
+                AppConstants.defaultBorderRadius,
+              ),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.2),
               ),
             ),
             child: Row(
@@ -285,25 +289,21 @@ class ConnectivityAwareButton extends ConsumerWidget {
       final button = ElevatedButton(
         onPressed: onOfflinePressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHighest,
           foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         child: offlineChild ?? child,
       );
 
       if (offlineTooltip != null) {
-        return Tooltip(
-          message: offlineTooltip!,
-          child: button,
-        );
+        return Tooltip(message: offlineTooltip!, child: button);
       }
 
       return button;
     }
 
-    return ElevatedButton(
-      onPressed: onPressed,
-      child: child,
-    );
+    return ElevatedButton(onPressed: onPressed, child: child);
   }
 }

@@ -26,7 +26,8 @@ class DocumentService {
   final ConnectivityService _connectivityService;
 
   // Stream controllers for real-time updates
-  final StreamController<List<Document>> _documentsController = StreamController<List<Document>>.broadcast();
+  final StreamController<List<Document>> _documentsController =
+      StreamController<List<Document>>.broadcast();
 
   DocumentService({
     required DocumentApiService apiService,
@@ -72,7 +73,7 @@ class DocumentService {
 
       // Always return local data first for immediate UI response
       final localDocuments = await _documentRepository.findAll(query: query);
-      
+
       // If online, try to sync with server
       if (_connectivityService.hasConnectivity()) {
         try {
@@ -83,48 +84,63 @@ class DocumentService {
             page: offset != null && limit != null ? (offset ~/ limit) + 1 : 1,
             limit: limit ?? 50,
           );
-          
+
           // Update local cache with server data
           await _syncDocumentsToLocal(serverResponse.documents);
-          
+
           // Return updated local data
-          final updatedDocuments = await _documentRepository.findAll(query: query);
+          final updatedDocuments = await _documentRepository.findAll(
+            query: query,
+          );
           _documentsController.add(updatedDocuments);
           return updatedDocuments;
         } catch (e) {
           // If server request fails, continue with local data
         }
       }
-      
+
       _documentsController.add(localDocuments);
       return localDocuments;
     } catch (e) {
-      throw DocumentException('Failed to get documents: ${e.toString()}', cause: e is Exception ? e : null);
+      throw DocumentException(
+        'Failed to get documents: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
   /// Get documents by tag ID with pagination
-  Future<List<Document>> getDocumentsByTag(String tagId, {int? limit, int? offset}) async {
+  Future<List<Document>> getDocumentsByTag(
+    String tagId, {
+    int? limit,
+    int? offset,
+  }) async {
     try {
       // Always return local data first
-      final localDocuments = await _documentRepository.findByTagId(tagId, limit: limit, offset: offset);
-      
+      final localDocuments = await _documentRepository.findByTagId(
+        tagId,
+        limit: limit,
+        offset: offset,
+      );
+
       // If online, try to get server data
       if (_connectivityService.hasConnectivity()) {
         try {
-          final page = offset != null && limit != null ? (offset ~/ limit) + 1 : 1;
           final serverDocuments = await _tagRepository.getDocumentsByTag(tagId);
-          
+
           // Note: Server documents are returned directly as they may have more up-to-date data
           return serverDocuments;
         } catch (e) {
           // If server request fails, continue with local data
         }
       }
-      
+
       return localDocuments;
     } catch (e) {
-      throw DocumentException('Failed to get documents by tag: ${e.toString()}', cause: e is Exception ? e : null);
+      throw DocumentException(
+        'Failed to get documents by tag: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -133,7 +149,10 @@ class DocumentService {
     try {
       return await _documentRepository.findByAllTags(tagIds);
     } catch (e) {
-      throw DocumentException('Failed to get documents by all tags: ${e.toString()}', cause: e is Exception ? e : null);
+      throw DocumentException(
+        'Failed to get documents by all tags: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -142,16 +161,25 @@ class DocumentService {
     try {
       return await _documentRepository.findByAnyTags(tagIds);
     } catch (e) {
-      throw DocumentException('Failed to get documents by any tags: ${e.toString()}', cause: e is Exception ? e : null);
+      throw DocumentException(
+        'Failed to get documents by any tags: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
   /// Get untagged documents
   Future<List<Document>> getUntaggedDocuments({int? limit, int? offset}) async {
     try {
-      return await _documentRepository.findUntaggedDocuments(limit: limit, offset: offset);
+      return await _documentRepository.findUntaggedDocuments(
+        limit: limit,
+        offset: offset,
+      );
     } catch (e) {
-      throw DocumentException('Failed to get untagged documents: ${e.toString()}', cause: e is Exception ? e : null);
+      throw DocumentException(
+        'Failed to get untagged documents: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -178,7 +206,10 @@ class DocumentService {
 
       return await _documentRepository.getCount(query: query);
     } catch (e) {
-      throw DocumentException('Failed to get document count: ${e.toString()}', cause: e is Exception ? e : null);
+      throw DocumentException(
+        'Failed to get document count: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -187,7 +218,10 @@ class DocumentService {
     try {
       return await _documentRepository.getDocumentCountByTag(tagId);
     } catch (e) {
-      throw DocumentException('Failed to get document count by tag: ${e.toString()}', cause: e is Exception ? e : null);
+      throw DocumentException(
+        'Failed to get document count by tag: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -196,7 +230,7 @@ class DocumentService {
     try {
       // Use local FTS search first
       final localResults = await _documentRepository.search(query);
-      
+
       // If online, try to get server search results
       if (_connectivityService.hasConnectivity()) {
         try {
@@ -206,10 +240,13 @@ class DocumentService {
           // If server search fails, continue with local results
         }
       }
-      
+
       return localResults;
     } catch (e) {
-      throw DocumentException('Failed to search documents: ${e.toString()}', cause: e is Exception ? e : null);
+      throw DocumentException(
+        'Failed to search documents: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -229,7 +266,10 @@ class DocumentService {
         availableTags: allTags,
       );
     } catch (e) {
-      throw DocumentException('Failed to get filter options: ${e.toString()}', cause: e is Exception ? e : null);
+      throw DocumentException(
+        'Failed to get filter options: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -238,24 +278,27 @@ class DocumentService {
     try {
       // Try local first
       final localDocument = await _documentRepository.findById(documentId);
-      
+
       // If online, try to get latest from server
       if (_connectivityService.hasConnectivity()) {
         try {
           final serverDocument = await _apiService.getDocument(documentId);
-          
+
           // Update local cache
           await _documentRepository.save(serverDocument);
-          
+
           return serverDocument;
         } catch (e) {
           // If server request fails, return local data
         }
       }
-      
+
       return localDocument;
     } catch (e) {
-      throw DocumentException('Failed to get document: ${e.toString()}', cause: e is Exception ? e : null);
+      throw DocumentException(
+        'Failed to get document: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -298,17 +341,12 @@ class DocumentFilterOptions {
   }
 
   @override
-  int get hashCode => Object.hash(
-    authors,
-    formats,
-    minYear,
-    maxYear,
-    availableTags,
-  );
+  int get hashCode =>
+      Object.hash(authors, formats, minYear, maxYear, availableTags);
 
   @override
   String toString() {
     return 'DocumentFilterOptions(authors: $authors, formats: $formats, '
-           'minYear: $minYear, maxYear: $maxYear, availableTags: $availableTags)';
+        'minYear: $minYear, maxYear: $maxYear, availableTags: $availableTags)';
   }
 }

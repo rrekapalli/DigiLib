@@ -74,13 +74,14 @@ class _BookmarkListScreenState extends ConsumerState<BookmarkListScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
               Navigator.of(context).pop();
               await ref
                   .read(bookmarkNotifierProvider.notifier)
                   .deleteBookmark(bookmark.id, widget.documentId);
 
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   const SnackBar(
                     content: Text('Bookmark deleted'),
                     behavior: SnackBarBehavior.floating,
