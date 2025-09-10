@@ -25,7 +25,7 @@ class OfflineActionQueueDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       margin: const EdgeInsets.all(16.0),
       child: Padding(
@@ -35,10 +35,7 @@ class OfflineActionQueueDisplay extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.queue,
-                  color: theme.colorScheme.primary,
-                ),
+                Icon(Icons.queue, color: theme.colorScheme.primary),
                 const SizedBox(width: 8.0),
                 Text(
                   'Offline Action Queue',
@@ -48,31 +45,31 @@ class OfflineActionQueueDisplay extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16.0),
-            
+
             // Queue status overview
             _buildQueueOverview(context),
-            
+
             if (queueStatus.hasWork || queueStatus.hasErrors) ...[
               const SizedBox(height: 16.0),
-              
+
               // Pending jobs section
               if (queueStatus.pendingJobs > 0) ...[
                 _buildPendingJobsSection(context),
                 const SizedBox(height: 12.0),
               ],
-              
+
               // Failed jobs section
               if (queueStatus.failedJobs > 0) ...[
                 _buildFailedJobsSection(context),
                 const SizedBox(height: 12.0),
               ],
-              
+
               // Actions
               _buildQueueActions(context),
             ],
-            
+
             if (!queueStatus.hasWork && !queueStatus.hasErrors) ...[
               const SizedBox(height: 8.0),
               _buildEmptyState(context),
@@ -85,7 +82,7 @@ class OfflineActionQueueDisplay extends StatelessWidget {
 
   Widget _buildQueueOverview(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Row(
       children: [
         Expanded(
@@ -129,20 +126,16 @@ class OfflineActionQueueDisplay extends StatelessWidget {
     Color color,
   ) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 24.0,
-          ),
+          Icon(icon, color: color, size: 24.0),
           const SizedBox(height: 8.0),
           Text(
             count,
@@ -151,12 +144,7 @@ class OfflineActionQueueDisplay extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: color,
-            ),
-          ),
+          Text(label, style: theme.textTheme.bodySmall?.copyWith(color: color)),
         ],
       ),
     );
@@ -164,17 +152,13 @@ class OfflineActionQueueDisplay extends StatelessWidget {
 
   Widget _buildPendingJobsSection(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(
-              Icons.pending_actions,
-              size: 20.0,
-              color: Colors.blue,
-            ),
+            Icon(Icons.pending_actions, size: 20.0, color: Colors.blue),
             const SizedBox(width: 8.0),
             Text(
               'Pending Actions (${queueStatus.pendingJobs})',
@@ -185,7 +169,7 @@ class OfflineActionQueueDisplay extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8.0),
-        
+
         if (pendingJobs != null && pendingJobs!.isNotEmpty) ...[
           ...pendingJobs!.take(3).map((job) => _buildJobTile(context, job)),
           if (pendingJobs!.length > 3)
@@ -202,14 +186,12 @@ class OfflineActionQueueDisplay extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.blue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(4.0),
             ),
             child: Text(
               'Actions will be processed when you\'re back online.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.blue,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: Colors.blue),
             ),
           ),
         ],
@@ -219,17 +201,13 @@ class OfflineActionQueueDisplay extends StatelessWidget {
 
   Widget _buildFailedJobsSection(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(
-              Icons.error,
-              size: 20.0,
-              color: theme.colorScheme.error,
-            ),
+            Icon(Icons.error, size: 20.0, color: theme.colorScheme.error),
             const SizedBox(width: 8.0),
             Text(
               'Failed Actions (${queueStatus.failedJobs})',
@@ -240,9 +218,11 @@ class OfflineActionQueueDisplay extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8.0),
-        
+
         if (failedJobs != null && failedJobs!.isNotEmpty) ...[
-          ...failedJobs!.take(3).map((job) => _buildJobTile(context, job, showError: true)),
+          ...failedJobs!
+              .take(3)
+              .map((job) => _buildJobTile(context, job, showError: true)),
           if (failedJobs!.length > 3)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -257,7 +237,7 @@ class OfflineActionQueueDisplay extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
-              color: theme.colorScheme.errorContainer.withOpacity(0.1),
+              color: theme.colorScheme.errorContainer.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(4.0),
             ),
             child: Text(
@@ -272,14 +252,18 @@ class OfflineActionQueueDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildJobTile(BuildContext context, Job job, {bool showError = false}) {
+  Widget _buildJobTile(
+    BuildContext context,
+    Job job, {
+    bool showError = false,
+  }) {
     final theme = Theme.of(context);
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2.0),
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(4.0),
       ),
       child: Row(
@@ -287,8 +271,8 @@ class OfflineActionQueueDisplay extends StatelessWidget {
           Icon(
             _getJobTypeIcon(job.type),
             size: 16.0,
-            color: showError 
-                ? theme.colorScheme.error 
+            color: showError
+                ? theme.colorScheme.error
                 : theme.colorScheme.onSurfaceVariant,
           ),
           const SizedBox(width: 8.0),
@@ -351,9 +335,9 @@ class OfflineActionQueueDisplay extends StatelessWidget {
             icon: const Icon(Icons.refresh),
             label: const Text('Retry Failed'),
           ),
-        
+
         const SizedBox(width: 8.0),
-        
+
         if (onClearCompleted != null)
           TextButton.icon(
             onPressed: onClearCompleted,
@@ -366,27 +350,21 @@ class OfflineActionQueueDisplay extends StatelessWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.1),
+        color: Colors.green.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.check_circle,
-            color: Colors.green,
-            size: 20.0,
-          ),
+          Icon(Icons.check_circle, color: Colors.green, size: 20.0),
           const SizedBox(width: 8.0),
           Expanded(
             child: Text(
               'All actions are up to date. No pending or failed actions.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.green,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: Colors.green),
             ),
           ),
         ],
@@ -467,7 +445,7 @@ class OfflineActionQueueDisplay extends StatelessWidget {
   String _formatJobTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays}d ago';
     } else if (difference.inHours > 0) {
@@ -494,7 +472,7 @@ class CompactOfflineActionQueueIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     if (!queueStatus.hasWork && !queueStatus.hasErrors) {
       return const SizedBox.shrink();
     }
@@ -506,19 +484,12 @@ class CompactOfflineActionQueueIndicator extends StatelessWidget {
         decoration: BoxDecoration(
           color: _getBackgroundColor(theme),
           borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(
-            color: _getBorderColor(theme),
-            width: 1.0,
-          ),
+          border: Border.all(color: _getBorderColor(theme), width: 1.0),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              _getStatusIcon(),
-              size: 16.0,
-              color: _getIconColor(theme),
-            ),
+            Icon(_getStatusIcon(), size: 16.0, color: _getIconColor(theme)),
             const SizedBox(width: 4.0),
             Text(
               _getStatusText(),
@@ -560,14 +531,18 @@ class CompactOfflineActionQueueIndicator extends StatelessWidget {
   }
 
   Color _getBackgroundColor(ThemeData theme) {
-    if (queueStatus.hasErrors) return theme.colorScheme.errorContainer.withOpacity(0.1);
-    if (queueStatus.processingJobs > 0) return Colors.orange.withOpacity(0.1);
-    return Colors.blue.withOpacity(0.1);
+    if (queueStatus.hasErrors)
+      return theme.colorScheme.errorContainer.withValues(alpha: 0.1);
+    if (queueStatus.processingJobs > 0)
+      return Colors.orange.withValues(alpha: 0.1);
+    return Colors.blue.withValues(alpha: 0.1);
   }
 
   Color _getBorderColor(ThemeData theme) {
-    if (queueStatus.hasErrors) return theme.colorScheme.error.withOpacity(0.3);
-    if (queueStatus.processingJobs > 0) return Colors.orange.withOpacity(0.3);
-    return Colors.blue.withOpacity(0.3);
+    if (queueStatus.hasErrors)
+      return theme.colorScheme.error.withValues(alpha: 0.3);
+    if (queueStatus.processingJobs > 0)
+      return Colors.orange.withValues(alpha: 0.3);
+    return Colors.blue.withValues(alpha: 0.3);
   }
 }

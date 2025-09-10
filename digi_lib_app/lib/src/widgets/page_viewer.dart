@@ -133,7 +133,7 @@ class _PageViewerState extends ConsumerState<PageViewer>
       // Adjust translation to keep focal point centered
       if (targetScale > 1.0) {
         final translation = focalPoint * (1 - scale);
-        newMatrix.translateByDouble(translation.dx, translation.dy, 0.0);
+        newMatrix.translateByDouble(translation.dx, translation.dy, 0.0, 1.0);
       }
 
       _transformationController.value = newMatrix;
@@ -436,7 +436,7 @@ class _PageViewerState extends ConsumerState<PageViewer>
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.7),
+                color: Colors.green.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: const Icon(Icons.cached, size: 16, color: Colors.white),
@@ -471,11 +471,11 @@ class _PageViewerState extends ConsumerState<PageViewer>
 
     switch (theme) {
       case ReaderTheme.dark:
-        overlayColor = Colors.black.withOpacity(0.3);
+        overlayColor = Colors.black.withValues(alpha: 0.3);
         blendMode = BlendMode.darken;
         break;
       case ReaderTheme.sepia:
-        overlayColor = const Color(0xFFF4ECD8).withOpacity(0.7);
+        overlayColor = const Color(0xFFF4ECD8).withValues(alpha: 0.7);
         blendMode = BlendMode.multiply;
         break;
       case ReaderTheme.light:

@@ -17,7 +17,7 @@ class SyncProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     if (syncProgress.status == SyncStatus.idle) {
       return const SizedBox.shrink();
     }
@@ -56,7 +56,8 @@ class SyncProgressBar extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (onCancel != null && syncProgress.status == SyncStatus.syncing)
+                if (onCancel != null &&
+                    syncProgress.status == SyncStatus.syncing)
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: onCancel,
@@ -64,17 +65,17 @@ class SyncProgressBar extends StatelessWidget {
                   ),
               ],
             ),
-            
+
             if (syncProgress.status == SyncStatus.syncing) ...[
               const SizedBox(height: 12.0),
               _buildProgressIndicator(theme),
             ],
-            
+
             if (showDetails && _shouldShowDetails()) ...[
               const SizedBox(height: 12.0),
               _buildDetails(theme),
             ],
-            
+
             if (syncProgress.status == SyncStatus.error) ...[
               const SizedBox(height: 12.0),
               _buildErrorActions(context),
@@ -93,29 +94,18 @@ class SyncProgressBar extends StatelessWidget {
           height: 24.0,
           child: CircularProgressIndicator(
             strokeWidth: 2.5,
-            valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              theme.colorScheme.primary,
+            ),
           ),
         );
       case SyncStatus.completed:
-        return Icon(
-          Icons.check_circle,
-          size: 24.0,
-          color: Colors.green,
-        );
+        return Icon(Icons.check_circle, size: 24.0, color: Colors.green);
       case SyncStatus.error:
-        return Icon(
-          Icons.error,
-          size: 24.0,
-          color: theme.colorScheme.error,
-        );
+        return Icon(Icons.error, size: 24.0, color: theme.colorScheme.error);
       case SyncStatus.offline:
-        return Icon(
-          Icons.cloud_off,
-          size: 24.0,
-          color: Colors.orange,
-        );
+        return Icon(Icons.cloud_off, size: 24.0, color: Colors.orange);
       case SyncStatus.idle:
-      default:
         return Icon(
           Icons.cloud_done,
           size: 24.0,
@@ -131,7 +121,9 @@ class SyncProgressBar extends StatelessWidget {
           LinearProgressIndicator(
             value: syncProgress.progress,
             backgroundColor: theme.colorScheme.surfaceContainerHighest,
-            valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              theme.colorScheme.primary,
+            ),
           ),
           const SizedBox(height: 8.0),
           Row(
@@ -163,7 +155,7 @@ class SyncProgressBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Column(
@@ -172,7 +164,10 @@ class SyncProgressBar extends StatelessWidget {
           if (syncProgress.totalChanges > 0) ...[
             _buildDetailRow('Total items:', '${syncProgress.totalChanges}'),
             _buildDetailRow('Processed:', '${syncProgress.processedChanges}'),
-            _buildDetailRow('Remaining:', '${syncProgress.totalChanges - syncProgress.processedChanges}'),
+            _buildDetailRow(
+              'Remaining:',
+              '${syncProgress.totalChanges - syncProgress.processedChanges}',
+            ),
           ],
           if (syncProgress.error != null) ...[
             const SizedBox(height: 8.0),
@@ -195,10 +190,7 @@ class SyncProgressBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label),
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -238,15 +230,15 @@ class SyncProgressBar extends StatelessWidget {
       case SyncStatus.offline:
         return 'Offline Mode';
       case SyncStatus.idle:
-      default:
         return 'Sync Status';
     }
   }
 
   bool _shouldShowDetails() {
     return syncProgress.status == SyncStatus.syncing ||
-           syncProgress.status == SyncStatus.error ||
-           (syncProgress.status == SyncStatus.completed && syncProgress.totalChanges > 0);
+        syncProgress.status == SyncStatus.error ||
+        (syncProgress.status == SyncStatus.completed &&
+            syncProgress.totalChanges > 0);
   }
 
   void _showErrorDetails(BuildContext context) {

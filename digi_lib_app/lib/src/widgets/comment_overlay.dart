@@ -91,7 +91,6 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
     // If comment has anchor data, position based on text selection
     if (comment.anchor != null) {
       try {
-        final anchor = TextSelectionAnchor.fromJson(comment.anchor!);
         // For now, position comments on the right side of the page
         // In a real implementation, you'd calculate position based on text layout
         return Offset(
@@ -184,7 +183,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
                     .read(commentNotifierProvider.notifier)
                     .deleteComment(comment.id, widget.documentId);
 
-                if (mounted) {
+                if (mounted && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Comment deleted'),
@@ -193,7 +192,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
                   );
                 }
               } catch (error) {
-                if (mounted) {
+                if (mounted && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -301,14 +300,9 @@ class TextSelectionCommentHandler extends StatefulWidget {
 
 class _TextSelectionCommentHandlerState
     extends State<TextSelectionCommentHandler> {
-  String? _selectedText;
-  Offset? _selectionPosition;
-
   void _handleTextSelection(String selectedText, Offset position) {
-    setState(() {
-      _selectedText = selectedText;
-      _selectionPosition = position;
-    });
+    // Handle text selection for future comment creation functionality
+    setState(() {});
 
     // Show comment creation option
     _showSelectionMenu(selectedText, position);

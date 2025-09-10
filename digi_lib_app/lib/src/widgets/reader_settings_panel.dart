@@ -7,10 +7,7 @@ import '../providers/reader_provider.dart';
 class ReaderSettingsPanel extends ConsumerWidget {
   final VoidCallback? onClose;
 
-  const ReaderSettingsPanel({
-    super.key,
-    this.onClose,
-  });
+  const ReaderSettingsPanel({super.key, this.onClose});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,7 +20,7 @@ class ReaderSettingsPanel extends ConsumerWidget {
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(-2, 0),
           ),
@@ -57,7 +54,7 @@ class ReaderSettingsPanel extends ConsumerWidget {
               ],
             ),
           ),
-          
+
           // Settings content
           Expanded(
             child: SingleChildScrollView(
@@ -69,7 +66,7 @@ class ReaderSettingsPanel extends ConsumerWidget {
                   _buildSectionHeader(context, 'Reading Mode'),
                   _buildReadingModeSelector(context, ref, settings),
                   const SizedBox(height: 24),
-                  
+
                   // Display settings section
                   _buildSectionHeader(context, 'Display'),
                   _buildPageFitSelector(context, ref, settings),
@@ -80,22 +77,24 @@ class ReaderSettingsPanel extends ConsumerWidget {
                   const SizedBox(height: 16),
                   _buildZoomSlider(context, ref, settings),
                   const SizedBox(height: 24),
-                  
+
                   // Interface settings section
                   _buildSectionHeader(context, 'Interface'),
                   _buildToggleSettings(context, ref, settings),
                   const SizedBox(height: 24),
-                  
+
                   // Performance settings section
                   _buildSectionHeader(context, 'Performance'),
                   _buildPerformanceSettings(context, ref, settings),
                   const SizedBox(height: 24),
-                  
+
                   // Reset button
                   Center(
                     child: ElevatedButton(
                       onPressed: () {
-                        ref.read(readerSettingsProvider.notifier).resetToDefaults();
+                        ref
+                            .read(readerSettingsProvider.notifier)
+                            .resetToDefaults();
                       },
                       child: const Text('Reset to Defaults'),
                     ),
@@ -114,14 +113,18 @@ class ReaderSettingsPanel extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
 
-  Widget _buildReadingModeSelector(BuildContext context, WidgetRef ref, ReaderSettings settings) {
+  Widget _buildReadingModeSelector(
+    BuildContext context,
+    WidgetRef ref,
+    ReaderSettings settings,
+  ) {
     return Column(
       children: [
         RadioListTile<ReadingMode>(
@@ -150,15 +153,19 @@ class ReaderSettingsPanel extends ConsumerWidget {
     );
   }
 
-  Widget _buildPageFitSelector(BuildContext context, WidgetRef ref, ReaderSettings settings) {
+  Widget _buildPageFitSelector(
+    BuildContext context,
+    WidgetRef ref,
+    ReaderSettings settings,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Page Fit',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -169,7 +176,9 @@ class ReaderSettingsPanel extends ConsumerWidget {
               label: Text(_getPageFitLabel(mode)),
               selected: isSelected,
               onSelected: (_) {
-                ref.read(readerSettingsProvider.notifier).updatePageFitMode(mode);
+                ref
+                    .read(readerSettingsProvider.notifier)
+                    .updatePageFitMode(mode);
               },
             );
           }).toList(),
@@ -191,15 +200,19 @@ class ReaderSettingsPanel extends ConsumerWidget {
     }
   }
 
-  Widget _buildThemeSelector(BuildContext context, WidgetRef ref, ReaderSettings settings) {
+  Widget _buildThemeSelector(
+    BuildContext context,
+    WidgetRef ref,
+    ReaderSettings settings,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Theme',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -232,7 +245,11 @@ class ReaderSettingsPanel extends ConsumerWidget {
     }
   }
 
-  Widget _buildBrightnessSlider(BuildContext context, WidgetRef ref, ReaderSettings settings) {
+  Widget _buildBrightnessSlider(
+    BuildContext context,
+    WidgetRef ref,
+    ReaderSettings settings,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -240,9 +257,9 @@ class ReaderSettingsPanel extends ConsumerWidget {
           children: [
             Text(
               'Brightness',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
             const Spacer(),
             Text(
@@ -264,7 +281,11 @@ class ReaderSettingsPanel extends ConsumerWidget {
     );
   }
 
-  Widget _buildZoomSlider(BuildContext context, WidgetRef ref, ReaderSettings settings) {
+  Widget _buildZoomSlider(
+    BuildContext context,
+    WidgetRef ref,
+    ReaderSettings settings,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -272,9 +293,9 @@ class ReaderSettingsPanel extends ConsumerWidget {
           children: [
             Text(
               'Zoom',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
             const Spacer(),
             Text(
@@ -296,7 +317,11 @@ class ReaderSettingsPanel extends ConsumerWidget {
     );
   }
 
-  Widget _buildToggleSettings(BuildContext context, WidgetRef ref, ReaderSettings settings) {
+  Widget _buildToggleSettings(
+    BuildContext context,
+    WidgetRef ref,
+    ReaderSettings settings,
+  ) {
     return Column(
       children: [
         SwitchListTile(
@@ -335,7 +360,11 @@ class ReaderSettingsPanel extends ConsumerWidget {
     );
   }
 
-  Widget _buildPerformanceSettings(BuildContext context, WidgetRef ref, ReaderSettings settings) {
+  Widget _buildPerformanceSettings(
+    BuildContext context,
+    WidgetRef ref,
+    ReaderSettings settings,
+  ) {
     return Column(
       children: [
         SwitchListTile(
@@ -359,7 +388,9 @@ class ReaderSettingsPanel extends ConsumerWidget {
                 divisions: 9,
                 label: settings.preloadCount.toString(),
                 onChanged: (value) {
-                  ref.read(readerSettingsProvider.notifier).updatePreloadCount(value.round());
+                  ref
+                      .read(readerSettingsProvider.notifier)
+                      .updatePreloadCount(value.round());
                 },
               ),
             ),
@@ -373,10 +404,7 @@ class ReaderSettingsPanel extends ConsumerWidget {
 class QuickSettingsOverlay extends ConsumerWidget {
   final VoidCallback? onClose;
 
-  const QuickSettingsOverlay({
-    super.key,
-    this.onClose,
-  });
+  const QuickSettingsOverlay({super.key, this.onClose});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -410,9 +438,9 @@ class QuickSettingsOverlay extends ConsumerWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Brightness control
           Row(
             children: [
@@ -426,7 +454,9 @@ class QuickSettingsOverlay extends ConsumerWidget {
                   activeColor: Colors.white,
                   inactiveColor: Colors.white30,
                   onChanged: (value) {
-                    ref.read(readerSettingsProvider.notifier).updateBrightness(value);
+                    ref
+                        .read(readerSettingsProvider.notifier)
+                        .updateBrightness(value);
                   },
                 ),
               ),
@@ -436,9 +466,9 @@ class QuickSettingsOverlay extends ConsumerWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Theme toggles
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -499,18 +529,11 @@ class QuickSettingsOverlay extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
+            Icon(icon, color: Colors.white, size: 24),
             const SizedBox(height: 4),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           ],
         ),

@@ -190,9 +190,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         _searchHistory = [];
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to clear history: ${e.toString()}')),
-      );
+      if (mounted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to clear history: ${e.toString()}')),
+        );
+      }
     }
   }
 

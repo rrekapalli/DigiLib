@@ -21,7 +21,8 @@ class SharedDocumentOverlay extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SharedDocumentOverlay> createState() => _SharedDocumentOverlayState();
+  ConsumerState<SharedDocumentOverlay> createState() =>
+      _SharedDocumentOverlayState();
 }
 
 class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
@@ -52,7 +53,7 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
         color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(-2, 0),
           ),
@@ -67,7 +68,7 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
               color: theme.colorScheme.surfaceContainerHighest,
               border: Border(
                 bottom: BorderSide(
-                  color: theme.colorScheme.outline.withOpacity(0.2),
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
                 ),
               ),
             ),
@@ -79,10 +80,7 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Collaboration',
-                        style: theme.textTheme.titleMedium,
-                      ),
+                      Text('Collaboration', style: theme.textTheme.titleMedium),
                       Text(
                         widget.documentTitle,
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -159,7 +157,11 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.people_outline, size: 64, color: Colors.grey),
+                        Icon(
+                          Icons.people_outline,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
                         SizedBox(height: 16),
                         Text(
                           'No one else has access',
@@ -189,7 +191,8 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
             Text('Error: $error'),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => ref.refresh(sharesBySubjectProvider(widget.documentId)),
+              onPressed: () =>
+                  ref.refresh(sharesBySubjectProvider(widget.documentId)),
               child: const Text('Retry'),
             ),
           ],
@@ -258,7 +261,9 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
               children: [
                 SwitchListTile(
                   title: const Text('Allow Comments'),
-                  subtitle: const Text('Let viewers add comments to this document'),
+                  subtitle: const Text(
+                    'Let viewers add comments to this document',
+                  ),
                   value: true, // TODO: Get from document settings
                   onChanged: (value) {
                     // TODO: Update document settings
@@ -291,15 +296,11 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
   }
 
   Widget _buildShareListTile(Share share) {
-    final theme = Theme.of(context);
-    
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          child: Text(
-            share.granteeEmail?.substring(0, 1).toUpperCase() ?? '?',
-          ),
+          child: Text(share.granteeEmail?.substring(0, 1).toUpperCase() ?? '?'),
         ),
         title: Text(share.granteeEmail ?? 'Unknown user'),
         subtitle: Text(_getPermissionLabel(share.permission)),
@@ -367,7 +368,7 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
 
   void _showChangePermissionDialog(Share share) {
     SharePermission selectedPermission = share.permission;
-    
+
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -461,9 +462,7 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
               Navigator.of(context).pop();
               // TODO: Implement disable link sharing
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Link sharing disabled'),
-                ),
+                const SnackBar(content: Text('Link sharing disabled')),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -477,10 +476,15 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
     );
   }
 
-  Future<void> _updateSharePermission(String shareId, SharePermission permission) async {
+  Future<void> _updateSharePermission(
+    String shareId,
+    SharePermission permission,
+  ) async {
     try {
       // TODO: Get current user ID from auth provider
-      final shareNotifier = ref.read(shareNotifierProvider('current-user-id').notifier);
+      final shareNotifier = ref.read(
+        shareNotifierProvider('current-user-id').notifier,
+      );
       await shareNotifier.updateSharePermission(shareId, permission);
 
       if (mounted) {
@@ -506,7 +510,9 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
   Future<void> _removeShare(String shareId) async {
     try {
       // TODO: Get current user ID from auth provider
-      final shareNotifier = ref.read(shareNotifierProvider('current-user-id').notifier);
+      final shareNotifier = ref.read(
+        shareNotifierProvider('current-user-id').notifier,
+      );
       await shareNotifier.deleteShare(shareId);
 
       if (mounted) {

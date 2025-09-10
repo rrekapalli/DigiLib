@@ -10,13 +10,11 @@ import '../../widgets/tag_autocomplete_field.dart';
 class DocumentTaggingScreen extends ConsumerStatefulWidget {
   final Document document;
 
-  const DocumentTaggingScreen({
-    super.key,
-    required this.document,
-  });
+  const DocumentTaggingScreen({super.key, required this.document});
 
   @override
-  ConsumerState<DocumentTaggingScreen> createState() => _DocumentTaggingScreenState();
+  ConsumerState<DocumentTaggingScreen> createState() =>
+      _DocumentTaggingScreenState();
 }
 
 class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
@@ -105,18 +103,23 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.document.title ?? widget.document.filename ?? 'Unknown Document',
+                            widget.document.title ??
+                                widget.document.filename ??
+                                'Unknown Document',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          if (widget.document.author != null && widget.document.author!.isNotEmpty)
+                          if (widget.document.author != null &&
+                              widget.document.author!.isNotEmpty)
                             Text(
                               widget.document.author!,
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -129,11 +132,7 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Icon(
-                      Icons.label,
-                      size: 16,
-                      color: colorScheme.primary,
-                    ),
+                    Icon(Icons.label, size: 16, color: colorScheme.primary),
                     const SizedBox(width: 4),
                     Text(
                       '${_documentTags.length} tag${_documentTags.length == 1 ? '' : 's'}',
@@ -147,7 +146,7 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
               ],
             ),
           ),
-          
+
           // Quick add section
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -170,13 +169,11 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Current tags
-          Expanded(
-            child: _buildTagsList(),
-          ),
+          Expanded(child: _buildTagsList()),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -209,16 +206,9 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: colorScheme.error,
-            ),
+            Icon(Icons.error_outline, size: 64, color: colorScheme.error),
             const SizedBox(height: 16),
-            Text(
-              'Error loading tags',
-              style: theme.textTheme.titleLarge,
-            ),
+            Text('Error loading tags', style: theme.textTheme.titleLarge),
             const SizedBox(height: 8),
             Text(
               _error!,
@@ -312,15 +302,9 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
           decoration: BoxDecoration(
             color: tagColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: tagColor.withValues(alpha: 0.3),
-            ),
+            border: Border.all(color: tagColor.withValues(alpha: 0.3)),
           ),
-          child: Icon(
-            Icons.label,
-            color: tagColor,
-            size: 16,
-          ),
+          child: Icon(Icons.label, color: tagColor, size: 16),
         ),
         title: Text(
           tag.name,
@@ -342,9 +326,7 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
               decoration: BoxDecoration(
                 color: tagColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: tagColor.withValues(alpha: 0.3),
-                ),
+                border: Border.all(color: tagColor.withValues(alpha: 0.3)),
               ),
               child: Text(
                 '0 docs', // Mock usage count
@@ -357,10 +339,7 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
             const SizedBox(width: 8),
             IconButton(
               onPressed: () => _removeTag(tag),
-              icon: Icon(
-                Icons.remove_circle_outline,
-                color: colorScheme.error,
-              ),
+              icon: Icon(Icons.remove_circle_outline, color: colorScheme.error),
               tooltip: 'Remove tag',
             ),
           ],
@@ -403,7 +382,7 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
     try {
       // Mock implementation - in real app, this would call the tag service
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       // Mock tags for demonstration
       final mockTags = [
         Tag(
@@ -437,7 +416,7 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
       setState(() {
         _documentTags.add(tag);
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Added tag "${tag.name}"'),
@@ -452,12 +431,14 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
       final newTag = await ref.read(tagProvider.notifier).createTag(tagName);
       _addTag(newTag);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to create tag: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+      if (mounted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to create tag: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
     }
   }
 
@@ -465,14 +446,11 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
     setState(() {
       _documentTags.removeWhere((t) => t.id == tag.id);
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Removed tag "${tag.name}"'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () => _addTag(tag),
-        ),
+        action: SnackBarAction(label: 'Undo', onPressed: () => _addTag(tag)),
       ),
     );
   }
@@ -481,7 +459,7 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
     setState(() {
       _documentTags = newTags;
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Updated tags for document'),
@@ -509,11 +487,9 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
               setState(() {
                 _documentTags.clear();
               });
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('All tags removed'),
-                ),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('All tags removed')));
             },
             child: const Text('Remove All'),
           ),
@@ -524,7 +500,7 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
 
   void _exportTags() {
     final tagNames = _documentTags.map((tag) => tag.name).join(', ');
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -543,9 +519,9 @@ class _DocumentTaggingScreenState extends ConsumerState<DocumentTaggingScreen> {
               ),
               child: Text(
                 tagNames.isNotEmpty ? tagNames : 'No tags',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontFamily: 'monospace',
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontFamily: 'monospace'),
               ),
             ),
           ],

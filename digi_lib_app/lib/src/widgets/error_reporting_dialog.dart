@@ -51,13 +51,15 @@ class _ErrorReportingDialogState extends State<ErrorReportingDialog> {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: AppConstants.defaultPadding),
-            
+
             // Error summary
             Container(
               padding: const EdgeInsets.all(AppConstants.defaultPadding),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.errorContainer,
-                borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+                borderRadius: BorderRadius.circular(
+                  AppConstants.defaultBorderRadius,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,9 +90,9 @@ class _ErrorReportingDialogState extends State<ErrorReportingDialog> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: AppConstants.defaultPadding),
-            
+
             // Email field (optional)
             TextField(
               controller: _emailController,
@@ -102,33 +104,35 @@ class _ErrorReportingDialogState extends State<ErrorReportingDialog> {
               ),
               keyboardType: TextInputType.emailAddress,
             ),
-            
+
             const SizedBox(height: AppConstants.defaultPadding),
-            
+
             // Feedback field
             TextField(
               controller: _feedbackController,
               decoration: const InputDecoration(
                 labelText: 'Describe what you were doing',
-                hintText: 'What were you trying to do when this error occurred?',
+                hintText:
+                    'What were you trying to do when this error occurred?',
                 prefixIcon: Icon(Icons.comment_outlined),
               ),
               maxLines: 3,
               textCapitalization: TextCapitalization.sentences,
             ),
-            
+
             const SizedBox(height: AppConstants.defaultPadding),
-            
+
             // Include technical details checkbox
             CheckboxListTile(
               value: _includeDetails,
-              onChanged: (value) => setState(() => _includeDetails = value ?? true),
+              onChanged: (value) =>
+                  setState(() => _includeDetails = value ?? true),
               title: const Text('Include technical details'),
               subtitle: const Text('Helps developers diagnose the issue'),
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: EdgeInsets.zero,
             ),
-            
+
             if (_includeDetails) ...[
               const SizedBox(height: AppConstants.defaultPadding / 2),
               ExpansionTile(
@@ -138,14 +142,18 @@ class _ErrorReportingDialogState extends State<ErrorReportingDialog> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(AppConstants.defaultPadding),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(
+                        AppConstants.defaultBorderRadius,
+                      ),
                     ),
                     child: Text(
                       _buildTechnicalDetails(),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontFamily: 'monospace',
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
                     ),
                   ),
                 ],
@@ -161,7 +169,7 @@ class _ErrorReportingDialogState extends State<ErrorReportingDialog> {
         ),
         FilledButton.icon(
           onPressed: _isSubmitting ? null : _submitReport,
-          icon: _isSubmitting 
+          icon: _isSubmitting
               ? const SizedBox(
                   width: 16,
                   height: 16,
@@ -194,19 +202,21 @@ class _ErrorReportingDialogState extends State<ErrorReportingDialog> {
 
   Future<void> _submitReport() async {
     setState(() => _isSubmitting = true);
-    
+
     try {
       // Simulate API call delay
       await Future.delayed(const Duration(seconds: 1));
-      
+
       final feedback = _feedbackController.text.trim();
       widget.onSubmit?.call(feedback, _includeDetails);
-      
+
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Error report sent successfully. Thank you for your feedback!'),
+            content: Text(
+              'Error report sent successfully. Thank you for your feedback!',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -226,31 +236,13 @@ class _ErrorReportingDialogState extends State<ErrorReportingDialog> {
       }
     }
   }
-
-  /// Show error reporting dialog
-  static Future<void> show(
-    BuildContext context,
-    ErrorState errorState, {
-    Function(String feedback, bool includeDetails)? onSubmit,
-  }) {
-    return showDialog<void>(
-      context: context,
-      builder: (context) => ErrorReportingDialog(
-        errorState: errorState,
-        onSubmit: onSubmit,
-      ),
-    );
-  }
 }
 
 /// A simple feedback dialog for general app feedback
 class FeedbackDialog extends StatefulWidget {
   final Function(String feedback, int rating)? onSubmit;
 
-  const FeedbackDialog({
-    super.key,
-    this.onSubmit,
-  });
+  const FeedbackDialog({super.key, this.onSubmit});
 
   @override
   State<FeedbackDialog> createState() => _FeedbackDialogState();
@@ -286,7 +278,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: AppConstants.defaultPadding),
-          
+
           // Rating
           Text(
             'How would you rate your experience?',
@@ -306,9 +298,9 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
               );
             }),
           ),
-          
+
           const SizedBox(height: AppConstants.defaultPadding),
-          
+
           // Feedback text
           TextField(
             controller: _feedbackController,
@@ -329,7 +321,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
         ),
         FilledButton.icon(
           onPressed: _isSubmitting ? null : _submitFeedback,
-          icon: _isSubmitting 
+          icon: _isSubmitting
               ? const SizedBox(
                   width: 16,
                   height: 16,
@@ -344,14 +336,14 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
 
   Future<void> _submitFeedback() async {
     setState(() => _isSubmitting = true);
-    
+
     try {
       // Simulate API call delay
       await Future.delayed(const Duration(seconds: 1));
-      
+
       final feedback = _feedbackController.text.trim();
       widget.onSubmit?.call(feedback, _rating);
-      
+
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -375,16 +367,5 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
         setState(() => _isSubmitting = false);
       }
     }
-  }
-
-  /// Show feedback dialog
-  static Future<void> show(
-    BuildContext context, {
-    Function(String feedback, int rating)? onSubmit,
-  }) {
-    return showDialog<void>(
-      context: context,
-      builder: (context) => FeedbackDialog(onSubmit: onSubmit),
-    );
   }
 }

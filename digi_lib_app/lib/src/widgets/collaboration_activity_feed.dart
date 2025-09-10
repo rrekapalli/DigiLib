@@ -127,7 +127,9 @@ class _CollaborationActivityFeedState
 
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: _getActivityColor(activity.type).withOpacity(0.1),
+        backgroundColor: _getActivityColor(
+          activity.type,
+        ).withValues(alpha: 0.1),
         child: Icon(
           _getActivityIcon(activity.type),
           color: _getActivityColor(activity.type),

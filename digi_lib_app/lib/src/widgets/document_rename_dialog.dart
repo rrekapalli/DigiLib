@@ -25,10 +25,11 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
   void initState() {
     super.initState();
     // Initialize with current display name or title
-    _nameController.text = widget.document.renamedName ?? 
-                          widget.document.title ?? 
-                          widget.document.filename ?? 
-                          '';
+    _nameController.text =
+        widget.document.renamedName ??
+        widget.document.title ??
+        widget.document.filename ??
+        '';
   }
 
   @override
@@ -40,7 +41,7 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return AlertDialog(
       title: const Text('Rename Document'),
       content: Form(
@@ -76,7 +77,9 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
                         Text(
                           '${widget.document.extension?.toUpperCase() ?? 'DOC'} • ${_formatFileSize(widget.document.sizeBytes)}',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                         ),
                       ],
@@ -85,9 +88,9 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Name input field
             TextFormField(
               controller: _nameController,
@@ -95,7 +98,8 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
                 labelText: 'Display Name',
                 hintText: 'Enter new display name',
                 border: OutlineInputBorder(),
-                helperText: 'This will change how the document appears in your library',
+                helperText:
+                    'This will change how the document appears in your library',
               ),
               textCapitalization: TextCapitalization.words,
               autofocus: true,
@@ -109,9 +113,9 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
                 return null;
               },
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Info text
             Text(
               'Note: This only changes the display name. The original filename will remain unchanged.',
@@ -147,10 +151,10 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
 
   Widget _buildFileIcon(BuildContext context) {
     final extension = widget.document.extension?.toLowerCase() ?? '';
-    
+
     IconData iconData;
     Color iconColor;
-    
+
     switch (extension) {
       case 'pdf':
         iconData = Icons.picture_as_pdf;
@@ -171,9 +175,11 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
         break;
       default:
         iconData = Icons.insert_drive_file;
-        iconColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5);
+        iconColor = Theme.of(
+          context,
+        ).colorScheme.onSurface.withValues(alpha: 0.5);
     }
-    
+
     return Container(
       width: 40,
       height: 40,
@@ -181,20 +187,17 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
         color: iconColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Icon(
-        iconData,
-        size: 24,
-        color: iconColor,
-      ),
+      child: Icon(iconData, size: 24, color: iconColor),
     );
   }
 
   String _formatFileSize(int? bytes) {
     if (bytes == null) return 'Unknown size';
-    
+
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -204,10 +207,11 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
     }
 
     final newName = _nameController.text.trim();
-    final currentName = widget.document.renamedName ?? 
-                       widget.document.title ?? 
-                       widget.document.filename ?? 
-                       '';
+    final currentName =
+        widget.document.renamedName ??
+        widget.document.title ??
+        widget.document.filename ??
+        '';
 
     // Check if name actually changed
     if (newName == currentName) {
@@ -222,7 +226,7 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
     try {
       // Call the rename callback
       widget.onRename?.call(newName);
-      
+
       if (mounted) {
         Navigator.of(context).pop(newName);
       }
@@ -242,13 +246,5 @@ class _DocumentRenameDialogState extends State<DocumentRenameDialog> {
         });
       }
     }
-  }
-
-  /// Show the document rename dialog
-  static Future<String?> show(BuildContext context, Document document) {
-    return showDialog<String>(
-      context: context,
-      builder: (context) => DocumentRenameDialog(document: document),
-    );
   }
 }

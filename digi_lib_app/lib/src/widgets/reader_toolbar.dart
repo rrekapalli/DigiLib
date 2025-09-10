@@ -28,8 +28,6 @@ class ReaderToolbar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final readerState = ref.watch(readerStateProvider(document.id));
-
     return AppBar(
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,15 +55,17 @@ class ReaderToolbar extends ConsumerWidget {
             icon: const Icon(Icons.search),
             tooltip: 'Search in document',
           ),
-        
+
         // Bookmark button
         if (onBookmarkToggle != null)
           IconButton(
             onPressed: onBookmarkToggle,
-            icon: const Icon(Icons.bookmark_border), // TODO: Toggle based on bookmark state
+            icon: const Icon(
+              Icons.bookmark_border,
+            ), // TODO: Toggle based on bookmark state
             tooltip: 'Add bookmark',
           ),
-        
+
         // Share button
         if (onSharePressed != null)
           IconButton(
@@ -73,7 +73,7 @@ class ReaderToolbar extends ConsumerWidget {
             icon: const Icon(Icons.share),
             tooltip: 'Share document',
           ),
-        
+
         // Collaboration button
         if (onCollaborationPressed != null)
           IconButton(
@@ -81,7 +81,7 @@ class ReaderToolbar extends ConsumerWidget {
             icon: const Icon(Icons.people),
             tooltip: 'Collaboration',
           ),
-        
+
         // Fullscreen toggle
         if (onFullscreenToggle != null)
           IconButton(
@@ -89,7 +89,7 @@ class ReaderToolbar extends ConsumerWidget {
             icon: Icon(isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen),
             tooltip: isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen',
           ),
-        
+
         // Settings button
         if (onSettingsToggle != null)
           IconButton(
@@ -97,7 +97,7 @@ class ReaderToolbar extends ConsumerWidget {
             icon: const Icon(Icons.settings),
             tooltip: 'Reader settings',
           ),
-        
+
         // More options menu
         PopupMenuButton<String>(
           onSelected: (value) => _handleMenuAction(context, ref, value),
@@ -160,13 +160,15 @@ class ReaderToolbar extends ConsumerWidget {
               _buildInfoRow('Author', document.author ?? 'Unknown'),
               _buildInfoRow('Filename', document.filename ?? 'Unknown'),
               _buildInfoRow('Format', document.format ?? 'Unknown'),
-              _buildInfoRow('Pages', document.pageCount?.toString() ?? 'Unknown'),
+              _buildInfoRow(
+                'Pages',
+                document.pageCount?.toString() ?? 'Unknown',
+              ),
               if (document.sizeBytes != null)
                 _buildInfoRow('Size', _formatFileSize(document.sizeBytes!)),
               if (document.yearPublished != null)
                 _buildInfoRow('Year', document.yearPublished.toString()),
-              if (document.isbn != null)
-                _buildInfoRow('ISBN', document.isbn!),
+              if (document.isbn != null) _buildInfoRow('ISBN', document.isbn!),
             ],
           ),
         ),
@@ -193,9 +195,7 @@ class ReaderToolbar extends ConsumerWidget {
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
-          Expanded(
-            child: Text(value),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );
@@ -204,7 +204,8 @@ class ReaderToolbar extends ConsumerWidget {
   String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -266,10 +267,7 @@ class CompactReaderToolbar extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
+          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
         ),
       ),
       child: Row(
@@ -282,7 +280,7 @@ class CompactReaderToolbar extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          
+
           // Fullscreen button
           if (onFullscreen != null)
             IconButton(
@@ -291,7 +289,7 @@ class CompactReaderToolbar extends ConsumerWidget {
               iconSize: 20,
               tooltip: 'Open in fullscreen',
             ),
-          
+
           // Close button
           if (onClose != null)
             IconButton(

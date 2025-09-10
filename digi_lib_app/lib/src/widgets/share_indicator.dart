@@ -76,7 +76,6 @@ class SharePermissionBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final color = _getPermissionColor(permission);
     final label = _getPermissionLabel(permission);
 
@@ -86,12 +85,9 @@ class SharePermissionBadge extends StatelessWidget {
         vertical: size * 0.25,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(size * 0.75),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 0.5,
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 0.5),
       ),
       child: Text(
         label,
@@ -139,10 +135,9 @@ class SharedDocumentIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final permissionAsync = ref.watch(sharePermissionProvider((
-      subjectId: documentId,
-      userEmail: userEmail,
-    )));
+    final permissionAsync = ref.watch(
+      sharePermissionProvider((subjectId: documentId, userEmail: userEmail)),
+    );
 
     return permissionAsync.when(
       data: (permission) {
@@ -153,16 +148,9 @@ class SharedDocumentIndicator extends ConsumerWidget {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.share,
-              size: 14,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.share, size: 14, color: Colors.grey),
             const SizedBox(width: 4),
-            SharePermissionBadge(
-              permission: permission,
-              size: 10,
-            ),
+            SharePermissionBadge(permission: permission, size: 10),
           ],
         );
       },
@@ -176,11 +164,7 @@ class ShareStatusChip extends ConsumerWidget {
   final String subjectId;
   final VoidCallback? onTap;
 
-  const ShareStatusChip({
-    super.key,
-    required this.subjectId,
-    this.onTap,
-  });
+  const ShareStatusChip({super.key, required this.subjectId, this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

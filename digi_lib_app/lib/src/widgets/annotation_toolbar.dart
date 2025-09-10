@@ -35,7 +35,7 @@ class _AnnotationToolbarState extends ConsumerState<AnnotationToolbar>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
-  
+
   bool _isExpanded = false;
 
   @override
@@ -61,7 +61,7 @@ class _AnnotationToolbarState extends ConsumerState<AnnotationToolbar>
     setState(() {
       _isExpanded = !_isExpanded;
     });
-    
+
     if (_isExpanded) {
       _animationController.forward();
     } else {
@@ -78,10 +78,12 @@ class _AnnotationToolbarState extends ConsumerState<AnnotationToolbar>
         onBookmarkCreated: () {
           // Refresh bookmark providers
           ref.invalidate(documentBookmarksProvider(widget.documentId));
-          ref.invalidate(hasBookmarkAtPageProvider((
-            documentId: widget.documentId,
-            pageNumber: widget.currentPage,
-          )));
+          ref.invalidate(
+            hasBookmarkAtPageProvider((
+              documentId: widget.documentId,
+              pageNumber: widget.currentPage,
+            )),
+          );
         },
       ),
     );
@@ -95,10 +97,12 @@ class _AnnotationToolbarState extends ConsumerState<AnnotationToolbar>
         pageNumber: widget.currentPage,
         onCommentCreated: () {
           // Refresh comment providers
-          ref.invalidate(pageCommentsProvider((
-            documentId: widget.documentId,
-            pageNumber: widget.currentPage,
-          )));
+          ref.invalidate(
+            pageCommentsProvider((
+              documentId: widget.documentId,
+              pageNumber: widget.currentPage,
+            )),
+          );
           ref.invalidate(documentCommentsProvider(widget.documentId));
         },
       ),
@@ -108,9 +112,7 @@ class _AnnotationToolbarState extends ConsumerState<AnnotationToolbar>
   void _showAnnotationsList() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => BookmarkListScreen(
-          documentId: widget.documentId,
-        ),
+        builder: (context) => BookmarkListScreen(documentId: widget.documentId),
       ),
     );
   }
@@ -138,48 +140,45 @@ class _AnnotationToolbarState extends ConsumerState<AnnotationToolbar>
               child: const Icon(Icons.add),
             ),
           ),
-          
+
           // Expanded toolbar
           AnimatedBuilder(
             animation: _slideAnimation,
             builder: (context, child) => Transform.translate(
               offset: Offset(0, -8 * _slideAnimation.value),
-              child: Opacity(
-                opacity: _slideAnimation.value,
-                child: child,
-              ),
+              child: Opacity(opacity: _slideAnimation.value, child: child),
             ),
             child: Column(
               children: [
                 const SizedBox(height: 8),
-                
+
                 // Bookmark button
                 _buildToolbarButton(
                   icon: Icons.bookmark_add,
                   label: 'Bookmark',
                   onPressed: _showBookmarkDialog,
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Highlight button
                 _buildToolbarButton(
                   icon: Icons.highlight,
                   label: 'Highlight',
                   onPressed: widget.onHighlightPressed,
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Comment button
                 _buildToolbarButton(
                   icon: Icons.comment,
                   label: 'Comment',
                   onPressed: _showCommentDialog,
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Annotations list button
                 _buildToolbarButton(
                   icon: Icons.list,
@@ -212,10 +211,6 @@ class _AnnotationToolbarState extends ConsumerState<AnnotationToolbar>
     );
   }
 }
-
-
-
-
 
 /// Bottom sheet for viewing all annotations
 class _AnnotationsListSheet extends StatefulWidget {
@@ -263,11 +258,13 @@ class _AnnotationsListSheetState extends State<_AnnotationsListSheet>
             height: 4,
             margin: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           // Header
           Padding(
             padding: const EdgeInsets.all(16),
@@ -285,7 +282,7 @@ class _AnnotationsListSheetState extends State<_AnnotationsListSheet>
               ],
             ),
           ),
-          
+
           // Tabs
           TabBar(
             controller: _tabController,
@@ -294,15 +291,12 @@ class _AnnotationsListSheetState extends State<_AnnotationsListSheet>
               Tab(text: 'Comments'),
             ],
           ),
-          
+
           // Tab content
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: [
-                _buildBookmarksList(),
-                _buildCommentsList(),
-              ],
+              children: [_buildBookmarksList(), _buildCommentsList()],
             ),
           ),
         ],
@@ -313,8 +307,10 @@ class _AnnotationsListSheetState extends State<_AnnotationsListSheet>
   Widget _buildBookmarksList() {
     return Consumer(
       builder: (context, ref, child) {
-        final bookmarksAsync = ref.watch(documentBookmarksProvider(widget.documentId));
-        
+        final bookmarksAsync = ref.watch(
+          documentBookmarksProvider(widget.documentId),
+        );
+
         return bookmarksAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) => Center(
@@ -325,7 +321,9 @@ class _AnnotationsListSheetState extends State<_AnnotationsListSheet>
                 const SizedBox(height: 8),
                 Text('Failed to load bookmarks'),
                 TextButton(
-                  onPressed: () => ref.invalidate(documentBookmarksProvider(widget.documentId)),
+                  onPressed: () => ref.invalidate(
+                    documentBookmarksProvider(widget.documentId),
+                  ),
                   child: const Text('Retry'),
                 ),
               ],
@@ -351,9 +349,9 @@ class _AnnotationsListSheetState extends State<_AnnotationsListSheet>
               itemBuilder: (context, index) {
                 final bookmark = bookmarks[index];
                 final isCurrentPage = bookmark.pageNumber == widget.currentPage;
-                
+
                 return Card(
-                  color: isCurrentPage 
+                  color: isCurrentPage
                       ? Theme.of(context).colorScheme.primaryContainer
                       : null,
                   child: ListTile(
@@ -363,7 +361,7 @@ class _AnnotationsListSheetState extends State<_AnnotationsListSheet>
                       child: Text('${bookmark.pageNumber ?? '?'}'),
                     ),
                     title: Text('Page ${bookmark.pageNumber ?? 'Unknown'}'),
-                    subtitle: bookmark.note?.isNotEmpty == true 
+                    subtitle: bookmark.note?.isNotEmpty == true
                         ? Text(bookmark.note!)
                         : null,
                     trailing: PopupMenuButton(
@@ -406,8 +404,10 @@ class _AnnotationsListSheetState extends State<_AnnotationsListSheet>
   Widget _buildCommentsList() {
     return Consumer(
       builder: (context, ref, child) {
-        final commentsAsync = ref.watch(documentCommentsProvider(widget.documentId));
-        
+        final commentsAsync = ref.watch(
+          documentCommentsProvider(widget.documentId),
+        );
+
         return commentsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) => Center(
@@ -418,7 +418,9 @@ class _AnnotationsListSheetState extends State<_AnnotationsListSheet>
                 const SizedBox(height: 8),
                 Text('Failed to load comments'),
                 TextButton(
-                  onPressed: () => ref.invalidate(documentCommentsProvider(widget.documentId)),
+                  onPressed: () => ref.invalidate(
+                    documentCommentsProvider(widget.documentId),
+                  ),
                   child: const Text('Retry'),
                 ),
               ],
@@ -444,15 +446,17 @@ class _AnnotationsListSheetState extends State<_AnnotationsListSheet>
               itemBuilder: (context, index) {
                 final comment = comments[index];
                 final isCurrentPage = comment.pageNumber == widget.currentPage;
-                
+
                 return Card(
-                  color: isCurrentPage 
+                  color: isCurrentPage
                       ? Theme.of(context).colorScheme.primaryContainer
                       : null,
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: Theme.of(context).colorScheme.secondary,
-                      foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                      foregroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSecondary,
                       child: Text('${comment.pageNumber ?? '?'}'),
                     ),
                     title: Text('Page ${comment.pageNumber ?? 'Unknown'}'),
@@ -499,10 +503,6 @@ class _AnnotationsListSheetState extends State<_AnnotationsListSheet>
   }
 }
 
-
-
-
-
 /// Compact annotation toolbar for minimal UI
 class CompactAnnotationToolbar extends StatelessWidget {
   final String documentId;
@@ -527,7 +527,7 @@ class CompactAnnotationToolbar extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

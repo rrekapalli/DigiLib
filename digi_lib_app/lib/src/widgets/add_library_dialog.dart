@@ -5,9 +5,7 @@ import '../screens/library/library_configuration_screen.dart';
 
 /// Dialog for adding a new library
 class AddLibraryDialog extends StatefulWidget {
-  const AddLibraryDialog({
-    super.key,
-  });
+  const AddLibraryDialog({super.key});
 
   @override
   State<AddLibraryDialog> createState() => _AddLibraryDialogState();
@@ -72,7 +70,9 @@ class _AddLibraryDialogState extends State<AddLibraryDialog> {
               ),
               const SizedBox(height: 12),
 
-              ...LibraryType.values.map((type) => _buildTypeOption(type, colorScheme)),
+              ...LibraryType.values.map(
+                (type) => _buildTypeOption(type, colorScheme),
+              ),
 
               // Error message
               if (_error != null) ...[
@@ -144,7 +144,7 @@ class _AddLibraryDialogState extends State<AddLibraryDialog> {
               width: isSelected ? 2 : 1,
             ),
             borderRadius: BorderRadius.circular(8),
-            color: isSelected 
+            color: isSelected
                 ? colorScheme.primary.withValues(alpha: 0.1)
                 : Colors.transparent,
           ),
@@ -153,18 +153,16 @@ class _AddLibraryDialogState extends State<AddLibraryDialog> {
               Radio<LibraryType>(
                 value: type,
                 groupValue: _selectedType,
-                onChanged: _isLoading ? null : (value) {
-                  if (value != null) {
-                    setState(() => _selectedType = value);
-                  }
-                },
+                onChanged: _isLoading
+                    ? null
+                    : (value) {
+                        if (value != null) {
+                          setState(() => _selectedType = value);
+                        }
+                      },
               ),
               const SizedBox(width: 8),
-              Icon(
-                typeInfo.icon,
-                color: typeInfo.color,
-                size: 24,
-              ),
+              Icon(typeInfo.icon, color: typeInfo.color, size: 24),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -233,7 +231,7 @@ class _AddLibraryDialogState extends State<AddLibraryDialog> {
 
     // Close dialog and navigate to configuration screen
     Navigator.of(context).pop();
-    
+
     // Navigate to configuration screen
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -243,34 +241,6 @@ class _AddLibraryDialogState extends State<AddLibraryDialog> {
         ),
       ),
     );
-  }
-
-  Map<String, dynamic>? _getDefaultConfig(LibraryType type) {
-    switch (type) {
-      case LibraryType.local:
-        return {
-          'path': '', // Will be set during configuration
-          'watch_for_changes': true,
-          'recursive': true,
-        };
-      case LibraryType.gdrive:
-        return {
-          'folder_id': '', // Will be set during OAuth flow
-          'sync_interval': 3600, // 1 hour
-        };
-      case LibraryType.onedrive:
-        return {
-          'folder_id': '', // Will be set during OAuth flow
-          'sync_interval': 3600, // 1 hour
-        };
-      case LibraryType.s3:
-        return {
-          'bucket': '',
-          'prefix': '',
-          'region': 'us-east-1',
-          'sync_interval': 3600, // 1 hour
-        };
-    }
   }
 }
 

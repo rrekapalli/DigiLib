@@ -278,22 +278,6 @@ class _FeedbackRequestDialogState extends ConsumerState<FeedbackRequestDialog> {
       ),
     );
   }
-
-  /// Show feedback request dialog if appropriate
-  static Future<void> showIfAppropriate(BuildContext context) async {
-    final feedbackService = FeedbackService();
-
-    if (await feedbackService.shouldRequestFeedback()) {
-      if (context.mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => FeedbackRequestDialog(
-            onDismiss: () => feedbackService.markFeedbackShown(),
-          ),
-        );
-      }
-    }
-  }
 }
 
 /// Detailed feedback dialog for collecting comprehensive feedback
