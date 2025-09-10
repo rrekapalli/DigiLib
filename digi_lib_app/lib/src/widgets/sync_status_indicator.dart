@@ -75,7 +75,6 @@ class SyncStatusIndicator extends StatelessWidget {
           color: _getIconColor(theme),
         );
       case SyncStatus.idle:
-      default:
         return Icon(
           Icons.cloud_done,
           size: iconSize,
@@ -101,7 +100,6 @@ class SyncStatusIndicator extends StatelessWidget {
       case SyncStatus.offline:
         return 'Offline';
       case SyncStatus.idle:
-      default:
         return 'Up to date';
     }
   }
@@ -117,7 +115,6 @@ class SyncStatusIndicator extends StatelessWidget {
       case SyncStatus.offline:
         return Colors.orange;
       case SyncStatus.idle:
-      default:
         return theme.colorScheme.onSurfaceVariant;
     }
   }
@@ -142,26 +139,24 @@ class SyncStatusIndicator extends StatelessWidget {
       case SyncStatus.error:
         return theme.colorScheme.errorContainer.withValues(alpha: 0.1);
       case SyncStatus.offline:
-        return Colors.orange.withOpacity(0.1);
+        return Colors.orange.withValues(alpha: 0.1);
       case SyncStatus.idle:
-      default:
-        return theme.colorScheme.surfaceContainerHighest.withOpacity(0.3);
+        return theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
     }
   }
 
   Color _getBorderColor(ThemeData theme) {
     switch (syncProgress.status) {
       case SyncStatus.syncing:
-        return theme.colorScheme.primary.withOpacity(0.3);
+        return theme.colorScheme.primary.withValues(alpha: 0.3);
       case SyncStatus.completed:
-        return Colors.green.withOpacity(0.3);
+        return Colors.green.withValues(alpha: 0.3);
       case SyncStatus.error:
-        return theme.colorScheme.error.withOpacity(0.3);
+        return theme.colorScheme.error.withValues(alpha: 0.3);
       case SyncStatus.offline:
-        return Colors.orange.withOpacity(0.3);
+        return Colors.orange.withValues(alpha: 0.3);
       case SyncStatus.idle:
-      default:
-        return theme.colorScheme.outline.withOpacity(0.3);
+        return theme.colorScheme.outline.withValues(alpha: 0.3);
     }
   }
 }

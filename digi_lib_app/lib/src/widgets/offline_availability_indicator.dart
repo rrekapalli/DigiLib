@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 /// Enum for offline availability status
 enum OfflineAvailabilityStatus {
-  available,      // Document is fully cached and available offline
-  partial,        // Some pages are cached
-  notAvailable,   // Document is not cached
-  downloading,    // Currently downloading for offline access
-  failed,         // Download failed
+  available, // Document is fully cached and available offline
+  partial, // Some pages are cached
+  notAvailable, // Document is not cached
+  downloading, // Currently downloading for offline access
+  failed, // Download failed
 }
 
 /// Widget that indicates whether a document is available offline
@@ -33,7 +33,7 @@ class OfflineAvailabilityIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -44,10 +44,7 @@ class OfflineAvailabilityIndicator extends StatelessWidget {
         decoration: BoxDecoration(
           color: _getBackgroundColor(theme),
           borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(
-            color: _getBorderColor(theme),
-            width: 1.0,
-          ),
+          border: Border.all(color: _getBorderColor(theme), width: 1.0),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -72,11 +69,7 @@ class OfflineAvailabilityIndicator extends StatelessWidget {
   Widget _buildIcon(ThemeData theme) {
     switch (status) {
       case OfflineAvailabilityStatus.available:
-        return Icon(
-          Icons.offline_pin,
-          size: iconSize,
-          color: Colors.green,
-        );
+        return Icon(Icons.offline_pin, size: iconSize, color: Colors.green);
       case OfflineAvailabilityStatus.partial:
         return Stack(
           alignment: Alignment.center,
@@ -118,7 +111,9 @@ class OfflineAvailabilityIndicator extends StatelessWidget {
           child: CircularProgressIndicator(
             strokeWidth: 2.0,
             value: progress,
-            valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              theme.colorScheme.primary,
+            ),
           ),
         );
       case OfflineAvailabilityStatus.failed:
@@ -128,11 +123,10 @@ class OfflineAvailabilityIndicator extends StatelessWidget {
           color: theme.colorScheme.error,
         );
       case OfflineAvailabilityStatus.notAvailable:
-      default:
         return Icon(
           Icons.cloud_outlined,
           size: iconSize,
-          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
         );
     }
   }
@@ -154,7 +148,6 @@ class OfflineAvailabilityIndicator extends StatelessWidget {
       case OfflineAvailabilityStatus.failed:
         return 'Download failed';
       case OfflineAvailabilityStatus.notAvailable:
-      default:
         return 'Online only';
     }
   }
@@ -170,7 +163,6 @@ class OfflineAvailabilityIndicator extends StatelessWidget {
       case OfflineAvailabilityStatus.failed:
         return theme.colorScheme.error;
       case OfflineAvailabilityStatus.notAvailable:
-      default:
         return theme.colorScheme.onSurfaceVariant;
     }
   }
@@ -178,32 +170,30 @@ class OfflineAvailabilityIndicator extends StatelessWidget {
   Color _getBackgroundColor(ThemeData theme) {
     switch (status) {
       case OfflineAvailabilityStatus.available:
-        return Colors.green.withOpacity(0.1);
+        return Colors.green.withValues(alpha: 0.1);
       case OfflineAvailabilityStatus.partial:
-        return Colors.orange.withOpacity(0.1);
+        return Colors.orange.withValues(alpha: 0.1);
       case OfflineAvailabilityStatus.downloading:
-        return theme.colorScheme.primaryContainer.withOpacity(0.1);
+        return theme.colorScheme.primaryContainer.withValues(alpha: 0.1);
       case OfflineAvailabilityStatus.failed:
-        return theme.colorScheme.errorContainer.withOpacity(0.1);
+        return theme.colorScheme.errorContainer.withValues(alpha: 0.1);
       case OfflineAvailabilityStatus.notAvailable:
-      default:
-        return theme.colorScheme.surfaceContainerHighest.withOpacity(0.3);
+        return theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
     }
   }
 
   Color _getBorderColor(ThemeData theme) {
     switch (status) {
       case OfflineAvailabilityStatus.available:
-        return Colors.green.withOpacity(0.3);
+        return Colors.green.withValues(alpha: 0.3);
       case OfflineAvailabilityStatus.partial:
-        return Colors.orange.withOpacity(0.3);
+        return Colors.orange.withValues(alpha: 0.3);
       case OfflineAvailabilityStatus.downloading:
-        return theme.colorScheme.primary.withOpacity(0.3);
+        return theme.colorScheme.primary.withValues(alpha: 0.3);
       case OfflineAvailabilityStatus.failed:
-        return theme.colorScheme.error.withOpacity(0.3);
+        return theme.colorScheme.error.withValues(alpha: 0.3);
       case OfflineAvailabilityStatus.notAvailable:
-      default:
-        return theme.colorScheme.outline.withOpacity(0.3);
+        return theme.colorScheme.outline.withValues(alpha: 0.3);
     }
   }
 }
@@ -240,7 +230,7 @@ class OfflineAvailabilityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       child: Padding(
@@ -282,17 +272,17 @@ class OfflineAvailabilityCard extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             if (_shouldShowProgress()) ...[
               const SizedBox(height: 12.0),
               _buildProgressIndicator(theme),
             ],
-            
+
             if (_shouldShowDetails()) ...[
               const SizedBox(height: 12.0),
               _buildDetailsSection(theme),
             ],
-            
+
             if (_shouldShowActions()) ...[
               const SizedBox(height: 12.0),
               _buildActionsSection(context),
@@ -362,10 +352,7 @@ class OfflineAvailabilityCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label),
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -381,16 +368,18 @@ class OfflineAvailabilityCard extends StatelessWidget {
             icon: const Icon(Icons.refresh),
             label: const Text('Retry'),
           ),
-        
-        if (status == OfflineAvailabilityStatus.notAvailable && onDownload != null)
+
+        if (status == OfflineAvailabilityStatus.notAvailable &&
+            onDownload != null)
           ElevatedButton.icon(
             onPressed: onDownload,
             icon: const Icon(Icons.download),
             label: const Text('Download'),
           ),
-        
-        if ((status == OfflineAvailabilityStatus.available || 
-             status == OfflineAvailabilityStatus.partial) && onRemove != null) ...[
+
+        if ((status == OfflineAvailabilityStatus.available ||
+                status == OfflineAvailabilityStatus.partial) &&
+            onRemove != null) ...[
           const SizedBox(width: 8.0),
           OutlinedButton.icon(
             onPressed: onRemove,
@@ -427,8 +416,8 @@ class OfflineAvailabilityCard extends StatelessWidget {
 
   bool _shouldShowDetails() {
     return status == OfflineAvailabilityStatus.available ||
-           status == OfflineAvailabilityStatus.partial ||
-           (status == OfflineAvailabilityStatus.downloading && progress != null);
+        status == OfflineAvailabilityStatus.partial ||
+        (status == OfflineAvailabilityStatus.downloading && progress != null);
   }
 
   bool _shouldShowActions() {
@@ -438,14 +427,15 @@ class OfflineAvailabilityCard extends StatelessWidget {
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
   String _formatDateTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays} days ago';
     } else if (difference.inHours > 0) {

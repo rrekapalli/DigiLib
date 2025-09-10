@@ -66,11 +66,11 @@ Future<void> _initializeDesktopServices() async {
       },
       onQuit: () {
         // TODO: Handle app quit
-        print('Quit requested');
+        AppLogger.info('Quit requested');
       },
       onRefresh: () {
         // TODO: Refresh current view
-        print('Refresh requested');
+        AppLogger.info('Refresh requested');
       },
       onToggleFullscreen: () async {
         await DesktopWindowService.toggleFullscreen();
