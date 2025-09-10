@@ -48,6 +48,9 @@ dependencies:
   dio: ^5.4.0
   http: ^1.1.0
   
+  # Logging
+  logger: ^2.0.1
+  
   # State management
   flutter_riverpod: ^2.4.9
   riverpod_annotation: ^2.3.3

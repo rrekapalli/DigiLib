@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/entities/library.dart';
 import '../providers/library_provider.dart';
+import '../utils/constants.dart';
 import 'scan_progress_widget.dart';
 
 /// Enhanced dialog for library deletion with scan progress handling
 class LibraryDeletionDialog extends ConsumerStatefulWidget {
   final Library library;
 
-  const LibraryDeletionDialog({
-    super.key,
-    required this.library,
-  });
+  const LibraryDeletionDialog({super.key, required this.library});
 
   @override
-  ConsumerState<LibraryDeletionDialog> createState() => _LibraryDeletionDialogState();
+  ConsumerState<LibraryDeletionDialog> createState() =>
+      _LibraryDeletionDialogState();
 }
 
 class _LibraryDeletionDialogState extends ConsumerState<LibraryDeletionDialog> {
@@ -40,9 +39,9 @@ class _LibraryDeletionDialogState extends ConsumerState<LibraryDeletionDialog> {
               'Are you sure you want to delete the library "${widget.library.name}"?',
               style: theme.textTheme.bodyLarge,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Warning about active scan
             if (isScanning) ...[
               Container(
@@ -56,11 +55,7 @@ class _LibraryDeletionDialogState extends ConsumerState<LibraryDeletionDialog> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.warning,
-                      color: Colors.orange,
-                      size: 20,
-                    ),
+                    const Icon(Icons.warning, color: Colors.orange, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -73,17 +68,15 @@ class _LibraryDeletionDialogState extends ConsumerState<LibraryDeletionDialog> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Show scan progress
-              ScanProgressWidget(
-                libraryId: widget.library.id,
-              ),
-              
+              ScanProgressWidget(libraryId: widget.library.id),
+
               const SizedBox(height: 16),
             ],
-            
+
             // General warning
             Container(
               padding: const EdgeInsets.all(12),
@@ -113,9 +106,9 @@ class _LibraryDeletionDialogState extends ConsumerState<LibraryDeletionDialog> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Library details
             Text(
               'Library Details:',
@@ -123,13 +116,21 @@ class _LibraryDeletionDialogState extends ConsumerState<LibraryDeletionDialog> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             _buildDetailRow('Name', widget.library.name, theme),
-            _buildDetailRow('Type', _getLibraryTypeDisplayName(widget.library.type), theme),
-            _buildDetailRow('Created', _formatDate(widget.library.createdAt), theme),
-            
+            _buildDetailRow(
+              'Type',
+              _getLibraryTypeDisplayName(widget.library.type),
+              theme,
+            ),
+            _buildDetailRow(
+              'Created',
+              _formatDate(widget.library.createdAt),
+              theme,
+            ),
+
             // Error message
             if (_error != null) ...[
               const SizedBox(height: 16),
@@ -204,12 +205,7 @@ class _LibraryDeletionDialogState extends ConsumerState<LibraryDeletionDialog> {
               ),
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: theme.textTheme.bodySmall,
-            ),
-          ),
+          Expanded(child: Text(value, style: theme.textTheme.bodySmall)),
         ],
       ),
     );
@@ -243,21 +239,25 @@ class _LibraryDeletionDialogState extends ConsumerState<LibraryDeletionDialog> {
       final scanProgress = ref.read(scanProgressProvider(widget.library.id));
       if (scanProgress != null && scanProgress.status == 'running') {
         try {
-          await ref.read(libraryProvider.notifier).cancelScanJob(scanProgress.jobId);
+          await ref
+              .read(libraryProvider.notifier)
+              .cancelScanJob(scanProgress.jobId);
         } catch (e) {
           // Continue with deletion even if scan cancellation fails
-          print('Failed to cancel scan: $e');
+          AppLogger.warning('Failed to cancel scan during library deletion', e);
         }
       }
 
       // Delete the library
       await ref.read(libraryProvider.notifier).deleteLibrary(widget.library.id);
-      
+
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Library "${widget.library.name}" deleted successfully'),
+            content: Text(
+              'Library "${widget.library.name}" deleted successfully',
+            ),
             backgroundColor: Colors.green,
           ),
         );

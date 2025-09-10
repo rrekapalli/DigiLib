@@ -185,12 +185,12 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen>
                     decoration: BoxDecoration(
                       color: _getPermissionColor(
                         share.permission,
-                      ).withOpacity(0.1),
+                      ).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: _getPermissionColor(
                           share.permission,
-                        ).withOpacity(0.3),
+                        ).withValues(alpha: 0.3),
                       ),
                     ),
                     child: Text(

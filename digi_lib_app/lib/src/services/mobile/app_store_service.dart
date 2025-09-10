@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:app_settings/app_settings.dart';
+import '../../utils/constants.dart';
 
 /// Service for handling app store deployment and update management
 class AppStoreService {
@@ -27,7 +28,7 @@ class AppStoreService {
 
       return false;
     } catch (e) {
-      print('Error checking app store installation: $e');
+      AppLogger.error('Error checking app store installation', e);
       return false;
     }
   }
@@ -40,7 +41,7 @@ class AppStoreService {
       // Expected installer: "com.android.vending" for Google Play
       return true; // Placeholder
     } catch (e) {
-      print('Error checking Google Play installation: $e');
+      AppLogger.error('Error checking Google Play installation', e);
       return false;
     }
   }
@@ -52,7 +53,7 @@ class AppStoreService {
       // and provisioning profile
       return true; // Placeholder
     } catch (e) {
-      print('Error checking App Store installation: $e');
+      AppLogger.error('Error checking App Store installation: $e');
       return false;
     }
   }
@@ -68,7 +69,7 @@ class AppStoreService {
         await _openAppStore();
       }
     } catch (e) {
-      print('Error opening app in store: $e');
+      AppLogger.error('Error opening app in store: $e');
     }
   }
 
@@ -78,10 +79,10 @@ class AppStoreService {
       // This would use url_launcher to open the Play Store
       final playStoreUrl =
           'https://play.google.com/store/apps/details?id=$_androidPackageName';
-      print('Opening Google Play Store: $playStoreUrl');
+      AppLogger.info('Opening Google Play Store: $playStoreUrl');
       // await launch(playStoreUrl);
     } catch (e) {
-      print('Error opening Google Play Store: $e');
+      AppLogger.error('Error opening Google Play Store: $e');
     }
   }
 
@@ -90,10 +91,10 @@ class AppStoreService {
     try {
       // This would use url_launcher to open the App Store
       final appStoreUrl = 'https://apps.apple.com/app/id$_iosAppId';
-      print('Opening App Store: $appStoreUrl');
+      AppLogger.info('Opening App Store: $appStoreUrl');
       // await launch(appStoreUrl);
     } catch (e) {
-      print('Error opening App Store: $e');
+      AppLogger.error('Error opening App Store: $e');
     }
   }
 

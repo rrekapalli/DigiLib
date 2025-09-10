@@ -19,20 +19,22 @@ class BookmarkCreationDialog extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<BookmarkCreationDialog> createState() => _BookmarkCreationDialogState();
+  ConsumerState<BookmarkCreationDialog> createState() =>
+      _BookmarkCreationDialogState();
 }
 
-class _BookmarkCreationDialogState extends ConsumerState<BookmarkCreationDialog> {
+class _BookmarkCreationDialogState
+    extends ConsumerState<BookmarkCreationDialog> {
   final _formKey = GlobalKey<FormState>();
   final _pageController = TextEditingController();
   final _noteController = TextEditingController();
-  
+
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    
+
     // Set initial page number
     if (widget.initialPageNumber != null) {
       _pageController.text = widget.initialPageNumber.toString();
@@ -77,10 +79,12 @@ class _BookmarkCreationDialogState extends ConsumerState<BookmarkCreationDialog>
 
     try {
       // Check if bookmark already exists at this page
-      final existingBookmark = await ref.read(bookmarkAtPageProvider((
-        documentId: widget.documentId,
-        pageNumber: pageNumber,
-      )).future);
+      final existingBookmark = await ref.read(
+        bookmarkAtPageProvider((
+          documentId: widget.documentId,
+          pageNumber: pageNumber,
+        )).future,
+      );
 
       if (existingBookmark != null) {
         if (mounted) {
@@ -90,12 +94,16 @@ class _BookmarkCreationDialogState extends ConsumerState<BookmarkCreationDialog>
       }
 
       // Create new bookmark
-      await ref.read(bookmarkNotifierProvider.notifier).addBookmark(
-        widget.documentId,
-        pageNumber,
-        user.id,
-        note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
-      );
+      await ref
+          .read(bookmarkNotifierProvider.notifier)
+          .addBookmark(
+            widget.documentId,
+            pageNumber,
+            user.id,
+            note: _noteController.text.trim().isEmpty
+                ? null
+                : _noteController.text.trim(),
+          );
 
       if (mounted) {
         Navigator.of(context).pop();
@@ -115,7 +123,11 @@ class _BookmarkCreationDialogState extends ConsumerState<BookmarkCreationDialog>
     }
   }
 
-  void _showConfirmReplaceDialog(String existingBookmarkId, int pageNumber, String userId) {
+  void _showConfirmReplaceDialog(
+    String existingBookmarkId,
+    int pageNumber,
+    String userId,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -136,23 +148,29 @@ class _BookmarkCreationDialogState extends ConsumerState<BookmarkCreationDialog>
           ElevatedButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              
+
               try {
                 // Update existing bookmark
-                await ref.read(bookmarkNotifierProvider.notifier).updateBookmark(
-                  existingBookmarkId,
-                  widget.documentId,
-                  note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
-                );
+                await ref
+                    .read(bookmarkNotifierProvider.notifier)
+                    .updateBookmark(
+                      existingBookmarkId,
+                      widget.documentId,
+                      note: _noteController.text.trim().isEmpty
+                          ? null
+                          : _noteController.text.trim(),
+                    );
 
-                if (mounted) {
+                if (mounted && context.mounted) {
                   Navigator.of(context).pop();
                   widget.onBookmarkCreated?.call();
                   _showSuccessSnackBar('Bookmark updated on page $pageNumber');
                 }
               } catch (error) {
-                if (mounted) {
-                  _showErrorSnackBar('Failed to update bookmark: ${error.toString()}');
+                if (mounted && context.mounted) {
+                  _showErrorSnackBar(
+                    'Failed to update bookmark: ${error.toString()}',
+                  );
                 }
               } finally {
                 if (mounted) {
@@ -208,9 +226,7 @@ class _BookmarkCreationDialogState extends ConsumerState<BookmarkCreationDialog>
                 prefixIcon: Icon(Icons.bookmark),
               ),
               keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a page number';
@@ -223,9 +239,9 @@ class _BookmarkCreationDialogState extends ConsumerState<BookmarkCreationDialog>
               },
               autofocus: widget.initialPageNumber == null,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Note field
             TextFormField(
               controller: _noteController,
@@ -279,10 +295,12 @@ class QuickBookmarkButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hasBookmarkAsync = ref.watch(hasBookmarkAtPageProvider((
-      documentId: documentId,
-      pageNumber: pageNumber,
-    )));
+    final hasBookmarkAsync = ref.watch(
+      hasBookmarkAtPageProvider((
+        documentId: documentId,
+        pageNumber: pageNumber,
+      )),
+    );
 
     return hasBookmarkAsync.when(
       loading: () => const IconButton(
@@ -295,7 +313,7 @@ class QuickBookmarkButton extends ConsumerWidget {
         tooltip: 'Add bookmark',
       ),
       data: (hasBookmark) => IconButton(
-        onPressed: hasBookmark 
+        onPressed: hasBookmark
             ? () => _showRemoveDialog(context, ref)
             : () => _showCreateDialog(context, ref),
         icon: Icon(hasBookmark ? Icons.bookmark : Icons.bookmark_border),
@@ -317,10 +335,12 @@ class QuickBookmarkButton extends ConsumerWidget {
   }
 
   void _showRemoveDialog(BuildContext context, WidgetRef ref) async {
-    final bookmark = await ref.read(bookmarkAtPageProvider((
-      documentId: documentId,
-      pageNumber: pageNumber,
-    )).future);
+    final bookmark = await ref.read(
+      bookmarkAtPageProvider((
+        documentId: documentId,
+        pageNumber: pageNumber,
+      )).future,
+    );
 
     if (bookmark == null || !context.mounted) return;
 
@@ -339,13 +359,14 @@ class QuickBookmarkButton extends ConsumerWidget {
           ElevatedButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              
+
               try {
-                await ref.read(bookmarkNotifierProvider.notifier)
+                await ref
+                    .read(bookmarkNotifierProvider.notifier)
                     .deleteBookmark(bookmark.id, documentId);
-                
+
                 onBookmarkCreated?.call();
-                
+
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -358,7 +379,9 @@ class QuickBookmarkButton extends ConsumerWidget {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Failed to remove bookmark: ${error.toString()}'),
+                      content: Text(
+                        'Failed to remove bookmark: ${error.toString()}',
+                      ),
                       backgroundColor: Theme.of(context).colorScheme.error,
                       behavior: SnackBarBehavior.floating,
                     ),

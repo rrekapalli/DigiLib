@@ -19,7 +19,7 @@ class SyncStatusIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -27,10 +27,7 @@ class SyncStatusIndicator extends StatelessWidget {
         decoration: BoxDecoration(
           color: _getBackgroundColor(theme),
           borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(
-            color: _getBorderColor(theme),
-            width: 1.0,
-          ),
+          border: Border.all(color: _getBorderColor(theme), width: 1.0),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -70,11 +67,7 @@ class SyncStatusIndicator extends StatelessWidget {
           color: _getIconColor(theme),
         );
       case SyncStatus.error:
-        return Icon(
-          Icons.error,
-          size: iconSize,
-          color: _getIconColor(theme),
-        );
+        return Icon(Icons.error, size: iconSize, color: _getIconColor(theme));
       case SyncStatus.offline:
         return Icon(
           Icons.cloud_off,
@@ -143,11 +136,11 @@ class SyncStatusIndicator extends StatelessWidget {
   Color _getBackgroundColor(ThemeData theme) {
     switch (syncProgress.status) {
       case SyncStatus.syncing:
-        return theme.colorScheme.primaryContainer.withOpacity(0.1);
+        return theme.colorScheme.primaryContainer.withValues(alpha: 0.1);
       case SyncStatus.completed:
-        return Colors.green.withOpacity(0.1);
+        return Colors.green.withValues(alpha: 0.1);
       case SyncStatus.error:
-        return theme.colorScheme.errorContainer.withOpacity(0.1);
+        return theme.colorScheme.errorContainer.withValues(alpha: 0.1);
       case SyncStatus.offline:
         return Colors.orange.withOpacity(0.1);
       case SyncStatus.idle:
