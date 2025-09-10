@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/entities/share.dart';
+import '../models/ui/share_event.dart';
 import '../providers/share_provider.dart';
 
 enum ActivityType {
@@ -47,15 +48,17 @@ class CollaborationActivityFeed extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CollaborationActivityFeed> createState() => _CollaborationActivityFeedState();
+  ConsumerState<CollaborationActivityFeed> createState() =>
+      _CollaborationActivityFeedState();
 }
 
-class _CollaborationActivityFeedState extends ConsumerState<CollaborationActivityFeed> {
+class _CollaborationActivityFeedState
+    extends ConsumerState<CollaborationActivityFeed> {
   @override
   Widget build(BuildContext context) {
     // Listen to share events to build activity feed
     final shareEventsAsync = ref.watch(shareEventsProvider);
-    
+
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +84,8 @@ class _CollaborationActivityFeedState extends ConsumerState<CollaborationActivit
           const Divider(height: 1),
           Expanded(
             child: shareEventsAsync.when(
-              data: (event) => _buildActivityList([_convertShareEventToActivity(event)]),
+              data: (event) =>
+                  _buildActivityList([_convertShareEventToActivity(event)]),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) => _buildErrorState(error.toString()),
             ),
@@ -101,10 +105,7 @@ class _CollaborationActivityFeedState extends ConsumerState<CollaborationActivit
             children: [
               Icon(Icons.timeline, size: 48, color: Colors.grey),
               SizedBox(height: 16),
-              Text(
-                'No recent activity',
-                style: TextStyle(color: Colors.grey),
-              ),
+              Text('No recent activity', style: TextStyle(color: Colors.grey)),
             ],
           ),
         ),
@@ -123,7 +124,7 @@ class _CollaborationActivityFeedState extends ConsumerState<CollaborationActivit
 
   Widget _buildActivityTile(ActivityItem activity) {
     final theme = Theme.of(context);
-    
+
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: _getActivityColor(activity.type).withOpacity(0.1),
@@ -137,8 +138,7 @@ class _CollaborationActivityFeedState extends ConsumerState<CollaborationActivit
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (activity.description != null)
-            Text(activity.description!),
+          if (activity.description != null) Text(activity.description!),
           const SizedBox(height: 4),
           Row(
             children: [
@@ -209,6 +209,14 @@ class _CollaborationActivityFeedState extends ConsumerState<CollaborationActivit
       case ShareEventType.deleted:
         activityType = ActivityType.shareRevoked;
         description = 'Revoked access for ${event.share.granteeEmail}';
+        break;
+      case ShareEventType.permissionChanged:
+        activityType = ActivityType.shareUpdated;
+        description = 'Changed permissions for ${event.share.granteeEmail}';
+        break;
+      case ShareEventType.error:
+        activityType = ActivityType.shareUpdated; // Use updated as fallback
+        description = 'Share operation failed for ${event.share.granteeEmail}';
         break;
     }
 
@@ -299,16 +307,16 @@ class _CollaborationActivityFeedState extends ConsumerState<CollaborationActivit
     // TODO: Navigate to the relevant item or show details
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Opening ${activity.subjectType.name} ${activity.subjectId}'),
+        content: Text(
+          'Opening ${activity.subjectType.name} ${activity.subjectId}',
+        ),
       ),
     );
   }
 
   void _showFullActivityFeed() {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const FullActivityFeedScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const FullActivityFeedScreen()),
     );
   }
 }
@@ -391,15 +399,14 @@ class _ActivityFilterDialogState extends State<ActivityFilterDialog> {
               );
             }),
             const SizedBox(height: 16),
-            Text(
-              'Date Range',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Date Range', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             ListTile(
-              title: Text(_dateRange == null 
-                ? 'All time' 
-                : '${_dateRange!.start.day}/${_dateRange!.start.month} - ${_dateRange!.end.day}/${_dateRange!.end.month}'),
+              title: Text(
+                _dateRange == null
+                    ? 'All time'
+                    : '${_dateRange!.start.day}/${_dateRange!.start.month} - ${_dateRange!.end.day}/${_dateRange!.end.month}',
+              ),
               trailing: const Icon(Icons.calendar_today),
               onTap: _selectDateRange,
             ),
@@ -423,10 +430,9 @@ class _ActivityFilterDialogState extends State<ActivityFilterDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            Navigator.of(context).pop({
-              'types': _selectedTypes,
-              'dateRange': _dateRange,
-            });
+            Navigator.of(
+              context,
+            ).pop({'types': _selectedTypes, 'dateRange': _dateRange});
           },
           child: const Text('Apply'),
         ),

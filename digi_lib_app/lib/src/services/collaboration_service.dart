@@ -3,6 +3,7 @@ import '../models/entities/share.dart';
 import '../models/entities/document.dart';
 import '../models/entities/bookmark.dart';
 import '../models/entities/comment.dart';
+import '../models/ui/text_selection_anchor.dart';
 import 'share_service.dart';
 import 'document_service.dart';
 import 'bookmark_service.dart';
@@ -28,7 +29,7 @@ class CollaborationService {
   final CommentService _commentService;
 
   // Stream controllers for collaboration events
-  final StreamController<CollaborationEvent> _collaborationEventsController = 
+  final StreamController<CollaborationEvent> _collaborationEventsController =
       StreamController<CollaborationEvent>.broadcast();
 
   CollaborationService({
@@ -42,10 +43,15 @@ class CollaborationService {
        _commentService = commentService;
 
   /// Stream of collaboration events
-  Stream<CollaborationEvent> get collaborationEventsStream => _collaborationEventsController.stream;
+  Stream<CollaborationEvent> get collaborationEventsStream =>
+      _collaborationEventsController.stream;
 
   /// Check if user has access to a document
-  Future<bool> hasDocumentAccess(String documentId, String userEmail, String ownerId) async {
+  Future<bool> hasDocumentAccess(
+    String documentId,
+    String userEmail,
+    String ownerId,
+  ) async {
     try {
       // Owner always has access
       if (await _isDocumentOwner(documentId, ownerId)) {
@@ -55,12 +61,19 @@ class CollaborationService {
       // Check if document is shared with user
       return await _shareService.isSharedWithUser(documentId, userEmail);
     } catch (e) {
-      throw CollaborationException('Failed to check document access: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CollaborationException(
+        'Failed to check document access: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
   /// Get user's permission level for a document
-  Future<SharePermission?> getDocumentPermission(String documentId, String userEmail, String ownerId) async {
+  Future<SharePermission?> getDocumentPermission(
+    String documentId,
+    String userEmail,
+    String ownerId,
+  ) async {
     try {
       // Owner has full permission
       if (await _isDocumentOwner(documentId, ownerId)) {
@@ -70,35 +83,62 @@ class CollaborationService {
       // Get shared permission
       return await _shareService.getSharePermission(documentId, userEmail);
     } catch (e) {
-      throw CollaborationException('Failed to get document permission: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CollaborationException(
+        'Failed to get document permission: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
   /// Check if user can view a document
-  Future<bool> canViewDocument(String documentId, String userEmail, String ownerId) async {
+  Future<bool> canViewDocument(
+    String documentId,
+    String userEmail,
+    String ownerId,
+  ) async {
     try {
-      return await _shareService.hasPermission(documentId, userEmail, SharePermission.view) ||
-             await _isDocumentOwner(documentId, ownerId);
+      return await _shareService.hasPermission(
+            documentId,
+            userEmail,
+            SharePermission.view,
+          ) ||
+          await _isDocumentOwner(documentId, ownerId);
     } catch (e) {
       return false; // Deny access on error
     }
   }
 
   /// Check if user can comment on a document
-  Future<bool> canCommentOnDocument(String documentId, String userEmail, String ownerId) async {
+  Future<bool> canCommentOnDocument(
+    String documentId,
+    String userEmail,
+    String ownerId,
+  ) async {
     try {
-      return await _shareService.hasPermission(documentId, userEmail, SharePermission.comment) ||
-             await _isDocumentOwner(documentId, ownerId);
+      return await _shareService.hasPermission(
+            documentId,
+            userEmail,
+            SharePermission.comment,
+          ) ||
+          await _isDocumentOwner(documentId, ownerId);
     } catch (e) {
       return false; // Deny access on error
     }
   }
 
   /// Check if user can edit/manage a document
-  Future<bool> canEditDocument(String documentId, String userEmail, String ownerId) async {
+  Future<bool> canEditDocument(
+    String documentId,
+    String userEmail,
+    String ownerId,
+  ) async {
     try {
-      return await _shareService.hasPermission(documentId, userEmail, SharePermission.full) ||
-             await _isDocumentOwner(documentId, ownerId);
+      return await _shareService.hasPermission(
+            documentId,
+            userEmail,
+            SharePermission.full,
+          ) ||
+          await _isDocumentOwner(documentId, ownerId);
     } catch (e) {
       return false; // Deny access on error
     }
@@ -128,91 +168,135 @@ class CollaborationService {
 
       return documents;
     } catch (e) {
-      throw CollaborationException('Failed to get shared documents: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CollaborationException(
+        'Failed to get shared documents: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
   /// Get visible bookmarks for a document based on user permissions
-  Future<List<Bookmark>> getVisibleBookmarks(String documentId, String userEmail, String ownerId) async {
+  Future<List<Bookmark>> getVisibleBookmarks(
+    String documentId,
+    String userEmail,
+    String ownerId,
+  ) async {
     try {
-      final permission = await getDocumentPermission(documentId, userEmail, ownerId);
+      final permission = await getDocumentPermission(
+        documentId,
+        userEmail,
+        ownerId,
+      );
       if (permission == null) {
         return []; // No access
       }
 
       final allBookmarks = await _bookmarkService.getBookmarks(documentId);
-      
+
       // Filter bookmarks based on permission and ownership
       return allBookmarks.where((bookmark) {
         // User can see their own bookmarks
         if (bookmark.userId == userEmail) return true;
-        
+
         // With comment or full permission, user can see shared bookmarks
-        if (permission == SharePermission.comment || permission == SharePermission.full) {
+        if (permission == SharePermission.comment ||
+            permission == SharePermission.full) {
           return true;
         }
-        
+
         // With view permission, user can only see their own bookmarks
         return false;
       }).toList();
     } catch (e) {
-      throw CollaborationException('Failed to get visible bookmarks: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CollaborationException(
+        'Failed to get visible bookmarks: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
   /// Get visible comments for a document based on user permissions
-  Future<List<Comment>> getVisibleComments(String documentId, String userEmail, String ownerId, {int? pageNumber}) async {
+  Future<List<Comment>> getVisibleComments(
+    String documentId,
+    String userEmail,
+    String ownerId, {
+    int? pageNumber,
+  }) async {
     try {
-      final permission = await getDocumentPermission(documentId, userEmail, ownerId);
+      final permission = await getDocumentPermission(
+        documentId,
+        userEmail,
+        ownerId,
+      );
       if (permission == null) {
         return []; // No access
       }
 
-      final allComments = await _commentService.getComments(documentId, pageNumber: pageNumber);
-      
+      final allComments = await _commentService.getComments(
+        documentId,
+        pageNumber: pageNumber,
+      );
+
       // Filter comments based on permission and ownership
       return allComments.where((comment) {
         // User can see their own comments
         if (comment.userId == userEmail) return true;
-        
+
         // With comment or full permission, user can see all comments
-        if (permission == SharePermission.comment || permission == SharePermission.full) {
+        if (permission == SharePermission.comment ||
+            permission == SharePermission.full) {
           return true;
         }
-        
+
         // With view permission, user can only see their own comments
         return false;
       }).toList();
     } catch (e) {
-      throw CollaborationException('Failed to get visible comments: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CollaborationException(
+        'Failed to get visible comments: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
   /// Create a bookmark with permission validation
   Future<Bookmark> createBookmarkWithPermission(
-    String documentId, 
-    int pageNumber, 
-    String userId, 
-    String ownerId,
-    {String? note}
-  ) async {
+    String documentId,
+    int pageNumber,
+    String userId,
+    String ownerId, {
+    String? note,
+  }) async {
     try {
       // Check if user has at least view permission
       if (!await canViewDocument(documentId, userId, ownerId)) {
-        throw CollaborationException('Insufficient permissions to create bookmark', code: 'PERMISSION_DENIED');
+        throw CollaborationException(
+          'Insufficient permissions to create bookmark',
+          code: 'PERMISSION_DENIED',
+        );
       }
 
-      final bookmark = await _bookmarkService.addBookmark(documentId, pageNumber, userId, note: note);
-      
-      _collaborationEventsController.add(CollaborationEvent.bookmarkCreated(
-        documentId: documentId,
-        userId: userId,
-        bookmark: bookmark,
-      ));
-      
+      final bookmark = await _bookmarkService.addBookmark(
+        documentId,
+        pageNumber,
+        userId,
+        note: note,
+      );
+
+      _collaborationEventsController.add(
+        CollaborationEvent.bookmarkCreated(
+          documentId: documentId,
+          userId: userId,
+          bookmark: bookmark,
+        ),
+      );
+
       return bookmark;
     } catch (e) {
-      throw CollaborationException('Failed to create bookmark: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CollaborationException(
+        'Failed to create bookmark: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -222,32 +306,40 @@ class CollaborationService {
     int pageNumber,
     String content,
     String userId,
-    String ownerId,
-    {Map<String, dynamic>? anchor}
-  ) async {
+    String ownerId, {
+    Map<String, dynamic>? anchor,
+  }) async {
     try {
       // Check if user has comment permission
       if (!await canCommentOnDocument(documentId, userId, ownerId)) {
-        throw CollaborationException('Insufficient permissions to create comment', code: 'PERMISSION_DENIED');
+        throw CollaborationException(
+          'Insufficient permissions to create comment',
+          code: 'PERMISSION_DENIED',
+        );
       }
 
       final comment = await _commentService.addComment(
-        documentId, 
-        pageNumber, 
-        content, 
+        documentId,
+        pageNumber,
+        content,
         userId,
-        anchor: anchor,
+        anchor: anchor != null ? TextSelectionAnchor.fromJson(anchor) : null,
       );
-      
-      _collaborationEventsController.add(CollaborationEvent.commentCreated(
-        documentId: documentId,
-        userId: userId,
-        comment: comment,
-      ));
-      
+
+      _collaborationEventsController.add(
+        CollaborationEvent.commentCreated(
+          documentId: documentId,
+          userId: userId,
+          comment: comment,
+        ),
+      );
+
       return comment;
     } catch (e) {
-      throw CollaborationException('Failed to create comment: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CollaborationException(
+        'Failed to create comment: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -267,22 +359,35 @@ class CollaborationService {
       }
 
       // User can only edit their own comments, or owner can edit any comment
-      final canEdit = existingComment.userId == userId || await _isDocumentOwner(documentId, ownerId);
+      final canEdit =
+          existingComment.userId == userId ||
+          await _isDocumentOwner(documentId, ownerId);
       if (!canEdit) {
-        throw CollaborationException('Insufficient permissions to edit comment', code: 'PERMISSION_DENIED');
+        throw CollaborationException(
+          'Insufficient permissions to edit comment',
+          code: 'PERMISSION_DENIED',
+        );
       }
 
-      final updatedComment = await _commentService.updateComment(commentId, content);
-      
-      _collaborationEventsController.add(CollaborationEvent.commentUpdated(
-        documentId: documentId,
-        userId: userId,
-        comment: updatedComment,
-      ));
-      
+      final updatedComment = await _commentService.updateComment(
+        commentId,
+        content,
+      );
+
+      _collaborationEventsController.add(
+        CollaborationEvent.commentUpdated(
+          documentId: documentId,
+          userId: userId,
+          comment: updatedComment,
+        ),
+      );
+
       return updatedComment;
     } catch (e) {
-      throw CollaborationException('Failed to update comment: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CollaborationException(
+        'Failed to update comment: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -301,20 +406,30 @@ class CollaborationService {
       }
 
       // User can only delete their own comments, or owner can delete any comment
-      final canDelete = existingComment.userId == userId || await _isDocumentOwner(documentId, ownerId);
+      final canDelete =
+          existingComment.userId == userId ||
+          await _isDocumentOwner(documentId, ownerId);
       if (!canDelete) {
-        throw CollaborationException('Insufficient permissions to delete comment', code: 'PERMISSION_DENIED');
+        throw CollaborationException(
+          'Insufficient permissions to delete comment',
+          code: 'PERMISSION_DENIED',
+        );
       }
 
       await _commentService.deleteComment(commentId);
-      
-      _collaborationEventsController.add(CollaborationEvent.commentDeleted(
-        documentId: documentId,
-        userId: userId,
-        comment: existingComment,
-      ));
+
+      _collaborationEventsController.add(
+        CollaborationEvent.commentDeleted(
+          documentId: documentId,
+          userId: userId,
+          comment: existingComment,
+        ),
+      );
     } catch (e) {
-      throw CollaborationException('Failed to delete comment: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CollaborationException(
+        'Failed to delete comment: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -323,61 +438,85 @@ class CollaborationService {
     try {
       // This would integrate with a notification service
       // For now, we'll emit an event that the UI can handle
-      _collaborationEventsController.add(CollaborationEvent.shareInvitationSent(
-        share: share,
-        inviterName: inviterName,
-      ));
-      
+      _collaborationEventsController.add(
+        CollaborationEvent.shareInvitationSent(
+          share: share,
+          inviterName: inviterName,
+        ),
+      );
+
       // TODO: Implement actual notification sending (email, push notification, etc.)
       // This could integrate with services like:
       // - Email service for email notifications
       // - Push notification service for mobile notifications
       // - In-app notification system
-      
     } catch (e) {
-      throw CollaborationException('Failed to send share invitation: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CollaborationException(
+        'Failed to send share invitation: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
   /// Get collaboration activity for a document
-  Future<List<CollaborationActivity>> getDocumentActivity(String documentId, String userEmail, String ownerId) async {
+  Future<List<CollaborationActivity>> getDocumentActivity(
+    String documentId,
+    String userEmail,
+    String ownerId,
+  ) async {
     try {
       if (!await canViewDocument(documentId, userEmail, ownerId)) {
-        throw CollaborationException('Insufficient permissions to view activity', code: 'PERMISSION_DENIED');
+        throw CollaborationException(
+          'Insufficient permissions to view activity',
+          code: 'PERMISSION_DENIED',
+        );
       }
 
       final activities = <CollaborationActivity>[];
-      
+
       // Get recent bookmarks
-      final bookmarks = await getVisibleBookmarks(documentId, userEmail, ownerId);
-      for (final bookmark in bookmarks.take(10)) { // Limit to recent 10
-        activities.add(CollaborationActivity(
-          type: CollaborationActivityType.bookmarkCreated,
-          userId: bookmark.userId,
-          timestamp: bookmark.createdAt,
-          documentId: documentId,
-          description: 'Added bookmark on page ${bookmark.pageNumber}',
-        ));
+      final bookmarks = await getVisibleBookmarks(
+        documentId,
+        userEmail,
+        ownerId,
+      );
+      for (final bookmark in bookmarks.take(10)) {
+        // Limit to recent 10
+        activities.add(
+          CollaborationActivity(
+            type: CollaborationActivityType.bookmarkCreated,
+            userId: bookmark.userId,
+            timestamp: bookmark.createdAt,
+            documentId: documentId,
+            description: 'Added bookmark on page ${bookmark.pageNumber}',
+          ),
+        );
       }
-      
+
       // Get recent comments
       final comments = await getVisibleComments(documentId, userEmail, ownerId);
-      for (final comment in comments.take(10)) { // Limit to recent 10
-        activities.add(CollaborationActivity(
-          type: CollaborationActivityType.commentCreated,
-          userId: comment.userId ?? 'Unknown',
-          timestamp: comment.createdAt,
-          documentId: documentId,
-          description: 'Added comment on page ${comment.pageNumber}',
-        ));
+      for (final comment in comments.take(10)) {
+        // Limit to recent 10
+        activities.add(
+          CollaborationActivity(
+            type: CollaborationActivityType.commentCreated,
+            userId: comment.userId ?? 'Unknown',
+            timestamp: comment.createdAt,
+            documentId: documentId,
+            description: 'Added comment on page ${comment.pageNumber}',
+          ),
+        );
       }
-      
+
       // Sort by timestamp (most recent first)
       activities.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-      
+
       return activities.take(20).toList(); // Return top 20 activities
     } catch (e) {
-      throw CollaborationException('Failed to get document activity: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CollaborationException(
+        'Failed to get document activity: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -400,12 +539,12 @@ class CollaborationService {
 }
 
 /// Event types for collaboration operations
-enum CollaborationEventType { 
-  bookmarkCreated, 
-  commentCreated, 
-  commentUpdated, 
-  commentDeleted, 
-  shareInvitationSent 
+enum CollaborationEventType {
+  bookmarkCreated,
+  commentCreated,
+  commentUpdated,
+  commentDeleted,
+  shareInvitationSent,
 }
 
 /// Event model for collaboration operations

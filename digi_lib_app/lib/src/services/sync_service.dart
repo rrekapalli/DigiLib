@@ -10,13 +10,7 @@ import 'job_queue_service.dart';
 import '../network/connectivity_service.dart';
 
 /// Enum for sync status
-enum SyncStatus {
-  idle,
-  syncing,
-  completed,
-  error,
-  offline,
-}
+enum SyncStatus { idle, syncing, completed, error, offline }
 
 /// Sync progress information
 class SyncProgress {
@@ -34,7 +28,8 @@ class SyncProgress {
     this.error,
   });
 
-  double get progress => totalChanges > 0 ? processedChanges / totalChanges : 0.0;
+  double get progress =>
+      totalChanges > 0 ? processedChanges / totalChanges : 0.0;
 
   SyncProgress copyWith({
     SyncStatus? status,
@@ -60,7 +55,8 @@ class SyncService {
   final ConnectivityService _connectivityService;
   final DatabaseHelper _databaseHelper;
 
-  final StreamController<SyncProgress> _syncStatusController = StreamController<SyncProgress>.broadcast();
+  final StreamController<SyncProgress> _syncStatusController =
+      StreamController<SyncProgress>.broadcast();
   SyncProgress _currentProgress = const SyncProgress(status: SyncStatus.idle);
 
   Timer? _backgroundSyncTimer;
@@ -71,10 +67,10 @@ class SyncService {
     required JobQueueService jobQueueService,
     required ConnectivityService connectivityService,
     DatabaseHelper? databaseHelper,
-  })  : _syncApiService = syncApiService,
-        _jobQueueService = jobQueueService,
-        _connectivityService = connectivityService,
-        _databaseHelper = databaseHelper ?? DatabaseHelper.instance {
+  }) : _syncApiService = syncApiService,
+       _jobQueueService = jobQueueService,
+       _connectivityService = connectivityService,
+       _databaseHelper = databaseHelper ?? DatabaseHelper.instance {
     _initializeBackgroundSync();
   }
 
@@ -115,32 +111,38 @@ class SyncService {
     }
 
     if (!_connectivityService.isConnected) {
-      _updateSyncProgress(const SyncProgress(
-        status: SyncStatus.offline,
-        message: 'No internet connection',
-      ));
+      _updateSyncProgress(
+        const SyncProgress(
+          status: SyncStatus.offline,
+          message: 'No internet connection',
+        ),
+      );
       return;
     }
 
     _isSyncing = true;
-    _updateSyncProgress(const SyncProgress(
-      status: SyncStatus.syncing,
-      message: 'Starting synchronization...',
-    ));
+    _updateSyncProgress(
+      const SyncProgress(
+        status: SyncStatus.syncing,
+        message: 'Starting synchronization...',
+      ),
+    );
 
     try {
       // Get last sync timestamp if not provided
       final lastSyncTime = since ?? await _getLastSyncTimestamp();
-      
+
       debugPrint('Starting delta sync since: $lastSyncTime');
 
       // Step 1: Get server changes
-      _updateSyncProgress(_currentProgress.copyWith(
-        message: 'Fetching server changes...',
-      ));
+      _updateSyncProgress(
+        _currentProgress.copyWith(message: 'Fetching server changes...'),
+      );
 
-      final manifest = await _syncApiService.getSyncManifest(since: lastSyncTime);
-      
+      final manifest = await _syncApiService.getSyncManifest(
+        since: lastSyncTime,
+      );
+
       debugPrint('Received ${manifest.changes.length} changes from server');
 
       // Step 2: Apply server changes locally
@@ -154,27 +156,30 @@ class SyncService {
       // Step 4: Update last sync timestamp
       await _updateLastSyncTimestamp(manifest.timestamp);
 
-      _updateSyncProgress(SyncProgress(
-        status: SyncStatus.completed,
-        totalChanges: manifest.changes.length,
-        processedChanges: manifest.changes.length,
-        message: 'Synchronization completed successfully',
-      ));
+      _updateSyncProgress(
+        SyncProgress(
+          status: SyncStatus.completed,
+          totalChanges: manifest.changes.length,
+          processedChanges: manifest.changes.length,
+          message: 'Synchronization completed successfully',
+        ),
+      );
 
       debugPrint('Delta sync completed successfully');
-
     } catch (e, stackTrace) {
       debugPrint('Sync error: $e');
       debugPrint('Stack trace: $stackTrace');
-      
-      _updateSyncProgress(SyncProgress(
-        status: SyncStatus.error,
-        error: e.toString(),
-        message: 'Synchronization failed',
-      ));
+
+      _updateSyncProgress(
+        SyncProgress(
+          status: SyncStatus.error,
+          error: e.toString(),
+          message: 'Synchronization failed',
+        ),
+      );
     } finally {
       _isSyncing = false;
-      
+
       // Reset to idle after a delay
       Timer(const Duration(seconds: 3), () {
         if (_currentProgress.status != SyncStatus.syncing) {
@@ -191,9 +196,9 @@ class SyncService {
       return;
     }
 
-    _updateSyncProgress(_currentProgress.copyWith(
-      message: 'Pushing local changes...',
-    ));
+    _updateSyncProgress(
+      _currentProgress.copyWith(message: 'Pushing local changes...'),
+    );
 
     // Get pending jobs from queue
     final pendingJobs = await _jobQueueService.getPendingJobs();
@@ -225,14 +230,17 @@ class SyncService {
       );
 
       final response = await _syncApiService.pushLocalChanges(request);
-      
-      debugPrint('Push response: ${response.acceptedChanges.length} accepted, ${response.conflicts.length} conflicts');
+
+      debugPrint(
+        'Push response: ${response.acceptedChanges.length} accepted, ${response.conflicts.length} conflicts',
+      );
 
       // Handle accepted changes - remove from job queue
       for (final changeId in response.acceptedChanges) {
         final job = pendingJobs.firstWhere(
           (j) => j.id == changeId,
-          orElse: () => throw StateError('Job not found for change ID: $changeId'),
+          orElse: () =>
+              throw StateError('Job not found for change ID: $changeId'),
         );
         await _jobQueueService.completeJob(job.id);
       }
@@ -241,44 +249,48 @@ class SyncService {
       if (response.conflicts.isNotEmpty) {
         await _handleSyncConflicts(response.conflicts, pendingJobs);
       }
-
     } catch (e) {
       debugPrint('Failed to push offline actions: $e');
-      
+
       // Mark jobs as failed with retry
       for (final job in pendingJobs) {
-        await _jobQueueService.incrementJobAttempts(job.id, error: e.toString());
-        
+        await _jobQueueService.incrementJobAttempts(
+          job.id,
+          error: e.toString(),
+        );
+
         // If too many attempts, mark as failed
         if (job.attempts >= 3) {
-          await _jobQueueService.failJob(job.id, 'Max retry attempts exceeded: $e');
+          await _jobQueueService.failJob(
+            job.id,
+            'Max retry attempts exceeded: $e',
+          );
         }
       }
-      
+
       rethrow;
     }
   }
 
   /// Apply server changes to local database
   Future<void> _applyServerChanges(List<SyncChange> changes) async {
-    _updateSyncProgress(_currentProgress.copyWith(
-      totalChanges: changes.length,
-      processedChanges: 0,
-      message: 'Applying server changes...',
-    ));
+    _updateSyncProgress(
+      _currentProgress.copyWith(
+        totalChanges: changes.length,
+        processedChanges: 0,
+        message: 'Applying server changes...',
+      ),
+    );
 
     final db = await _databaseHelper.database;
-    
+
     for (int i = 0; i < changes.length; i++) {
       final change = changes[i];
-      
+
       try {
         await _applySyncChange(db, change);
-        
-        _updateSyncProgress(_currentProgress.copyWith(
-          processedChanges: i + 1,
-        ));
-        
+
+        _updateSyncProgress(_currentProgress.copyWith(processedChanges: i + 1));
       } catch (e) {
         debugPrint('Failed to apply sync change ${change.entityId}: $e');
         // Continue with other changes
@@ -324,7 +336,8 @@ class SyncService {
           final document = Document.fromJson(change.data!);
           await db.insert(
             'documents',
-            document.toJson()..['synced_at'] = DateTime.now().millisecondsSinceEpoch,
+            document.toJson()
+              ..['synced_at'] = DateTime.now().millisecondsSinceEpoch,
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
         }
@@ -388,7 +401,10 @@ class SyncService {
   }
 
   /// Apply reading progress changes
-  Future<void> _applyReadingProgressChange(Database db, SyncChange change) async {
+  Future<void> _applyReadingProgressChange(
+    Database db,
+    SyncChange change,
+  ) async {
     switch (change.operation) {
       case 'create':
       case 'update':
@@ -426,11 +442,7 @@ class SyncService {
         }
         break;
       case 'delete':
-        await db.delete(
-          'tags',
-          where: 'id = ?',
-          whereArgs: [change.entityId],
-        );
+        await db.delete('tags', where: 'id = ?', whereArgs: [change.entityId]);
         break;
     }
   }
@@ -522,6 +534,10 @@ class SyncService {
       case JobType.updateShare:
       case JobType.deleteShare:
         return 'share';
+      case JobType.createLibrary:
+      case JobType.deleteLibrary:
+      case JobType.scanLibrary:
+        return 'library';
     }
   }
 
@@ -545,25 +561,39 @@ class SyncService {
       case JobType.deleteTag:
       case JobType.removeTagFromDocument:
       case JobType.deleteShare:
+      case JobType.deleteLibrary:
         return 'delete';
+      case JobType.createLibrary:
+        return 'create';
+      case JobType.scanLibrary:
+        return 'scan';
     }
   }
 
   /// Handle sync conflicts using last-write-wins strategy
-  Future<void> _handleSyncConflicts(List<SyncConflict> conflicts, List<Job> pendingJobs) async {
+  Future<void> _handleSyncConflicts(
+    List<SyncConflict> conflicts,
+    List<Job> pendingJobs,
+  ) async {
     debugPrint('Handling ${conflicts.length} sync conflicts');
 
     for (final conflict in conflicts) {
-      debugPrint('Conflict for ${conflict.entityType}:${conflict.entityId} - ${conflict.resolution}');
+      debugPrint(
+        'Conflict for ${conflict.entityType}:${conflict.entityId} - ${conflict.resolution}',
+      );
 
       switch (conflict.resolution) {
         case 'server_wins':
           // Apply server version and remove local job
           final job = pendingJobs.firstWhere(
-            (j) => j.payload['id'] == conflict.entityId || j.payload['entity_id'] == conflict.entityId,
-            orElse: () => throw StateError('Job not found for conflict entity: ${conflict.entityId}'),
+            (j) =>
+                j.payload['id'] == conflict.entityId ||
+                j.payload['entity_id'] == conflict.entityId,
+            orElse: () => throw StateError(
+              'Job not found for conflict entity: ${conflict.entityId}',
+            ),
           );
-          
+
           // Apply server version
           final serverChange = SyncChange(
             entityType: conflict.entityType,
@@ -572,10 +602,10 @@ class SyncService {
             data: conflict.serverVersion,
             timestamp: DateTime.now(),
           );
-          
+
           final db = await _databaseHelper.database;
           await _applySyncChange(db, serverChange);
-          
+
           // Remove local job
           await _jobQueueService.completeJob(job.id);
           break;
@@ -583,8 +613,12 @@ class SyncService {
         case 'client_wins':
           // Keep local version, server will accept it
           final job = pendingJobs.firstWhere(
-            (j) => j.payload['id'] == conflict.entityId || j.payload['entity_id'] == conflict.entityId,
-            orElse: () => throw StateError('Job not found for conflict entity: ${conflict.entityId}'),
+            (j) =>
+                j.payload['id'] == conflict.entityId ||
+                j.payload['entity_id'] == conflict.entityId,
+            orElse: () => throw StateError(
+              'Job not found for conflict entity: ${conflict.entityId}',
+            ),
           );
           await _jobQueueService.completeJob(job.id);
           break;
@@ -592,13 +626,19 @@ class SyncService {
         case 'merge_required':
           // For now, use server_wins strategy
           // TODO: Implement proper merge logic for specific entity types
-          debugPrint('Merge required for ${conflict.entityType}:${conflict.entityId}, using server_wins');
-          
-          final job = pendingJobs.firstWhere(
-            (j) => j.payload['id'] == conflict.entityId || j.payload['entity_id'] == conflict.entityId,
-            orElse: () => throw StateError('Job not found for conflict entity: ${conflict.entityId}'),
+          debugPrint(
+            'Merge required for ${conflict.entityType}:${conflict.entityId}, using server_wins',
           );
-          
+
+          final job = pendingJobs.firstWhere(
+            (j) =>
+                j.payload['id'] == conflict.entityId ||
+                j.payload['entity_id'] == conflict.entityId,
+            orElse: () => throw StateError(
+              'Job not found for conflict entity: ${conflict.entityId}',
+            ),
+          );
+
           final serverChange = SyncChange(
             entityType: conflict.entityType,
             entityId: conflict.entityId,
@@ -606,7 +646,7 @@ class SyncService {
             data: conflict.serverVersion,
             timestamp: DateTime.now(),
           );
-          
+
           final db = await _databaseHelper.database;
           await _applySyncChange(db, serverChange);
           await _jobQueueService.completeJob(job.id);
@@ -636,15 +676,11 @@ class SyncService {
   /// Update last sync timestamp in local storage
   Future<void> _updateLastSyncTimestamp(DateTime timestamp) async {
     final db = await _databaseHelper.database;
-    await db.insert(
-      'sync_metadata',
-      {
-        'key': 'last_sync_timestamp',
-        'value': timestamp.toIso8601String(),
-        'updated_at': DateTime.now().millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('sync_metadata', {
+      'key': 'last_sync_timestamp',
+      'value': timestamp.toIso8601String(),
+      'updated_at': DateTime.now().millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   /// Update sync progress and notify listeners
@@ -657,7 +693,9 @@ class SyncService {
   Future<void> scheduleBackgroundSync() async {
     // This would integrate with platform-specific background services
     // For now, we rely on the periodic timer when app is active
-    debugPrint('Background sync scheduling not implemented for current platform');
+    debugPrint(
+      'Background sync scheduling not implemented for current platform',
+    );
   }
 
   /// Force sync now (useful for manual sync triggers)

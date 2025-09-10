@@ -14,6 +14,27 @@ class ShareEvent {
     this.error,
   });
 
+  /// Factory constructor for created events
+  factory ShareEvent.created(Share share) => ShareEvent(
+    type: ShareEventType.created,
+    share: share,
+    timestamp: DateTime.now(),
+  );
+
+  /// Factory constructor for updated events
+  factory ShareEvent.updated(Share share) => ShareEvent(
+    type: ShareEventType.updated,
+    share: share,
+    timestamp: DateTime.now(),
+  );
+
+  /// Factory constructor for deleted events
+  factory ShareEvent.deleted(Share share) => ShareEvent(
+    type: ShareEventType.deleted,
+    share: share,
+    timestamp: DateTime.now(),
+  );
+
   /// Check if event represents an error
   bool get isError => error != null;
 
@@ -52,15 +73,9 @@ class ShareEvent {
   @override
   String toString() {
     return 'ShareEvent(type: $type, share: ${share.id}, '
-           'timestamp: $timestamp, error: $error)';
+        'timestamp: $timestamp, error: $error)';
   }
 }
 
 /// Types of share events
-enum ShareEventType {
-  created,
-  updated,
-  deleted,
-  permissionChanged,
-  error,
-}
+enum ShareEventType { created, updated, deleted, permissionChanged, error }

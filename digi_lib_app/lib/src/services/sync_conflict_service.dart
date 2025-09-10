@@ -27,7 +27,7 @@ class SyncConflictInfo {
   /// Get a human-readable description of the conflict
   String get displayDescription {
     if (description != null) return description!;
-    
+
     switch (entityType) {
       case 'bookmark':
         return 'Bookmark conflict: Different notes or page numbers';
@@ -70,21 +70,23 @@ class SyncConflictInfo {
 /// Service for handling sync conflict resolution
 class SyncConflictService {
   final JobQueueService _jobQueueService;
-  final StreamController<List<SyncConflictInfo>> _conflictsController = 
+  final StreamController<List<SyncConflictInfo>> _conflictsController =
       StreamController<List<SyncConflictInfo>>.broadcast();
 
   List<SyncConflictInfo> _currentConflicts = [];
 
   SyncConflictService({required JobQueueService jobQueueService})
-      : _jobQueueService = jobQueueService {
+    : _jobQueueService = jobQueueService {
     _initializeConflictMonitoring();
   }
 
   /// Stream of current sync conflicts
-  Stream<List<SyncConflictInfo>> get conflictsStream => _conflictsController.stream;
+  Stream<List<SyncConflictInfo>> get conflictsStream =>
+      _conflictsController.stream;
 
   /// Get current list of conflicts
-  List<SyncConflictInfo> get currentConflicts => List.unmodifiable(_currentConflicts);
+  List<SyncConflictInfo> get currentConflicts =>
+      List.unmodifiable(_currentConflicts);
 
   /// Check if there are any unresolved conflicts
   bool get hasConflicts => _currentConflicts.isNotEmpty;
@@ -104,19 +106,22 @@ class SyncConflictService {
   Future<void> _refreshConflicts() async {
     try {
       final conflictedJobs = await _jobQueueService.getConflictedJobs();
-      
-      _currentConflicts = conflictedJobs.map((job) => SyncConflictInfo(
-        id: job.id,
-        entityType: _getEntityTypeFromJobType(job.type),
-        entityId: job.payload['id'] ?? job.payload['entity_id'] ?? job.id,
-        localVersion: job.payload,
-        serverVersion: {}, // Would be populated from actual conflict data
-        conflictTime: job.createdAt,
-        description: job.lastError,
-      )).toList();
+
+      _currentConflicts = conflictedJobs
+          .map(
+            (job) => SyncConflictInfo(
+              id: job.id,
+              entityType: _getEntityTypeFromJobType(job.type),
+              entityId: job.payload['id'] ?? job.payload['entity_id'] ?? job.id,
+              localVersion: job.payload,
+              serverVersion: {}, // Would be populated from actual conflict data
+              conflictTime: job.createdAt,
+              description: job.lastError,
+            ),
+          )
+          .toList();
 
       _conflictsController.add(_currentConflicts);
-      
     } catch (e) {
       debugPrint('Error refreshing conflicts: $e');
     }
@@ -138,7 +143,10 @@ class SyncConflictService {
   }
 
   /// Resolve a conflict with the specified resolution strategy
-  Future<void> resolveConflict(String conflictId, ConflictResolution resolution) async {
+  Future<void> resolveConflict(
+    String conflictId,
+    ConflictResolution resolution,
+  ) async {
     try {
       // Find the conflict
       final conflict = _currentConflicts.firstWhere(
@@ -154,7 +162,6 @@ class SyncConflictService {
       _conflictsController.add(_currentConflicts);
 
       debugPrint('Resolved conflict $conflictId with strategy: $resolution');
-      
     } catch (e) {
       debugPrint('Error resolving conflict $conflictId: $e');
       rethrow;
@@ -164,7 +171,7 @@ class SyncConflictService {
   /// Resolve all conflicts with the same strategy
   Future<void> resolveAllConflicts(ConflictResolution resolution) async {
     final conflictIds = _currentConflicts.map((c) => c.id).toList();
-    
+
     for (final conflictId in conflictIds) {
       try {
         await resolveConflict(conflictId, resolution);
@@ -182,22 +189,24 @@ class SyncConflictService {
         // For reading progress, prefer the higher page number
         final localPage = conflict.localVersion['last_page'] as int? ?? 0;
         final serverPage = conflict.serverVersion['last_page'] as int? ?? 0;
-        return localPage > serverPage ? ConflictResolution.useLocal : ConflictResolution.useServer;
-        
+        return localPage > serverPage
+            ? ConflictResolution.useLocal
+            : ConflictResolution.useServer;
+
       case 'bookmark':
       case 'comment':
         // For user-generated content, prefer local changes
         return ConflictResolution.useLocal;
-        
+
       case 'tag':
       case 'document_tag':
         // For organizational data, prefer server version
         return ConflictResolution.useServer;
-        
+
       case 'share':
         // For sharing, prefer more restrictive permissions (server)
         return ConflictResolution.useServer;
-        
+
       default:
         // Default to server version for unknown types
         return ConflictResolution.useServer;
@@ -207,11 +216,11 @@ class SyncConflictService {
   /// Get conflict statistics
   Map<String, int> getConflictStatistics() {
     final stats = <String, int>{};
-    
+
     for (final conflict in _currentConflicts) {
       stats[conflict.entityType] = (stats[conflict.entityType] ?? 0) + 1;
     }
-    
+
     return stats;
   }
 
@@ -245,6 +254,10 @@ class SyncConflictService {
       case JobType.updateShare:
       case JobType.deleteShare:
         return 'share';
+      case JobType.createLibrary:
+      case JobType.deleteLibrary:
+      case JobType.scanLibrary:
+        return 'library';
     }
   }
 

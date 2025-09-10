@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/ui/text_selection_anchor.dart';
 import '../providers/comment_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/comment_service.dart';
@@ -20,13 +21,14 @@ class CommentCreationDialog extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CommentCreationDialog> createState() => _CommentCreationDialogState();
+  ConsumerState<CommentCreationDialog> createState() =>
+      _CommentCreationDialogState();
 }
 
 class _CommentCreationDialogState extends ConsumerState<CommentCreationDialog> {
   final _formKey = GlobalKey<FormState>();
   final _contentController = TextEditingController();
-  
+
   bool _isLoading = false;
 
   @override
@@ -49,13 +51,15 @@ class _CommentCreationDialogState extends ConsumerState<CommentCreationDialog> {
     });
 
     try {
-      await ref.read(commentNotifierProvider.notifier).addComment(
-        widget.documentId,
-        widget.pageNumber,
-        _contentController.text.trim(),
-        user.id,
-        anchor: widget.anchor,
-      );
+      await ref
+          .read(commentNotifierProvider.notifier)
+          .addComment(
+            widget.documentId,
+            widget.pageNumber,
+            _contentController.text.trim(),
+            user.id,
+            anchor: widget.anchor,
+          );
 
       if (mounted) {
         Navigator.of(context).pop();
@@ -126,10 +130,11 @@ class _CommentCreationDialogState extends ConsumerState<CommentCreationDialog> {
                         const SizedBox(width: 4),
                         Text(
                           'Selected text:',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                         ),
                       ],
                     ),
@@ -147,7 +152,7 @@ class _CommentCreationDialogState extends ConsumerState<CommentCreationDialog> {
               ),
               const SizedBox(height: 16),
             ],
-            
+
             // Comment content field
             TextFormField(
               controller: _contentController,
@@ -285,7 +290,8 @@ class InlineCommentCreator extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<InlineCommentCreator> createState() => _InlineCommentCreatorState();
+  ConsumerState<InlineCommentCreator> createState() =>
+      _InlineCommentCreatorState();
 }
 
 class _InlineCommentCreatorState extends ConsumerState<InlineCommentCreator> {
@@ -312,13 +318,15 @@ class _InlineCommentCreatorState extends ConsumerState<InlineCommentCreator> {
     });
 
     try {
-      await ref.read(commentNotifierProvider.notifier).addComment(
-        widget.documentId,
-        widget.pageNumber,
-        _contentController.text.trim(),
-        user.id,
-        anchor: widget.anchor,
-      );
+      await ref
+          .read(commentNotifierProvider.notifier)
+          .addComment(
+            widget.documentId,
+            widget.pageNumber,
+            _contentController.text.trim(),
+            user.id,
+            anchor: widget.anchor,
+          );
 
       if (mounted) {
         widget.onCommentCreated?.call();
@@ -353,9 +361,7 @@ class _InlineCommentCreatorState extends ConsumerState<InlineCommentCreator> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline,
-        ),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,7 +383,7 @@ class _InlineCommentCreatorState extends ConsumerState<InlineCommentCreator> {
               ),
             ],
           ),
-          
+
           // Selected text (if anchor exists)
           if (widget.anchor != null) ...[
             const SizedBox(height: 8),
@@ -389,17 +395,17 @@ class _InlineCommentCreatorState extends ConsumerState<InlineCommentCreator> {
               ),
               child: Text(
                 '"${widget.anchor!.selectedText}"',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontStyle: FontStyle.italic,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
-          
+
           const SizedBox(height: 8),
-          
+
           // Comment field
           TextField(
             controller: _contentController,
@@ -411,9 +417,9 @@ class _InlineCommentCreatorState extends ConsumerState<InlineCommentCreator> {
             maxLines: 3,
             autofocus: true,
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Actions
           Row(
             mainAxisAlignment: MainAxisAlignment.end,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/entities/comment.dart';
+import '../models/ui/text_selection_anchor.dart';
 import '../services/comment_service.dart';
 import '../providers/comment_provider.dart';
 import '../widgets/comment_bubble.dart';
@@ -42,10 +43,12 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
         onCommentCreated: () {
           widget.onCommentAdded?.call();
           // Refresh comments
-          ref.invalidate(pageCommentsProvider((
-            documentId: widget.documentId,
-            pageNumber: widget.pageNumber,
-          )));
+          ref.invalidate(
+            pageCommentsProvider((
+              documentId: widget.documentId,
+              pageNumber: widget.pageNumber,
+            )),
+          );
         },
       ),
     );
@@ -58,10 +61,12 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
         comment: comment,
         onCommentUpdated: () {
           // Refresh comments
-          ref.invalidate(pageCommentsProvider((
-            documentId: widget.documentId,
-            pageNumber: widget.pageNumber,
-          )));
+          ref.invalidate(
+            pageCommentsProvider((
+              documentId: widget.documentId,
+              pageNumber: widget.pageNumber,
+            )),
+          );
         },
       ),
     );
@@ -98,7 +103,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
         // Fallback to default position if anchor data is invalid
       }
     }
-    
+
     // Default position for comments without anchors
     return Offset(
       pageSize.width * 0.8,
@@ -112,10 +117,12 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
       return const SizedBox.shrink();
     }
 
-    final commentsAsync = ref.watch(pageCommentsProvider((
-      documentId: widget.documentId,
-      pageNumber: widget.pageNumber,
-    )));
+    final commentsAsync = ref.watch(
+      pageCommentsProvider((
+        documentId: widget.documentId,
+        pageNumber: widget.pageNumber,
+      )),
+    );
 
     return commentsAsync.when(
       loading: () => const SizedBox.shrink(),
@@ -127,7 +134,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
             final position = _getCommentPosition(comment, widget.pageSize);
             final isExpanded = _expandedComments.contains(comment.id);
             final isSelected = _selectedCommentId == comment.id;
-            
+
             return Positioned(
               left: position.dx,
               top: position.dy,
@@ -142,7 +149,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
               ),
             );
           }),
-          
+
           // Floating action button for adding comments
           Positioned(
             right: 16,
@@ -172,11 +179,12 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
           ElevatedButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              
+
               try {
-                await ref.read(commentNotifierProvider.notifier)
+                await ref
+                    .read(commentNotifierProvider.notifier)
                     .deleteComment(comment.id, widget.documentId);
-                
+
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -189,7 +197,9 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Failed to delete comment: ${error.toString()}'),
+                      content: Text(
+                        'Failed to delete comment: ${error.toString()}',
+                      ),
                       backgroundColor: Theme.of(context).colorScheme.error,
                       behavior: SnackBarBehavior.floating,
                     ),
@@ -224,17 +234,19 @@ class CommentIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final commentCountAsync = ref.watch(pageCommentCountProvider((
-      documentId: documentId,
-      pageNumber: pageNumber,
-    )));
+    final commentCountAsync = ref.watch(
+      pageCommentCountProvider((
+        documentId: documentId,
+        pageNumber: pageNumber,
+      )),
+    );
 
     return commentCountAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (error, stackTrace) => const SizedBox.shrink(),
       data: (count) {
         if (count == 0) return const SizedBox.shrink();
-        
+
         return GestureDetector(
           onTap: onTap,
           child: Container(
@@ -284,10 +296,12 @@ class TextSelectionCommentHandler extends StatefulWidget {
   });
 
   @override
-  State<TextSelectionCommentHandler> createState() => _TextSelectionCommentHandlerState();
+  State<TextSelectionCommentHandler> createState() =>
+      _TextSelectionCommentHandlerState();
 }
 
-class _TextSelectionCommentHandlerState extends State<TextSelectionCommentHandler> {
+class _TextSelectionCommentHandlerState
+    extends State<TextSelectionCommentHandler> {
   String? _selectedText;
   Offset? _selectionPosition;
 
@@ -296,7 +310,7 @@ class _TextSelectionCommentHandlerState extends State<TextSelectionCommentHandle
       _selectedText = selectedText;
       _selectionPosition = position;
     });
-    
+
     // Show comment creation option
     _showSelectionMenu(selectedText, position);
   }
@@ -319,7 +333,8 @@ class _TextSelectionCommentHandlerState extends State<TextSelectionCommentHandle
           ),
           onTap: () {
             final anchor = TextSelectionAnchor(
-              startOffset: 0, // In real implementation, calculate from text layout
+              startOffset:
+                  0, // In real implementation, calculate from text layout
               endOffset: selectedText.length,
               selectedText: selectedText,
             );
