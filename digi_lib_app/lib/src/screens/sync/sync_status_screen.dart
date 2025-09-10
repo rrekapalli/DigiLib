@@ -7,6 +7,7 @@ import '../../widgets/sync_progress_bar.dart';
 import '../../widgets/offline_mode_indicator.dart';
 import '../../widgets/sync_conflict_dialog.dart';
 import '../../services/sync_service.dart';
+import '../../models/ui/sync_status_models.dart' as ui;
 
 /// Screen that displays comprehensive sync status and management options
 class SyncStatusScreen extends ConsumerWidget {
@@ -16,15 +17,15 @@ class SyncStatusScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final combinedStatus = ref.watch(combinedSyncStatusProvider);
     final syncActions = ref.watch(syncActionsProvider);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sync Status'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: combinedStatus.isSyncing 
-                ? null 
+            onPressed: combinedStatus.isSyncing
+                ? null
                 : () => ref.read(syncActionsProvider.notifier).forceSyncNow(),
             tooltip: 'Force sync now',
           ),
@@ -40,41 +41,56 @@ class SyncStatusScreen extends ConsumerWidget {
             children: [
               // Overall status card
               _buildOverallStatusCard(context, combinedStatus),
-              
+
               const SizedBox(height: 16.0),
-              
+
               // Sync progress (if syncing)
               if (combinedStatus.isSyncing)
                 SyncProgressBar(
-                  syncProgress: combinedStatus.syncProgress,
+                  syncProgress: SyncProgress(
+                    status: _convertSyncStatus(
+                      combinedStatus.syncProgress.status,
+                    ),
+                    totalChanges: combinedStatus.syncProgress.totalItems ?? 0,
+                    processedChanges:
+                        combinedStatus.syncProgress.processedItems ?? 0,
+                    message: combinedStatus.syncProgress.currentOperation,
+                    error: combinedStatus.syncProgress.error,
+                  ),
                   showDetails: true,
                 ),
-              
+
               // Offline mode indicator
               if (combinedStatus.isOffline) ...[
                 OfflineLimitationsCard(
                   pendingActions: combinedStatus.pendingActions,
-                  onViewPendingActions: () => _showPendingActionsDialog(context, ref),
+                  onViewPendingActions: () =>
+                      _showPendingActionsDialog(context, ref),
                 ),
                 const SizedBox(height: 16.0),
               ],
-              
+
               // Conflicts section
               if (combinedStatus.hasConflicts) ...[
                 _buildConflictsSection(context, ref, combinedStatus),
                 const SizedBox(height: 16.0),
               ],
-              
+
               // Job queue status
               _buildJobQueueSection(context, ref, combinedStatus),
-              
+
               const SizedBox(height: 16.0),
-              
+
               // Sync actions
-              _buildSyncActionsSection(context, ref, combinedStatus, syncActions),
-              
+              _buildSyncActionsSection(
+                context,
+                ref,
+                combinedStatus,
+                syncActions,
+              ),
+
               const SizedBox(height: 16.0),
-              
+
               // Sync history/statistics
               _buildSyncHistorySection(context, combinedStatus),
             ],
@@ -84,9 +100,12 @@ class SyncStatusScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildOverallStatusCard(BuildContext context, CombinedSyncStatus status) {
+  Widget _buildOverallStatusCard(
+    BuildContext context,
+    CombinedSyncStatus status,
+  ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -127,7 +146,7 @@ class SyncStatusScreen extends ConsumerWidget {
                   ),
               ],
             ),
-            
+
             if (status.hasIssues) ...[
               const SizedBox(height: 16.0),
               _buildIssuesSummary(context, status),
@@ -141,7 +160,7 @@ class SyncStatusScreen extends ConsumerWidget {
   Widget _buildIssuesSummary(BuildContext context, CombinedSyncStatus status) {
     final theme = Theme.of(context);
     final issues = <String>[];
-    
+
     if (status.hasConflicts) {
       issues.add('${status.conflicts.length} sync conflicts');
     }
@@ -151,23 +170,17 @@ class SyncStatusScreen extends ConsumerWidget {
     if (status.syncProgress.status == SyncStatus.error) {
       issues.add('Sync error');
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
         color: theme.colorScheme.errorContainer.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(
-          color: theme.colorScheme.error.withOpacity(0.3),
-        ),
+        border: Border.all(color: theme.colorScheme.error.withOpacity(0.3)),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.warning,
-            color: theme.colorScheme.error,
-            size: 20.0,
-          ),
+          Icon(Icons.warning, color: theme.colorScheme.error, size: 20.0),
           const SizedBox(width: 8.0),
           Expanded(
             child: Text(
@@ -182,7 +195,11 @@ class SyncStatusScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildConflictsSection(BuildContext context, WidgetRef ref, CombinedSyncStatus status) {
+  Widget _buildConflictsSection(
+    BuildContext context,
+    WidgetRef ref,
+    CombinedSyncStatus status,
+  ) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -219,7 +236,11 @@ class SyncStatusScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8.0),
                 ElevatedButton(
-                  onPressed: () => _showConflictResolutionDialog(context, ref, status.conflicts),
+                  onPressed: () => _showConflictResolutionDialog(
+                    context,
+                    ref,
+                    status.conflicts,
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.error,
                     foregroundColor: Theme.of(context).colorScheme.onError,
@@ -234,9 +255,13 @@ class SyncStatusScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildJobQueueSection(BuildContext context, WidgetRef ref, CombinedSyncStatus status) {
+  Widget _buildJobQueueSection(
+    BuildContext context,
+    WidgetRef ref,
+    CombinedSyncStatus status,
+  ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -245,10 +270,7 @@ class SyncStatusScreen extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.queue,
-                  color: theme.colorScheme.primary,
-                ),
+                Icon(Icons.queue, color: theme.colorScheme.primary),
                 const SizedBox(width: 8.0),
                 Text(
                   'Action Queue',
@@ -259,7 +281,7 @@ class SyncStatusScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 16.0),
-            
+
             // Queue statistics
             Row(
               children: [
@@ -292,15 +314,18 @@ class SyncStatusScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            
-            if (status.jobQueueStatus.hasWork || status.jobQueueStatus.hasErrors) ...[
+
+            if (status.jobQueueStatus.isActive ||
+                status.jobQueueStatus.hasErrors) ...[
               const SizedBox(height: 16.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   if (status.jobQueueStatus.hasErrors)
                     TextButton(
-                      onPressed: () => ref.read(syncActionsProvider.notifier).retryFailedJobs(),
+                      onPressed: () => ref
+                          .read(syncActionsProvider.notifier)
+                          .retryFailedJobs(),
                       child: const Text('Retry Failed'),
                     ),
                   const SizedBox(width: 8.0),
@@ -325,7 +350,7 @@ class SyncStatusScreen extends ConsumerWidget {
     Color color,
   ) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(12.0),
       margin: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -335,11 +360,7 @@ class SyncStatusScreen extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 24.0,
-          ),
+          Icon(icon, color: color, size: 24.0),
           const SizedBox(height: 8.0),
           Text(
             value,
@@ -348,12 +369,7 @@ class SyncStatusScreen extends ConsumerWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: color,
-            ),
-          ),
+          Text(label, style: theme.textTheme.bodySmall?.copyWith(color: color)),
         ],
       ),
     );
@@ -366,7 +382,7 @@ class SyncStatusScreen extends ConsumerWidget {
     AsyncValue<void> syncActions,
   ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -380,7 +396,7 @@ class SyncStatusScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16.0),
-            
+
             Wrap(
               spacing: 8.0,
               runSpacing: 8.0,
@@ -388,7 +404,9 @@ class SyncStatusScreen extends ConsumerWidget {
                 ElevatedButton.icon(
                   onPressed: status.isSyncing || !status.isOnline
                       ? null
-                      : () => ref.read(syncActionsProvider.notifier).forceSyncNow(),
+                      : () => ref
+                            .read(syncActionsProvider.notifier)
+                            .forceSyncNow(),
                   icon: syncActions.isLoading
                       ? const SizedBox(
                           width: 16.0,
@@ -398,22 +416,25 @@ class SyncStatusScreen extends ConsumerWidget {
                       : const Icon(Icons.sync),
                   label: const Text('Sync Now'),
                 ),
-                
+
                 if (status.jobQueueStatus.hasErrors)
                   OutlinedButton.icon(
-                    onPressed: () => ref.read(syncActionsProvider.notifier).retryFailedJobs(),
+                    onPressed: () => ref
+                        .read(syncActionsProvider.notifier)
+                        .retryFailedJobs(),
                     icon: const Icon(Icons.refresh),
                     label: const Text('Retry Failed'),
                   ),
-                
+
                 OutlinedButton.icon(
-                  onPressed: () => ref.read(syncActionsProvider.notifier).clearOldJobs(),
+                  onPressed: () =>
+                      ref.read(syncActionsProvider.notifier).clearOldJobs(),
                   icon: const Icon(Icons.cleaning_services),
                   label: const Text('Clean Up'),
                 ),
               ],
             ),
-            
+
             if (syncActions.hasError) ...[
               const SizedBox(height: 12.0),
               Container(
@@ -448,9 +469,12 @@ class SyncStatusScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSyncHistorySection(BuildContext context, CombinedSyncStatus status) {
+  Widget _buildSyncHistorySection(
+    BuildContext context,
+    CombinedSyncStatus status,
+  ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -464,13 +488,25 @@ class SyncStatusScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16.0),
-            
-            _buildInfoRow('Connection Status', status.isOnline ? 'Online' : 'Offline'),
-            _buildInfoRow('Last Update', status.jobQueueStatus.lastUpdated.toString() ?? 'Never'),
-            _buildInfoRow('Total Actions', '${status.jobQueueStatus.totalJobs}'),
-            
-            if (status.syncProgress.message != null)
-              _buildInfoRow('Current Status', status.syncProgress.message!),
+
+            _buildInfoRow(
+              'Connection Status',
+              status.isOnline ? 'Online' : 'Offline',
+            ),
+            _buildInfoRow(
+              'Last Update',
+              status.jobQueueStatus.lastUpdated.toString() ?? 'Never',
+            ),
+            _buildInfoRow(
+              'Total Actions',
+              '${status.jobQueueStatus.totalJobs}',
+            ),
+
+            if (status.syncProgress.currentOperation != null)
+              _buildInfoRow(
+                'Current Status',
+                status.syncProgress.currentOperation!,
+              ),
           ],
         ),
       ),
@@ -484,10 +520,7 @@ class SyncStatusScreen extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label),
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -523,13 +556,19 @@ class SyncStatusScreen extends ConsumerWidget {
     }
   }
 
-  void _showConflictResolutionDialog(BuildContext context, WidgetRef ref, List<SyncConflict> conflicts) {
+  void _showConflictResolutionDialog(
+    BuildContext context,
+    WidgetRef ref,
+    List<SyncConflict> conflicts,
+  ) {
     showDialog(
       context: context,
       builder: (context) => SyncConflictDialog(
         conflicts: conflicts,
         onResolveConflict: (conflictId, resolution) {
-          ref.read(syncActionsProvider.notifier).resolveConflict(conflictId, resolution);
+          ref
+              .read(syncActionsProvider.notifier)
+              .resolveConflict(conflictId, resolution);
         },
       ),
     );
@@ -576,7 +615,9 @@ class SyncStatusScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Pending Actions'),
-        content: const Text('This feature will show detailed information about pending sync actions.'),
+        content: const Text(
+          'This feature will show detailed information about pending sync actions.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -585,5 +626,21 @@ class SyncStatusScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// Convert UI SyncStatus to service SyncStatus
+  SyncStatus _convertSyncStatus(ui.SyncStatus uiStatus) {
+    switch (uiStatus) {
+      case ui.SyncStatus.idle:
+        return SyncStatus.idle;
+      case ui.SyncStatus.syncing:
+        return SyncStatus.syncing;
+      case ui.SyncStatus.completed:
+        return SyncStatus.completed;
+      case ui.SyncStatus.error:
+        return SyncStatus.error;
+      case ui.SyncStatus.paused:
+        return SyncStatus.offline; // Map paused to offline
+    }
   }
 }

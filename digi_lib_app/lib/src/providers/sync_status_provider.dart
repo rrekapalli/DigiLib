@@ -58,15 +58,15 @@ final jobQueueStatusProvider = StreamProvider<ui.JobQueueStatus>((ref) {
 /// Provider for sync conflicts
 final syncConflictsProvider = FutureProvider<List<SyncConflict>>((ref) async {
   final jobQueueService = ref.watch(jobQueueServiceProvider);
-  
+
   // Get jobs that have conflict errors
   final conflictedJobs = await jobQueueService.getConflictedJobs();
-  
+
   // Convert jobs to sync conflicts (simplified)
   return conflictedJobs.map((job) {
     return SyncConflict(
       entityId: job.payload['id'] ?? job.id,
-      entityType: _getEntityTypeFromJobType(job.type),
+      entityType: _getEntityTypeFromJobType(_convertJobType(job.type)),
       clientVersion: job.payload,
       serverVersion: {}, // Would need to fetch from server
       resolution: 'merge_required',
@@ -123,8 +123,8 @@ class SyncActionsNotifier extends StateNotifier<AsyncValue<void>> {
   final SyncService _syncService;
   final job_queue.JobQueueService _jobQueueService;
 
-  SyncActionsNotifier(this._syncService, this._jobQueueService) 
-      : super(const AsyncValue.data(null));
+  SyncActionsNotifier(this._syncService, this._jobQueueService)
+    : super(const AsyncValue.data(null));
 
   /// Force sync now
   Future<void> forceSyncNow() async {
@@ -149,9 +149,15 @@ class SyncActionsNotifier extends StateNotifier<AsyncValue<void>> {
   }
 
   /// Resolve sync conflict
-  Future<void> resolveConflict(String jobId, ui.ConflictResolution resolution) async {
+  Future<void> resolveConflict(
+    String jobId,
+    ui.ConflictResolution resolution,
+  ) async {
     try {
-      await _jobQueueService.resolveConflict(jobId, resolution);
+      await _jobQueueService.resolveConflict(
+        jobId,
+        _convertConflictResolution(resolution),
+      );
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
     }
@@ -168,11 +174,12 @@ class SyncActionsNotifier extends StateNotifier<AsyncValue<void>> {
 }
 
 /// Provider for sync actions
-final syncActionsProvider = StateNotifierProvider<SyncActionsNotifier, AsyncValue<void>>((ref) {
-  final syncService = ref.watch(syncServiceProvider);
-  final jobQueueService = ref.watch(jobQueueServiceProvider);
-  return SyncActionsNotifier(syncService, jobQueueService);
-});
+final syncActionsProvider =
+    StateNotifierProvider<SyncActionsNotifier, AsyncValue<void>>((ref) {
+      final syncService = ref.watch(syncServiceProvider);
+      final jobQueueService = ref.watch(jobQueueServiceProvider);
+      return SyncActionsNotifier(syncService, jobQueueService);
+    });
 
 /// Combined sync status model
 class CombinedSyncStatus {
@@ -192,7 +199,7 @@ class CombinedSyncStatus {
   bool get isSyncing => syncProgress.status == ui.SyncStatus.syncing;
 
   /// Whether there are any issues that need attention
-  bool get hasIssues => 
+  bool get hasIssues =>
       syncProgress.status == ui.SyncStatus.error ||
       jobQueueStatus.hasErrors ||
       conflicts.isNotEmpty;
@@ -212,7 +219,8 @@ class CombinedSyncStatus {
   /// Overall sync health status
   SyncHealthStatus get healthStatus {
     if (hasConflicts) return SyncHealthStatus.conflicts;
-    if (syncProgress.status == ui.SyncStatus.error) return SyncHealthStatus.error;
+    if (syncProgress.status == ui.SyncStatus.error)
+      return SyncHealthStatus.error;
     if (jobQueueStatus.hasErrors) return SyncHealthStatus.error;
     if (isOffline && pendingActions > 0) return SyncHealthStatus.offline;
     if (isSyncing) return SyncHealthStatus.syncing;
@@ -235,13 +243,7 @@ class CombinedSyncStatus {
 }
 
 /// Enum for overall sync health status
-enum SyncHealthStatus {
-  healthy,
-  syncing,
-  offline,
-  error,
-  conflicts,
-}
+enum SyncHealthStatus { healthy, syncing, offline, error, conflicts }
 
 /// Helper function to get entity type from job type
 String _getEntityTypeFromJobType(ui.JobType jobType) {
@@ -286,6 +288,54 @@ ui.SyncStatus _mapSyncStatus(SyncStatus serviceStatus) {
     case SyncStatus.error:
       return ui.SyncStatus.error;
     case SyncStatus.offline:
-      return ui.SyncStatus.offline;
+      return ui.SyncStatus.paused; // Map offline to paused in UI
+  }
+}
+
+/// Convert job queue JobType to ui JobType
+ui.JobType _convertJobType(job_queue.JobType jobType) {
+  switch (jobType) {
+    case job_queue.JobType.createBookmark:
+      return ui.JobType.createBookmark;
+    case job_queue.JobType.updateBookmark:
+      return ui.JobType.updateBookmark;
+    case job_queue.JobType.deleteBookmark:
+      return ui.JobType.deleteBookmark;
+    case job_queue.JobType.createComment:
+      return ui.JobType.createComment;
+    case job_queue.JobType.updateComment:
+      return ui.JobType.updateComment;
+    case job_queue.JobType.deleteComment:
+      return ui.JobType.deleteComment;
+    case job_queue.JobType.updateReadingProgress:
+      return ui.JobType.updateReadingProgress;
+    case job_queue.JobType.deleteReadingProgress:
+      return ui.JobType.deleteReadingProgress;
+    case job_queue.JobType.createTag:
+      return ui.JobType.createTag;
+    case job_queue.JobType.deleteTag:
+      return ui.JobType.deleteTag;
+    case job_queue.JobType.addTagToDocument:
+      return ui.JobType.addTagToDocument;
+    case job_queue.JobType.removeTagFromDocument:
+      return ui.JobType.removeTagFromDocument;
+    default:
+      return ui.JobType.createBookmark; // fallback
+  }
+}
+
+/// Convert ui ConflictResolution to service ConflictResolution
+job_queue.ConflictResolution _convertConflictResolution(
+  ui.ConflictResolution resolution,
+) {
+  switch (resolution) {
+    case ui.ConflictResolution.useClient:
+      return job_queue.ConflictResolution.useLocal;
+    case ui.ConflictResolution.useServer:
+      return job_queue.ConflictResolution.useServer;
+    case ui.ConflictResolution.merge:
+      return job_queue.ConflictResolution.merge;
+    case ui.ConflictResolution.skip:
+      return job_queue.ConflictResolution.useLocal; // fallback for skip
   }
 }

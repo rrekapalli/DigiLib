@@ -91,7 +91,7 @@ class _NativeRenderingDiagnosticsScreenState
         ],
       ),
       body: _isLoading
-          ? const Center(child: LoadingSpinner())
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
