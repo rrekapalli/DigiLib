@@ -21,13 +21,15 @@ class LibraryConfigurationScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<LibraryConfigurationScreen> createState() => _LibraryConfigurationScreenState();
+  ConsumerState<LibraryConfigurationScreen> createState() =>
+      _LibraryConfigurationScreenState();
 }
 
-class _LibraryConfigurationScreenState extends ConsumerState<LibraryConfigurationScreen> {
+class _LibraryConfigurationScreenState
+    extends ConsumerState<LibraryConfigurationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  
+
   Map<String, dynamic> _config = {};
   bool _isConfigValid = false;
   bool _isLoading = false;
@@ -164,23 +166,25 @@ class _LibraryConfigurationScreenState extends ConsumerState<LibraryConfiguratio
         decoration: BoxDecoration(
           color: colorScheme.surface,
           border: Border(
-            top: BorderSide(
-              color: colorScheme.outline.withValues(alpha: 0.2),
-            ),
+            top: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
           ),
         ),
         child: Row(
           children: [
             Expanded(
               child: OutlinedButton(
-                onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+                onPressed: _isLoading
+                    ? null
+                    : () => Navigator.of(context).pop(),
                 child: const Text('Cancel'),
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: FilledButton(
-                onPressed: (_isConfigValid && !_isLoading) ? _saveLibrary : null,
+                onPressed: (_isConfigValid && !_isLoading)
+                    ? _saveLibrary
+                    : null,
                 child: _isLoading
                     ? const SizedBox(
                         width: 16,
@@ -219,7 +223,7 @@ class _LibraryConfigurationScreenState extends ConsumerState<LibraryConfiguratio
           },
           enabled: !_isLoading,
         );
-      
+
       case LibraryType.gdrive:
       case LibraryType.onedrive:
       case LibraryType.s3:
@@ -234,9 +238,6 @@ class _LibraryConfigurationScreenState extends ConsumerState<LibraryConfiguratio
           },
           enabled: !_isLoading,
         );
-      
-      default:
-        return const SizedBox.shrink();
     }
   }
 
@@ -245,20 +246,22 @@ class _LibraryConfigurationScreenState extends ConsumerState<LibraryConfiguratio
 
     switch (widget.libraryType) {
       case LibraryType.local:
-        isValid = _config['path'] != null && 
-                  (_config['path'] as String).isNotEmpty;
+        isValid =
+            _config['path'] != null && (_config['path'] as String).isNotEmpty;
         break;
-      
+
       case LibraryType.gdrive:
       case LibraryType.onedrive:
-        isValid = _config.containsKey('access_token') &&
-                  _config.containsKey('folder_id');
+        isValid =
+            _config.containsKey('access_token') &&
+            _config.containsKey('folder_id');
         break;
-      
+
       case LibraryType.s3:
-        isValid = _config.containsKey('access_token') &&
-                  _config.containsKey('bucket') &&
-                  (_config['bucket'] as String).isNotEmpty;
+        isValid =
+            _config.containsKey('access_token') &&
+            _config.containsKey('bucket') &&
+            (_config['bucket'] as String).isNotEmpty;
         break;
     }
 
@@ -282,9 +285,7 @@ class _LibraryConfigurationScreenState extends ConsumerState<LibraryConfiguratio
         // Update existing library
         // TODO: Implement library update functionality
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Library updated successfully'),
-          ),
+          const SnackBar(content: Text('Library updated successfully')),
         );
       } else {
         // Create new library
@@ -295,12 +296,10 @@ class _LibraryConfigurationScreenState extends ConsumerState<LibraryConfiguratio
         );
 
         await ref.read(libraryProvider.notifier).addLibrary(request);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Library created successfully'),
-            ),
+            const SnackBar(content: Text('Library created successfully')),
           );
           Navigator.of(context).pop();
         }
@@ -325,19 +324,19 @@ class _LibraryConfigurationScreenState extends ConsumerState<LibraryConfiguratio
     });
 
     try {
-      final scanJob = await ref.read(libraryProvider.notifier).scanLibrary(widget.library!.id);
-      
+      final scanJob = await ref
+          .read(libraryProvider.notifier)
+          .scanLibrary(widget.library!.id);
+
       setState(() {
         _currentScanJobId = scanJob.id;
         _isLoading = false;
       });
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Library scan started'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Library scan started')));
       }
     } catch (e) {
       setState(() {
@@ -351,18 +350,18 @@ class _LibraryConfigurationScreenState extends ConsumerState<LibraryConfiguratio
     if (_currentScanJobId == null) return;
 
     try {
-      await ref.read(libraryProvider.notifier).cancelScanJob(_currentScanJobId!);
-      
+      await ref
+          .read(libraryProvider.notifier)
+          .cancelScanJob(_currentScanJobId!);
+
       setState(() {
         _currentScanJobId = null;
       });
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Scan cancelled'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Scan cancelled')));
       }
     } catch (e) {
       setState(() {

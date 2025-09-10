@@ -50,15 +50,17 @@ class BackgroundService {
   static void _handleConnectivityChange(ConnectivityResult result) {
     switch (result) {
       case ConnectivityResult.wifi:
-        print('Connected to WiFi - enabling background sync');
+        AppLogger.info('Connected to WiFi - enabling background sync');
         _enableBackgroundSync();
         break;
       case ConnectivityResult.mobile:
-        print('Connected to mobile data - enabling limited background sync');
+        AppLogger.info(
+          'Connected to mobile data - enabling limited background sync',
+        );
         _enableLimitedBackgroundSync();
         break;
       case ConnectivityResult.none:
-        print('No connectivity - disabling background sync');
+        AppLogger.info('No connectivity - disabling background sync');
         _disableBackgroundSync();
         break;
       default:
@@ -78,7 +80,7 @@ class BackgroundService {
       final level = await _battery.batteryLevel;
       _handleBatteryLevelChange(level);
     } catch (e) {
-      print('Error initializing battery monitoring: $e');
+      AppLogger.error('Error initializing battery monitoring', e);
     }
   }
 
@@ -86,15 +88,15 @@ class BackgroundService {
   static void _handleBatteryStateChange(BatteryState state) {
     switch (state) {
       case BatteryState.charging:
-        print('Device charging - enabling full background operations');
+        AppLogger.info('Device charging - enabling full background operations');
         _enableFullBackgroundOperations();
         break;
       case BatteryState.discharging:
-        print('Device discharging - optimizing background operations');
+        AppLogger.info('Device discharging - optimizing background operations');
         _optimizeBackgroundOperations();
         break;
       case BatteryState.full:
-        print('Battery full - enabling full background operations');
+        AppLogger.info('Battery full - enabling full background operations');
         _enableFullBackgroundOperations();
         break;
       default:
@@ -119,13 +121,13 @@ class BackgroundService {
   /// Enable full background sync
   static void _enableBackgroundSync() {
     // Implementation would enable full sync operations
-    print('Background sync enabled');
+    AppLogger.info('Background sync enabled');
   }
 
   /// Enable limited background sync (mobile data)
   static void _enableLimitedBackgroundSync() {
     // Implementation would enable limited sync (metadata only, no large files)
-    print('Limited background sync enabled');
+    AppLogger.info('Limited background sync enabled');
   }
 
   /// Disable background sync

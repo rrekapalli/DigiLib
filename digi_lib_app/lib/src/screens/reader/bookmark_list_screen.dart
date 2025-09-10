@@ -75,9 +75,10 @@ class _BookmarkListScreenState extends ConsumerState<BookmarkListScreen> {
           ElevatedButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              await ref.read(bookmarkNotifierProvider.notifier)
+              await ref
+                  .read(bookmarkNotifierProvider.notifier)
                   .deleteBookmark(bookmark.id, widget.documentId);
-              
+
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -101,12 +102,13 @@ class _BookmarkListScreenState extends ConsumerState<BookmarkListScreen> {
   void _navigateToBookmark(Bookmark bookmark) {
     if (bookmark.pageNumber != null) {
       // Navigate to the bookmark page in the reader
-      ref.read(readerStateProvider(widget.documentId).notifier)
+      ref
+          .read(readerStateProvider(widget.documentId).notifier)
           .goToPage(bookmark.pageNumber!);
-      
+
       // Close the bookmark screen
       Navigator.of(context).pop();
-      
+
       // Call callback if provided
       widget.onBookmarkSelected?.call();
     }
@@ -114,10 +116,13 @@ class _BookmarkListScreenState extends ConsumerState<BookmarkListScreen> {
 
   List<Bookmark> _filterBookmarks(List<Bookmark> bookmarks) {
     if (_searchQuery.isEmpty) return bookmarks;
-    
+
     return bookmarks.where((bookmark) {
-      final pageMatch = bookmark.pageNumber?.toString().contains(_searchQuery) ?? false;
-      final noteMatch = bookmark.note?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false;
+      final pageMatch =
+          bookmark.pageNumber?.toString().contains(_searchQuery) ?? false;
+      final noteMatch =
+          bookmark.note?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+          false;
       return pageMatch || noteMatch;
     }).toList();
   }
@@ -125,8 +130,9 @@ class _BookmarkListScreenState extends ConsumerState<BookmarkListScreen> {
   @override
   Widget build(BuildContext context) {
     final document = ref.watch(currentDocumentProvider(widget.documentId));
-    final bookmarksAsync = ref.watch(documentBookmarksProvider(widget.documentId));
-    final bookmarkNotifierState = ref.watch(bookmarkNotifierProvider);
+    final bookmarksAsync = ref.watch(
+      documentBookmarksProvider(widget.documentId),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -184,11 +190,7 @@ class _BookmarkListScreenState extends ConsumerState<BookmarkListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red,
-          ),
+          const Icon(Icons.error_outline, size: 64, color: Colors.red),
           const SizedBox(height: 16),
           Text(
             'Failed to load document',
@@ -210,13 +212,16 @@ class _BookmarkListScreenState extends ConsumerState<BookmarkListScreen> {
     );
   }
 
-  Widget _buildBookmarksList(Document document, AsyncValue<List<Bookmark>> bookmarksAsync) {
+  Widget _buildBookmarksList(
+    Document document,
+    AsyncValue<List<Bookmark>> bookmarksAsync,
+  ) {
     return bookmarksAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => _buildBookmarksErrorView(error),
       data: (bookmarks) {
         final filteredBookmarks = _filterBookmarks(bookmarks);
-        
+
         if (filteredBookmarks.isEmpty) {
           return _buildEmptyView();
         }
@@ -230,9 +235,7 @@ class _BookmarkListScreenState extends ConsumerState<BookmarkListScreen> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 border: Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                  ),
+                  bottom: BorderSide(color: Theme.of(context).dividerColor),
                 ),
               ),
               child: Column(
@@ -256,7 +259,7 @@ class _BookmarkListScreenState extends ConsumerState<BookmarkListScreen> {
                 ],
               ),
             ),
-            
+
             // Bookmarks list
             Expanded(
               child: ListView.builder(
@@ -285,11 +288,7 @@ class _BookmarkListScreenState extends ConsumerState<BookmarkListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.bookmark_border,
-            size: 64,
-            color: Colors.grey,
-          ),
+          const Icon(Icons.bookmark_border, size: 64, color: Colors.grey),
           const SizedBox(height: 16),
           Text(
             'Failed to load bookmarks',
@@ -330,7 +329,7 @@ class _BookmarkListScreenState extends ConsumerState<BookmarkListScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            _searchQuery.isNotEmpty 
+            _searchQuery.isNotEmpty
                 ? 'Try adjusting your search terms'
                 : 'Add bookmarks to save your favorite pages',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -401,7 +400,7 @@ class CompactBookmarkList extends ConsumerWidget {
         }
 
         final displayBookmarks = bookmarks.take(maxItems).toList();
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -423,17 +422,22 @@ class CompactBookmarkList extends ConsumerWidget {
                 ],
               ),
             ),
-            
+
             // Bookmark list
-            ...displayBookmarks.map((bookmark) => BookmarkListTile(
-              bookmark: bookmark,
-              onTap: () => onBookmarkTap?.call(bookmark),
-              compact: true,
-            )),
-            
+            ...displayBookmarks.map(
+              (bookmark) => BookmarkListTile(
+                bookmark: bookmark,
+                onTap: () => onBookmarkTap?.call(bookmark),
+                compact: true,
+              ),
+            ),
+
             if (bookmarks.length > maxItems)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Text(
                   '${bookmarks.length - maxItems} more bookmark${bookmarks.length - maxItems == 1 ? '' : 's'}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(

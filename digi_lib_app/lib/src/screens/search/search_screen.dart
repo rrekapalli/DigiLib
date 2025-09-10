@@ -261,7 +261,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             decoration: BoxDecoration(
               color: colorScheme.surface,
               border: Border(
-                bottom: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+                bottom: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.2),
+                ),
               ),
             ),
             child: SearchInputField(

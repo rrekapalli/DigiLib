@@ -182,9 +182,11 @@ class SyncStatusScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer.withOpacity(0.1),
+        color: theme.colorScheme.errorContainer.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: theme.colorScheme.error.withOpacity(0.3)),
+        border: Border.all(
+          color: theme.colorScheme.error.withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         children: [
@@ -363,7 +365,7 @@ class SyncStatusScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(12.0),
       margin: const EdgeInsets.symmetric(horizontal: 4.0),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Column(
@@ -448,7 +450,9 @@ class SyncStatusScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.errorContainer.withOpacity(0.1),
+                  color: theme.colorScheme.errorContainer.withValues(
+                    alpha: 0.1,
+                  ),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
                 child: Row(

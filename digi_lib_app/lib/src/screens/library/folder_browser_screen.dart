@@ -19,13 +19,11 @@ import '../../widgets/document_view_mode_dialog.dart';
 class FolderBrowserScreen extends ConsumerStatefulWidget {
   final Library library;
 
-  const FolderBrowserScreen({
-    super.key,
-    required this.library,
-  });
+  const FolderBrowserScreen({super.key, required this.library});
 
   @override
-  ConsumerState<FolderBrowserScreen> createState() => _FolderBrowserScreenState();
+  ConsumerState<FolderBrowserScreen> createState() =>
+      _FolderBrowserScreenState();
 }
 
 class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
@@ -38,7 +36,9 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
     super.initState();
     // Initialize the folder browser for this library
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(folderBrowserProvider.notifier).initializeLibrary(widget.library.id);
+      ref
+          .read(folderBrowserProvider.notifier)
+          .initializeLibrary(widget.library.id);
     });
   }
 
@@ -62,19 +62,22 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
         actions: [
           if (folderState.isMultiSelectMode) ...[
             IconButton(
-              onPressed: folderState.selectedPaths.isEmpty 
-                  ? null 
+              onPressed: folderState.selectedPaths.isEmpty
+                  ? null
                   : () => _showBulkActionsMenu(context),
               icon: const Icon(Icons.more_vert),
               tooltip: 'Bulk Actions',
             ),
             IconButton(
-              onPressed: () => ref.read(folderBrowserProvider.notifier).clearSelection(),
+              onPressed: () =>
+                  ref.read(folderBrowserProvider.notifier).clearSelection(),
               icon: const Icon(Icons.clear),
               tooltip: 'Clear Selection',
             ),
             IconButton(
-              onPressed: () => ref.read(folderBrowserProvider.notifier).toggleMultiSelectMode(),
+              onPressed: () => ref
+                  .read(folderBrowserProvider.notifier)
+                  .toggleMultiSelectMode(),
               icon: const Icon(Icons.close),
               tooltip: 'Exit Multi-Select',
             ),
@@ -85,7 +88,8 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
               tooltip: _isSearching ? 'Close Search' : 'Search',
             ),
             IconButton(
-              onPressed: () => ref.read(folderBrowserProvider.notifier).refresh(),
+              onPressed: () =>
+                  ref.read(folderBrowserProvider.notifier).refresh(),
               icon: folderState.isLoading
                   ? SizedBox(
                       width: 20,
@@ -137,20 +141,21 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
           if (!_isSearching)
             FolderBreadcrumbBar(
               breadcrumbs: folderState.breadcrumbs,
-              onBreadcrumbTap: (path) => ref.read(folderBrowserProvider.notifier).navigateToBreadcrumb(path),
+              onBreadcrumbTap: (path) => ref
+                  .read(folderBrowserProvider.notifier)
+                  .navigateToBreadcrumb(path),
             ),
-          
+
           // Multi-select toolbar
           if (folderState.isMultiSelectMode)
             _buildMultiSelectToolbar(folderState),
-          
+
           // Main content
-          Expanded(
-            child: _buildContent(folderState),
-          ),
+          Expanded(child: _buildContent(folderState)),
         ],
       ),
-      floatingActionButton: folderState.isMultiSelectMode && folderState.selectedPaths.isNotEmpty
+      floatingActionButton:
+          folderState.isMultiSelectMode && folderState.selectedPaths.isNotEmpty
           ? FloatingActionButton.extended(
               onPressed: () => _showBulkActionsMenu(context),
               icon: const Icon(Icons.edit),
@@ -175,14 +180,14 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
                 ? IconButton(
                     onPressed: () {
                       _searchController.clear();
-                      ref.read(folderBrowserProvider.notifier).searchInLibrary('');
+                      ref
+                          .read(folderBrowserProvider.notifier)
+                          .searchInLibrary('');
                     },
                     icon: const Icon(Icons.clear),
                   )
                 : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
           ),
           onChanged: (query) {
@@ -198,7 +203,7 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
 
   Widget _buildMultiSelectToolbar(FolderBrowserState state) {
     final notifier = ref.read(folderBrowserProvider.notifier);
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -274,7 +279,8 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
             ),
             const SizedBox(height: 24),
             FilledButton(
-              onPressed: () => ref.read(folderBrowserProvider.notifier).refresh(),
+              onPressed: () =>
+                  ref.read(folderBrowserProvider.notifier).refresh(),
               child: const Text('Retry'),
             ),
           ],
@@ -290,22 +296,26 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
             Icon(
               Icons.folder_open,
               size: 80,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 24),
             Text(
               _isSearching ? 'No Results Found' : 'Empty Folder',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
-              _isSearching 
+              _isSearching
                   ? 'Try adjusting your search terms.'
                   : 'This folder doesn\'t contain any documents or subfolders.',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -324,7 +334,7 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
     setState(() {
       _isSearching = !_isSearching;
     });
-    
+
     if (!_isSearching) {
       _searchController.clear();
       ref.read(folderBrowserProvider.notifier).searchInLibrary('');
@@ -347,7 +357,7 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
 
   void _handleNodeTap(FolderNode node) {
     final notifier = ref.read(folderBrowserProvider.notifier);
-    
+
     if (ref.read(folderBrowserProvider).isMultiSelectMode) {
       notifier.toggleNodeSelection(node.path);
     } else if (node.isFolder) {
@@ -384,36 +394,51 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
     // TODO: Navigate to document reader
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Opening reader for: ${document.title ?? document.filename}'),
-        action: SnackBarAction(
-          label: 'OK',
-          onPressed: () {},
+        content: Text(
+          'Opening reader for: ${document.title ?? document.filename}',
         ),
+        action: SnackBarAction(label: 'OK', onPressed: () {}),
       ),
     );
   }
 
   void _editDocument(Document document) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Edit ${document.title ?? document.filename} - To be implemented')),
+      SnackBar(
+        content: Text(
+          'Edit ${document.title ?? document.filename} - To be implemented',
+        ),
+      ),
     );
   }
 
   void _shareDocument(Document document) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Share ${document.title ?? document.filename} - To be implemented')),
+      SnackBar(
+        content: Text(
+          'Share ${document.title ?? document.filename} - To be implemented',
+        ),
+      ),
     );
   }
 
   void _deleteDocument(Document document) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Delete ${document.title ?? document.filename} - To be implemented')),
+      SnackBar(
+        content: Text(
+          'Delete ${document.title ?? document.filename} - To be implemented',
+        ),
+      ),
     );
   }
 
   void _addTagToDocument(Document document) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Add tag to ${document.title ?? document.filename} - To be implemented')),
+      SnackBar(
+        content: Text(
+          'Add tag to ${document.title ?? document.filename} - To be implemented',
+        ),
+      ),
     );
   }
 
@@ -432,10 +457,6 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
   }
 
   void _showBulkActionsMenu(BuildContext context) {
-    final notifier = ref.read(folderBrowserProvider.notifier);
-    final selectedDocuments = notifier.getSelectedDocuments();
-    final selectedFolders = notifier.getSelectedFolders();
-    
     showModalBottomSheet(
       context: context,
       builder: (context) => Column(
@@ -481,11 +502,13 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
   Widget _buildContentView(FolderBrowserState state) {
     // Separate folders and documents
     final folders = state.currentNodes.where((node) => node.isFolder).toList();
-    final documents = state.currentNodes.where((node) => !node.isFolder).toList();
-    
+    final documents = state.currentNodes
+        .where((node) => !node.isFolder)
+        .toList();
+
     // Sort documents based on current settings
     _sortDocuments(documents);
-    
+
     if (_viewSettings.viewMode == DocumentViewMode.grid) {
       return _buildGridView(state, folders, documents);
     } else {
@@ -493,16 +516,20 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
     }
   }
 
-  Widget _buildListView(FolderBrowserState state, List<FolderNode> folders, List<FolderNode> documents) {
+  Widget _buildListView(
+    FolderBrowserState state,
+    List<FolderNode> folders,
+    List<FolderNode> documents,
+  ) {
     final allItems = [...folders, ...documents];
-    
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: allItems.length,
       itemBuilder: (context, index) {
         final node = allItems[index];
         final isSelected = state.selectedPaths.contains(node.path);
-        
+
         if (node.isFolder) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -514,7 +541,9 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
               onLongPress: () => _handleNodeLongPress(node),
               onSelectionChanged: (selected) {
                 if (selected) {
-                  ref.read(folderBrowserProvider.notifier).toggleNodeSelection(node.path);
+                  ref
+                      .read(folderBrowserProvider.notifier)
+                      .toggleNodeSelection(node.path);
                 }
               },
               onContextMenu: () => _showNodeContextMenu(context, node),
@@ -531,7 +560,9 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
               onLongPress: () => _handleNodeLongPress(node),
               onSelectionChanged: (selected) {
                 if (selected) {
-                  ref.read(folderBrowserProvider.notifier).toggleNodeSelection(node.path);
+                  ref
+                      .read(folderBrowserProvider.notifier)
+                      .toggleNodeSelection(node.path);
                 }
               },
               onContextMenu: () => _showNodeContextMenu(context, node),
@@ -544,7 +575,11 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
     );
   }
 
-  Widget _buildGridView(FolderBrowserState state, List<FolderNode> folders, List<FolderNode> documents) {
+  Widget _buildGridView(
+    FolderBrowserState state,
+    List<FolderNode> folders,
+    List<FolderNode> documents,
+  ) {
     return CustomScrollView(
       slivers: [
         // Folders section (always in list view)
@@ -552,37 +587,41 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final node = folders[index];
-                  final isSelected = state.selectedPaths.contains(node.path);
-                  
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: FolderNodeTile(
-                      node: node,
-                      isSelected: isSelected,
-                      isMultiSelectMode: state.isMultiSelectMode,
-                      onTap: () => _handleNodeTap(node),
-                      onLongPress: () => _handleNodeLongPress(node),
-                      onSelectionChanged: (selected) {
-                        if (selected) {
-                          ref.read(folderBrowserProvider.notifier).toggleNodeSelection(node.path);
-                        }
-                      },
-                      onContextMenu: () => _showNodeContextMenu(context, node),
-                    ),
-                  );
-                },
-                childCount: folders.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final node = folders[index];
+                final isSelected = state.selectedPaths.contains(node.path);
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: FolderNodeTile(
+                    node: node,
+                    isSelected: isSelected,
+                    isMultiSelectMode: state.isMultiSelectMode,
+                    onTap: () => _handleNodeTap(node),
+                    onLongPress: () => _handleNodeLongPress(node),
+                    onSelectionChanged: (selected) {
+                      if (selected) {
+                        ref
+                            .read(folderBrowserProvider.notifier)
+                            .toggleNodeSelection(node.path);
+                      }
+                    },
+                    onContextMenu: () => _showNodeContextMenu(context, node),
+                  ),
+                );
+              }, childCount: folders.length),
             ),
           ),
-        
+
         // Documents section (in grid view)
         if (documents.isNotEmpty)
           SliverPadding(
-            padding: EdgeInsets.fromLTRB(16, folders.isNotEmpty ? 8 : 16, 16, 16),
+            padding: EdgeInsets.fromLTRB(
+              16,
+              folders.isNotEmpty ? 8 : 16,
+              16,
+              16,
+            ),
             sliver: SliverGrid(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: _viewSettings.gridColumns,
@@ -590,29 +629,28 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final node = documents[index];
-                  final isSelected = state.selectedPaths.contains(node.path);
-                  
-                  return DocumentCard(
-                    document: node.document!,
-                    isSelected: isSelected,
-                    isMultiSelectMode: state.isMultiSelectMode,
-                    onTap: () => _handleNodeTap(node),
-                    onLongPress: () => _handleNodeLongPress(node),
-                    onSelectionChanged: (selected) {
-                      if (selected) {
-                        ref.read(folderBrowserProvider.notifier).toggleNodeSelection(node.path);
-                      }
-                    },
-                    onContextMenu: () => _showNodeContextMenu(context, node),
-                    showThumbnail: _viewSettings.showThumbnails,
-                    showMetadata: _viewSettings.showMetadata,
-                  );
-                },
-                childCount: documents.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final node = documents[index];
+                final isSelected = state.selectedPaths.contains(node.path);
+
+                return DocumentCard(
+                  document: node.document!,
+                  isSelected: isSelected,
+                  isMultiSelectMode: state.isMultiSelectMode,
+                  onTap: () => _handleNodeTap(node),
+                  onLongPress: () => _handleNodeLongPress(node),
+                  onSelectionChanged: (selected) {
+                    if (selected) {
+                      ref
+                          .read(folderBrowserProvider.notifier)
+                          .toggleNodeSelection(node.path);
+                    }
+                  },
+                  onContextMenu: () => _showNodeContextMenu(context, node),
+                  showThumbnail: _viewSettings.showThumbnails,
+                  showMetadata: _viewSettings.showMetadata,
+                );
+              }, childCount: documents.length),
             ),
           ),
       ],
@@ -624,7 +662,7 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
       final docA = a.document!;
       final docB = b.document!;
       int comparison = 0;
-      
+
       switch (_viewSettings.sortBy) {
         case DocumentSortBy.name:
           final nameA = docA.title ?? docA.filename ?? '';
@@ -653,7 +691,7 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
           comparison = pagesA.compareTo(pagesB);
           break;
       }
-      
+
       return _viewSettings.ascending ? comparison : -comparison;
     });
   }
@@ -713,7 +751,9 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
 
   void _viewNodeDetails(FolderNode node) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('View details for ${node.name} - To be implemented')),
+      SnackBar(
+        content: Text('View details for ${node.name} - To be implemented'),
+      ),
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:digi_lib_app/src/models/entities/user.dart';
 import 'package:digi_lib_app/src/models/api/auth_result.dart';
 import 'package:digi_lib_app/src/services/secure_storage_service.dart';
 import 'package:digi_lib_app/src/services/auth_api_service.dart';
+import 'package:digi_lib_app/src/utils/constants.dart';
 import 'settings_provider.dart';
 import 'auth_api_service_provider.dart';
 
@@ -14,8 +15,6 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authApiService = ref.watch(authApiServiceProvider);
   return AuthNotifier(secureStorage, authApiService);
 });
-
-
 
 /// Provider for current user
 final currentUserProvider = Provider<User?>((ref) {
@@ -30,7 +29,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Timer? _tokenRefreshTimer;
   Timer? _tokenExpirationTimer;
 
-  AuthNotifier(this._secureStorage, this._authApiService) : super(const AuthState.loading()) {
+  AuthNotifier(this._secureStorage, this._authApiService)
+    : super(const AuthState.loading()) {
     _initializeAuth();
   }
 
@@ -46,7 +46,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final refreshToken = await _secureStorage.getRefreshToken();
       final userId = await _secureStorage.getUserId();
-      
+
       if (refreshToken != null && userId != null) {
         // We have stored credentials, try to refresh the token
         await _refreshTokenSilently();
@@ -71,7 +71,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _secureStorage.storeUserId(user.id);
 
       // Calculate token expiration time
-      final expiresAt = DateTime.now().add(Duration(seconds: authResult.expiresIn));
+      final expiresAt = DateTime.now().add(
+        Duration(seconds: authResult.expiresIn),
+      );
 
       // Update state to authenticated
       state = AuthState.authenticated(
@@ -83,7 +85,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       // Schedule token refresh
       _scheduleTokenRefresh(expiresAt);
-
     } catch (e) {
       await _clearStoredAuth();
       state = AuthState.error('Sign in failed: $e');
@@ -91,12 +92,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   /// Sign in with OAuth2 provider using API
-  Future<void> signInWithOAuth2Provider(String provider, String code, String state, String redirectUri) async {
+  Future<void> signInWithOAuth2Provider(
+    String provider,
+    String code,
+    String state,
+    String redirectUri,
+  ) async {
     try {
       this.state = const AuthState.authenticating();
 
       // Call API to exchange code for tokens
-      final authResult = await _authApiService.signInWithOAuth2(provider, code, state, redirectUri);
+      final authResult = await _authApiService.signInWithOAuth2(
+        provider,
+        code,
+        state,
+        redirectUri,
+      );
       final user = await _authApiService.getCurrentUser();
 
       // Store tokens securely
@@ -104,7 +115,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _secureStorage.storeUserId(user.id);
 
       // Calculate token expiration time
-      final expiresAt = DateTime.now().add(Duration(seconds: authResult.expiresIn));
+      final expiresAt = DateTime.now().add(
+        Duration(seconds: authResult.expiresIn),
+      );
 
       // Update state to authenticated
       this.state = AuthState.authenticated(
@@ -116,7 +129,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       // Schedule token refresh
       _scheduleTokenRefresh(expiresAt);
-
     } catch (e) {
       await _clearStoredAuth();
       this.state = AuthState.error('OAuth2 sign in failed: $e');
@@ -144,7 +156,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final user = await _authApiService.getCurrentUser();
 
       // Calculate token expiration time
-      final expiresAt = DateTime.now().add(Duration(seconds: authResult.expiresIn));
+      final expiresAt = DateTime.now().add(
+        Duration(seconds: authResult.expiresIn),
+      );
 
       state = AuthState.authenticated(
         user: user,
@@ -154,7 +168,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
 
       _scheduleTokenRefresh(expiresAt);
-
     } catch (e) {
       // Refresh failed, sign out the user
       await signOut();
@@ -178,7 +191,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final user = await _authApiService.getCurrentUser();
 
       // Calculate token expiration time
-      final expiresAt = DateTime.now().add(Duration(seconds: authResult.expiresIn));
+      final expiresAt = DateTime.now().add(
+        Duration(seconds: authResult.expiresIn),
+      );
 
       state = AuthState.authenticated(
         user: user,
@@ -188,7 +203,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
 
       _scheduleTokenRefresh(expiresAt);
-
     } catch (e) {
       await _clearStoredAuth();
       state = const AuthState.unauthenticated();
@@ -210,7 +224,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       // Update state to unauthenticated
       state = const AuthState.unauthenticated();
-
     } catch (e) {
       // Even if API call or clearing storage fails, set state to unauthenticated
       await _clearStoredAuth();
@@ -225,7 +238,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _secureStorage.clearUserId();
     } catch (e) {
       // Log error but don't throw - we want to continue with sign out
-      print('Error clearing stored auth data: $e');
+      AppLogger.error('Error clearing stored auth data', e);
     }
   }
 

@@ -22,7 +22,8 @@ class DocumentReaderScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<DocumentReaderScreen> createState() => _DocumentReaderScreenState();
+  ConsumerState<DocumentReaderScreen> createState() =>
+      _DocumentReaderScreenState();
 }
 
 class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
@@ -32,32 +33,34 @@ class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
   bool _showSettingsPanel = false;
   bool _showFindBar = false;
   bool _showCollaborationPanel = false;
-  
+
   late AnimationController _controlsAnimationController;
   late Animation<double> _controlsAnimation;
 
   @override
   void initState() {
     super.initState();
-    
+
     _controlsAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _controlsAnimation = CurvedAnimation(
       parent: _controlsAnimationController,
       curve: Curves.easeInOut,
     );
-    
+
     _controlsAnimationController.forward();
-    
+
     // Initialize reader if initial page is provided
     if (widget.initialPage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final pageNumber = int.tryParse(widget.initialPage!);
         if (pageNumber != null) {
-          ref.read(readerStateProvider(widget.documentId).notifier).goToPage(pageNumber);
+          ref
+              .read(readerStateProvider(widget.documentId).notifier)
+              .goToPage(pageNumber);
         }
       });
     }
@@ -73,7 +76,7 @@ class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
     setState(() {
       _isFullscreen = !_isFullscreen;
     });
-    
+
     if (_isFullscreen) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     } else {
@@ -85,7 +88,7 @@ class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
     setState(() {
       _showControls = !_showControls;
     });
-    
+
     if (_showControls) {
       _controlsAnimationController.forward();
     } else {
@@ -125,7 +128,6 @@ class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
   @override
   Widget build(BuildContext context) {
     final document = ref.watch(currentDocumentProvider(widget.documentId));
-    final readerState = ref.watch(readerStateProvider(widget.documentId));
     final settings = ref.watch(readerSettingsProvider);
 
     return Scaffold(
@@ -143,11 +145,7 @@ class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red,
-          ),
+          const Icon(Icons.error_outline, size: 64, color: Colors.red),
           const SizedBox(height: 16),
           Text(
             'Failed to load document',
@@ -194,14 +192,14 @@ class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
                   ),
                 ),
               ),
-            
+
             // Collaboration status bar
             if (!_isFullscreen)
               CollaborationStatusBar(
                 subjectId: document.id,
                 userEmail: 'user@example.com', // TODO: Get from auth provider
               ),
-            
+
             // Progress indicator
             if (_showControls || !_isFullscreen)
               AnimatedBuilder(
@@ -216,7 +214,7 @@ class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
                   ),
                 ),
               ),
-            
+
             // Page viewer
             Expanded(
               child: GestureDetector(
@@ -239,7 +237,7 @@ class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
                 ),
               ),
             ),
-            
+
             // Bottom navigation controls
             if (_showControls || !_isFullscreen)
               AnimatedBuilder(
@@ -257,18 +255,16 @@ class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
               ),
           ],
         ),
-        
+
         // Settings panel overlay
         if (_showSettingsPanel)
           Positioned(
             right: 0,
             top: 0,
             bottom: 0,
-            child: ReaderSettingsPanel(
-              onClose: _toggleSettingsPanel,
-            ),
+            child: ReaderSettingsPanel(onClose: _toggleSettingsPanel),
           ),
-        
+
         // Collaboration panel overlay
         if (_showCollaborationPanel)
           Positioned(
@@ -277,12 +273,13 @@ class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
             bottom: 0,
             child: SharedDocumentOverlay(
               documentId: document.id,
-              documentTitle: document.title ?? document.filename ?? 'Unknown Document',
+              documentTitle:
+                  document.title ?? document.filename ?? 'Unknown Document',
               userEmail: 'user@example.com', // TODO: Get from auth provider
               onClose: _toggleCollaborationPanel,
             ),
           ),
-        
+
         // Fullscreen overlay controls
         if (_isFullscreen && _showControls)
           Positioned(
@@ -312,7 +309,10 @@ class _DocumentReaderScreenState extends ConsumerState<DocumentReaderScreen>
                       ),
                       IconButton(
                         onPressed: _toggleFullscreen,
-                        icon: const Icon(Icons.fullscreen_exit, color: Colors.white),
+                        icon: const Icon(
+                          Icons.fullscreen_exit,
+                          color: Colors.white,
+                        ),
                         tooltip: 'Exit fullscreen',
                       ),
                       IconButton(
@@ -366,7 +366,9 @@ class CompactReaderScreen extends ConsumerWidget {
     // Initialize reader with initial page if provided
     if (initialPage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(readerStateProvider(documentId).notifier).goToPage(initialPage!);
+        ref
+            .read(readerStateProvider(documentId).notifier)
+            .goToPage(initialPage!);
       });
     }
 
@@ -381,7 +383,7 @@ class CompactReaderScreen extends ConsumerWidget {
         children: [
           // Compact progress indicator
           ReadingProgressIndicator(documentId: documentId),
-          
+
           // Page viewer
           Expanded(
             child: PageViewer(
@@ -396,7 +398,7 @@ class CompactReaderScreen extends ConsumerWidget {
               },
             ),
           ),
-          
+
           // Compact navigation controls
           PageNavigationControls(documentId: documentId),
         ],
