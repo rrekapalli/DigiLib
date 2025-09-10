@@ -1,41 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:digi_lib_app/main.dart' as app;
-import 'package:digi_lib_app/src/models/entities/document.dart';
-import 'package:digi_lib_app/src/models/entities/library.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('End-to-End User Workflow Tests', () {
-    testWidgets('Complete user journey: Authentication -> Library -> Document Reading', (WidgetTester tester) async {
-      // Start the app
-      app.main();
-      await tester.pumpAndSettle();
+    testWidgets(
+      'Complete user journey: Authentication -> Library -> Document Reading',
+      (WidgetTester tester) async {
+        // Start the app
+        app.main();
+        await tester.pumpAndSettle();
 
-      // Step 1: Authentication Flow
-      await _testAuthenticationFlow(tester);
+        // Step 1: Authentication Flow
+        await _testAuthenticationFlow(tester);
 
-      // Step 2: Library Management
-      await _testLibraryManagement(tester);
+        // Step 2: Library Management
+        await _testLibraryManagement(tester);
 
-      // Step 3: Document Browsing
-      await _testDocumentBrowsing(tester);
+        // Step 3: Document Browsing
+        await _testDocumentBrowsing(tester);
 
-      // Step 4: Document Reading
-      await _testDocumentReading(tester);
+        // Step 4: Document Reading
+        await _testDocumentReading(tester);
 
-      // Step 5: Annotation Features
-      await _testAnnotationFeatures(tester);
+        // Step 5: Annotation Features
+        await _testAnnotationFeatures(tester);
 
-      // Step 6: Search Functionality
-      await _testSearchFunctionality(tester);
+        // Step 6: Search Functionality
+        await _testSearchFunctionality(tester);
 
-      // Step 7: Settings and Preferences
-      await _testSettingsAndPreferences(tester);
-    });
+        // Step 7: Settings and Preferences
+        await _testSettingsAndPreferences(tester);
+      },
+    );
 
     testWidgets('Offline functionality workflow', (WidgetTester tester) async {
       app.main();
@@ -54,7 +54,9 @@ void main() {
       await _testSyncAfterOffline(tester);
     });
 
-    testWidgets('Error handling and recovery workflow', (WidgetTester tester) async {
+    testWidgets('Error handling and recovery workflow', (
+      WidgetTester tester,
+    ) async {
       app.main();
       await tester.pumpAndSettle();
 
@@ -89,7 +91,7 @@ Future<void> _testAuthenticationFlow(WidgetTester tester) async {
   // In a real test, we'd mock the OAuth flow
   // For now, we'll simulate successful authentication
   // by checking if we reach the main app screen
-  
+
   // Wait for authentication to complete
   await tester.pumpAndSettle(const Duration(seconds: 2));
 
@@ -120,7 +122,7 @@ Future<void> _testLibraryManagement(WidgetTester tester) async {
 
   // Should show folder picker or path input
   // For testing, we'll assume a test library is created
-  
+
   // Wait for library to be added
   await tester.pumpAndSettle(const Duration(seconds: 1));
 
@@ -187,7 +189,7 @@ Future<void> _testDocumentReading(WidgetTester tester) async {
     const Offset(0, 0),
     const Duration(milliseconds: 100),
   );
-  
+
   // Pinch to zoom (simulate)
   final center = tester.getCenter(find.byType(PageView));
   await tester.startGesture(center);
@@ -416,13 +418,13 @@ Future<void> _testAuthErrorRecovery(WidgetTester tester) async {
   // Simulate authentication token expiration
   // Should automatically attempt token refresh
   // If refresh fails, should prompt for re-authentication
-  
+
   if (find.textContaining('Session Expired').evaluate().isNotEmpty) {
     expect(find.textContaining('Sign In Again'), findsOneWidget);
-    
+
     await tester.tap(find.textContaining('Sign In Again'));
     await tester.pumpAndSettle();
-    
+
     // Should return to authentication flow
     expect(find.textContaining('Sign In'), findsOneWidget);
   }
@@ -432,18 +434,18 @@ Future<void> _testSyncConflictResolution(WidgetTester tester) async {
   // Simulate sync conflict
   if (find.textContaining('Sync Conflict').evaluate().isNotEmpty) {
     expect(find.textContaining('Resolve'), findsOneWidget);
-    
+
     await tester.tap(find.textContaining('Resolve'));
     await tester.pumpAndSettle();
-    
+
     // Should show conflict resolution options
     expect(find.textContaining('Keep Local'), findsOneWidget);
     expect(find.textContaining('Keep Server'), findsOneWidget);
-    
+
     // Choose resolution
     await tester.tap(find.textContaining('Keep Local'));
     await tester.pumpAndSettle();
-    
+
     // Should resolve conflict and continue sync
     expect(find.textContaining('Conflict Resolved'), findsOneWidget);
   }

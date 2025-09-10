@@ -5,7 +5,7 @@ void main() {
   group('ApiClientConfig', () {
     test('should create config with default values', () {
       const config = ApiClientConfig(baseUrl: 'https://api.example.com');
-      
+
       expect(config.baseUrl, 'https://api.example.com');
       expect(config.connectTimeout, const Duration(seconds: 30));
       expect(config.receiveTimeout, const Duration(seconds: 30));
@@ -24,7 +24,7 @@ void main() {
         retryDelay: Duration(seconds: 2),
         enableLogging: false,
       );
-      
+
       expect(config.baseUrl, 'https://api.example.com');
       expect(config.connectTimeout, const Duration(seconds: 10));
       expect(config.receiveTimeout, const Duration(seconds: 20));
@@ -57,10 +57,10 @@ void main() {
 
     test('should set and clear auth token', () {
       const token = 'test-token';
-      
+
       apiClient.setAuthToken(token);
       expect(apiClient.hasAuthToken, true);
-      
+
       apiClient.clearAuthToken();
       expect(apiClient.hasAuthToken, false);
     });

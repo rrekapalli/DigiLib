@@ -11,7 +11,8 @@ class ShareListScreen extends ConsumerStatefulWidget {
   ConsumerState<ShareListScreen> createState() => _ShareListScreenState();
 }
 
-class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerProviderStateMixin {
+class _ShareListScreenState extends ConsumerState<ShareListScreen>
+    with TickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -28,31 +29,20 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sharing & Collaboration'),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(
-              icon: Icon(Icons.share),
-              text: 'My Shares',
-            ),
-            Tab(
-              icon: Icon(Icons.people),
-              text: 'Shared with Me',
-            ),
+            Tab(icon: Icon(Icons.share), text: 'My Shares'),
+            Tab(icon: Icon(Icons.people), text: 'Shared with Me'),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildMySharesTab(),
-          _buildSharedWithMeTab(),
-        ],
+        children: [_buildMySharesTab(), _buildSharedWithMeTab()],
       ),
     );
   }
@@ -73,7 +63,9 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
 
         return RefreshIndicator(
           onRefresh: () async {
-            ref.read(shareNotifierProvider('current-user-id').notifier).refresh();
+            ref
+                .read(shareNotifierProvider('current-user-id').notifier)
+                .refresh();
           },
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -88,7 +80,9 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => _buildErrorState(
         error: error.toString(),
-        onRetry: () => ref.read(shareNotifierProvider('current-user-id').notifier).refresh(),
+        onRetry: () => ref
+            .read(shareNotifierProvider('current-user-id').notifier)
+            .refresh(),
       ),
     );
   }
@@ -130,7 +124,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
 
   Widget _buildShareCard(Share share, {required bool isOwner}) {
     final theme = Theme.of(context);
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -159,7 +153,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
                     ),
                   ),
                   const SizedBox(width: 12),
-                  
+
                   // Subject info
                   Expanded(
                     child: Column(
@@ -181,15 +175,22 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
                       ],
                     ),
                   ),
-                  
+
                   // Permission badge
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: _getPermissionColor(share.permission).withOpacity(0.1),
+                      color: _getPermissionColor(
+                        share.permission,
+                      ).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: _getPermissionColor(share.permission).withOpacity(0.3),
+                        color: _getPermissionColor(
+                          share.permission,
+                        ).withOpacity(0.3),
                       ),
                     ),
                     child: Text(
@@ -200,7 +201,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
                       ),
                     ),
                   ),
-                  
+
                   // Actions menu
                   if (isOwner)
                     PopupMenuButton<String>(
@@ -232,7 +233,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
                 ],
               ),
               const SizedBox(height: 12),
-              
+
               // Share details
               Row(
                 children: [
@@ -296,11 +297,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 64,
-              color: Colors.grey,
-            ),
+            Icon(icon, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
               title,
@@ -332,18 +329,11 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red,
-            ),
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             const Text(
               'Error loading shares',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
             Text(
@@ -352,10 +342,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
+            ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
           ],
         ),
       ),
@@ -443,7 +430,7 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
   void _copyShareLink(Share share) {
     // TODO: Generate and copy actual share link
     final link = 'https://app.example.com/shared/${share.subjectId}';
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Share link copied to clipboard'),
@@ -469,12 +456,14 @@ class _ShareListScreenState extends ConsumerState<ShareListScreen> with TickerPr
           ElevatedButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              
+
               try {
                 // TODO: Get current user ID from auth provider
-                final shareNotifier = ref.read(shareNotifierProvider('current-user-id').notifier);
+                final shareNotifier = ref.read(
+                  shareNotifierProvider('current-user-id').notifier,
+                );
                 await shareNotifier.deleteShare(share.id);
-                
+
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

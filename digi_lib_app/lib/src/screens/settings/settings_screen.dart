@@ -20,7 +20,6 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -159,7 +158,8 @@ class SettingsScreen extends ConsumerWidget {
               ),
               SettingsTile(
                 title: 'Page Preloading',
-                subtitle: 'Preload ${settings.cache.preloadPageCount} pages ahead',
+                subtitle:
+                    'Preload ${settings.cache.preloadPageCount} pages ahead',
                 leading: const Icon(Icons.preview),
                 trailing: Switch(
                   value: settings.cache.enablePagePreloading,
@@ -168,7 +168,8 @@ class SettingsScreen extends ConsumerWidget {
               ),
               SettingsTile(
                 title: 'Auto Cleanup',
-                subtitle: 'Clean cache every ${settings.cache.cleanupIntervalDays} days',
+                subtitle:
+                    'Clean cache every ${settings.cache.cleanupIntervalDays} days',
                 leading: const Icon(Icons.cleaning_services),
                 trailing: Switch(
                   value: settings.cache.autoCleanup,
@@ -402,7 +403,8 @@ class SettingsScreen extends ConsumerWidget {
       context: context,
       builder: (context) => SettingsExportImportDialog(
         onExport: () => ref.read(settingsProvider.notifier).exportSettings(),
-        onImport: (json) => ref.read(settingsProvider.notifier).importSettings(json),
+        onImport: (json) =>
+            ref.read(settingsProvider.notifier).importSettings(json),
       ),
     );
   }
@@ -468,7 +470,9 @@ class SettingsScreen extends ConsumerWidget {
 
   void _updateSyncInterval(WidgetRef ref, int interval) {
     final currentSettings = ref.read(settingsProvider);
-    final updatedSync = currentSettings.sync.copyWith(syncIntervalMinutes: interval);
+    final updatedSync = currentSettings.sync.copyWith(
+      syncIntervalMinutes: interval,
+    );
     ref.read(settingsProvider.notifier).updateSyncSettings(updatedSync);
   }
 
@@ -492,13 +496,17 @@ class SettingsScreen extends ConsumerWidget {
 
   void _updateThumbnailCacheSize(WidgetRef ref, int size) {
     final currentSettings = ref.read(settingsProvider);
-    final updatedCache = currentSettings.cache.copyWith(maxThumbnailCacheSizeMB: size);
+    final updatedCache = currentSettings.cache.copyWith(
+      maxThumbnailCacheSizeMB: size,
+    );
     ref.read(settingsProvider.notifier).updateCacheSettings(updatedCache);
   }
 
   void _updatePagePreloading(WidgetRef ref, bool value) {
     final currentSettings = ref.read(settingsProvider);
-    final updatedCache = currentSettings.cache.copyWith(enablePagePreloading: value);
+    final updatedCache = currentSettings.cache.copyWith(
+      enablePagePreloading: value,
+    );
     ref.read(settingsProvider.notifier).updateCacheSettings(updatedCache);
   }
 
@@ -510,20 +518,32 @@ class SettingsScreen extends ConsumerWidget {
 
   void _updateNotificationsEnabled(WidgetRef ref, bool value) {
     final currentSettings = ref.read(settingsProvider);
-    final updatedNotifications = currentSettings.notifications.copyWith(enableNotifications: value);
-    ref.read(settingsProvider.notifier).updateNotificationSettings(updatedNotifications);
+    final updatedNotifications = currentSettings.notifications.copyWith(
+      enableNotifications: value,
+    );
+    ref
+        .read(settingsProvider.notifier)
+        .updateNotificationSettings(updatedNotifications);
   }
 
   void _updateSyncCompleteNotifications(WidgetRef ref, bool value) {
     final currentSettings = ref.read(settingsProvider);
-    final updatedNotifications = currentSettings.notifications.copyWith(syncCompleteNotifications: value);
-    ref.read(settingsProvider.notifier).updateNotificationSettings(updatedNotifications);
+    final updatedNotifications = currentSettings.notifications.copyWith(
+      syncCompleteNotifications: value,
+    );
+    ref
+        .read(settingsProvider.notifier)
+        .updateNotificationSettings(updatedNotifications);
   }
 
   void _updateScanCompleteNotifications(WidgetRef ref, bool value) {
     final currentSettings = ref.read(settingsProvider);
-    final updatedNotifications = currentSettings.notifications.copyWith(scanCompleteNotifications: value);
-    ref.read(settingsProvider.notifier).updateNotificationSettings(updatedNotifications);
+    final updatedNotifications = currentSettings.notifications.copyWith(
+      scanCompleteNotifications: value,
+    );
+    ref
+        .read(settingsProvider.notifier)
+        .updateNotificationSettings(updatedNotifications);
   }
 
   void _updateQuietHours(WidgetRef ref, NotificationSettings settings) {
@@ -532,33 +552,47 @@ class SettingsScreen extends ConsumerWidget {
 
   void _updateHighContrast(WidgetRef ref, bool value) {
     final currentSettings = ref.read(settingsProvider);
-    final updatedAccessibility = currentSettings.accessibility.copyWith(highContrast: value);
-    ref.read(settingsProvider.notifier).updateAccessibilitySettings(updatedAccessibility);
+    final updatedAccessibility = currentSettings.accessibility.copyWith(
+      highContrast: value,
+    );
+    ref
+        .read(settingsProvider.notifier)
+        .updateAccessibilitySettings(updatedAccessibility);
   }
 
   void _updateReduceAnimations(WidgetRef ref, bool value) {
     final currentSettings = ref.read(settingsProvider);
-    final updatedAccessibility = currentSettings.accessibility.copyWith(reduceAnimations: value);
-    ref.read(settingsProvider.notifier).updateAccessibilitySettings(updatedAccessibility);
+    final updatedAccessibility = currentSettings.accessibility.copyWith(
+      reduceAnimations: value,
+    );
+    ref
+        .read(settingsProvider.notifier)
+        .updateAccessibilitySettings(updatedAccessibility);
   }
 
   void _updateHapticFeedback(WidgetRef ref, bool value) {
     final currentSettings = ref.read(settingsProvider);
-    final updatedAccessibility = currentSettings.accessibility.copyWith(hapticFeedback: value);
-    ref.read(settingsProvider.notifier).updateAccessibilitySettings(updatedAccessibility);
+    final updatedAccessibility = currentSettings.accessibility.copyWith(
+      hapticFeedback: value,
+    );
+    ref
+        .read(settingsProvider.notifier)
+        .updateAccessibilitySettings(updatedAccessibility);
   }
 
   void _updateSoundEffects(WidgetRef ref, bool value) {
     final currentSettings = ref.read(settingsProvider);
-    final updatedAccessibility = currentSettings.accessibility.copyWith(soundEffects: value);
-    ref.read(settingsProvider.notifier).updateAccessibilitySettings(updatedAccessibility);
+    final updatedAccessibility = currentSettings.accessibility.copyWith(
+      soundEffects: value,
+    );
+    ref
+        .read(settingsProvider.notifier)
+        .updateAccessibilitySettings(updatedAccessibility);
   }
 
   void _navigateToAccountSecurity(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const AccountSecurityScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const AccountSecurityScreen()),
     );
   }
 }

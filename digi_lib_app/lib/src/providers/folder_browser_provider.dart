@@ -1,11 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/entities/folder_node.dart';
 import '../models/entities/document.dart';
-import '../models/ui/folder_browser_state.dart' hide FolderBrowserState;
 import '../models/ui/folder_browser_state.dart' as ui;
 import '../services/folder_service.dart';
 import '../services/document_service.dart';
-import '../database/repositories/document_repository.dart';
 import 'document_provider.dart';
 
 /// Provider for FolderService
@@ -19,15 +17,11 @@ final folderServiceProvider = Provider<FolderService>((ref) {
 /// State notifier for folder browser functionality
 class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
   final FolderService _folderService;
-  final DocumentService _documentService;
   String? _currentLibraryId;
 
-  FolderBrowserNotifier({
-    required FolderService folderService,
-    required DocumentService documentService,
-  }) : _folderService = folderService,
-       _documentService = documentService,
-       super(const ui.FolderBrowserState());
+  FolderBrowserNotifier({required FolderService folderService})
+    : _folderService = folderService,
+      super(const ui.FolderBrowserState());
 
   /// Initialize folder browser for a specific library
   Future<void> initializeLibrary(String libraryId) async {
@@ -49,10 +43,7 @@ class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
         isMultiSelectMode: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -63,9 +54,12 @@ class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final folderNodes = await _folderService.getFolderContents(_currentLibraryId!, folderPath);
+      final folderNodes = await _folderService.getFolderContents(
+        _currentLibraryId!,
+        folderPath,
+      );
       final breadcrumbs = ui.FolderBrowserState.generateBreadcrumbs(folderPath);
-      
+
       state = state.copyWith(
         currentPath: folderPath,
         breadcrumbs: breadcrumbs,
@@ -75,10 +69,7 @@ class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
         isMultiSelectMode: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -89,7 +80,7 @@ class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
 
     final parentPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
     final targetPath = parentPath.isEmpty ? '/' : parentPath;
-    
+
     await navigateToFolder(targetPath);
   }
 
@@ -138,7 +129,10 @@ class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
     if (_currentLibraryId == null) return [];
 
     try {
-      return await _folderService.getDocumentsInFolder(_currentLibraryId!, state.currentPath);
+      return await _folderService.getDocumentsInFolder(
+        _currentLibraryId!,
+        state.currentPath,
+      );
     } catch (e) {
       return [];
     }
@@ -156,7 +150,10 @@ class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
         await navigateToFolder(state.currentPath);
       } else {
         // Perform search
-        final searchResults = await _folderService.searchFolderStructure(_currentLibraryId!, query);
+        final searchResults = await _folderService.searchFolderStructure(
+          _currentLibraryId!,
+          query,
+        );
         state = state.copyWith(
           currentNodes: searchResults,
           isLoading: false,
@@ -165,10 +162,7 @@ class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
         );
       }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -184,9 +178,12 @@ class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
   /// Get selected documents
   List<Document> getSelectedDocuments() {
     return state.currentNodes
-        .where((node) => !node.isFolder && 
-                        state.selectedPaths.contains(node.path) && 
-                        node.document != null)
+        .where(
+          (node) =>
+              !node.isFolder &&
+              state.selectedPaths.contains(node.path) &&
+              node.document != null,
+        )
         .map((node) => node.document!)
         .toList();
   }
@@ -194,7 +191,9 @@ class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
   /// Get selected folders
   List<FolderNode> getSelectedFolders() {
     return state.currentNodes
-        .where((node) => node.isFolder && state.selectedPaths.contains(node.path))
+        .where(
+          (node) => node.isFolder && state.selectedPaths.contains(node.path),
+        )
         .toList();
   }
 
@@ -202,8 +201,8 @@ class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
   bool get hasSelection => state.selectedPaths.isNotEmpty;
 
   /// Check if all items are selected
-  bool get isAllSelected => 
-      state.currentNodes.isNotEmpty && 
+  bool get isAllSelected =>
+      state.currentNodes.isNotEmpty &&
       state.selectedPaths.length == state.currentNodes.length;
 
   /// Clear error state
@@ -213,19 +212,18 @@ class FolderBrowserNotifier extends StateNotifier<ui.FolderBrowserState> {
 }
 
 /// Provider for folder browser state
-final folderBrowserProvider = StateNotifierProvider<FolderBrowserNotifier, ui.FolderBrowserState>((ref) {
-  final folderService = ref.watch(folderServiceProvider);
-  final documentService = ref.watch(documentServiceProvider);
-  
-  return FolderBrowserNotifier(
-    folderService: folderService,
-    documentService: documentService,
-  );
-});
+final folderBrowserProvider =
+    StateNotifierProvider<FolderBrowserNotifier, ui.FolderBrowserState>((ref) {
+      final folderService = ref.watch(folderServiceProvider);
+
+      return FolderBrowserNotifier(folderService: folderService);
+    });
 
 /// Provider for DocumentService
 final documentServiceProvider = Provider<DocumentService>((ref) {
   // This should be properly injected with dependencies
   // For now, we'll create a minimal version
-  throw UnimplementedError('DocumentService provider needs to be properly implemented with dependencies');
+  throw UnimplementedError(
+    'DocumentService provider needs to be properly implemented with dependencies',
+  );
 });

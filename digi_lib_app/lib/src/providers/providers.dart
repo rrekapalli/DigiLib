@@ -10,7 +10,7 @@ export 'connectivity_provider.dart';
 export 'search_provider.dart';
 export 'library_provider.dart';
 export 'document_provider.dart';
-export 'native_rendering_provider.dart' hide documentApiServiceProvider, documentServiceProvider;
+export 'native_rendering_provider.dart' hide documentApiServiceProvider;
 export 'folder_browser_provider.dart' hide documentServiceProvider;
 export 'reader_provider.dart' hide documentServiceProvider;
 export 'bookmark_provider.dart';

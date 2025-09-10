@@ -10,10 +10,7 @@ import '../../widgets/error_dialog.dart';
 class DocumentEditScreen extends ConsumerStatefulWidget {
   final Document document;
 
-  const DocumentEditScreen({
-    super.key,
-    required this.document,
-  });
+  const DocumentEditScreen({super.key, required this.document});
 
   @override
   ConsumerState<DocumentEditScreen> createState() => _DocumentEditScreenState();
@@ -26,7 +23,7 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
   final _renamedNameController = TextEditingController();
   final _isbnController = TextEditingController();
   final _yearController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _hasChanges = false;
 
@@ -64,11 +61,13 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
   }
 
   void _onFieldChanged() {
-    final hasChanges = _titleController.text != (widget.document.title ?? '') ||
+    final hasChanges =
+        _titleController.text != (widget.document.title ?? '') ||
         _authorController.text != (widget.document.author ?? '') ||
         _renamedNameController.text != (widget.document.renamedName ?? '') ||
         _isbnController.text != (widget.document.isbn ?? '') ||
-        _yearController.text != (widget.document.yearPublished?.toString() ?? '');
+        _yearController.text !=
+            (widget.document.yearPublished?.toString() ?? '');
 
     if (hasChanges != _hasChanges) {
       setState(() {
@@ -79,8 +78,6 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return PopScope(
       canPop: !_hasChanges,
       onPopInvokedWithResult: (didPop, result) async {
@@ -119,19 +116,19 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
               children: [
                 // Document info header
                 _buildDocumentHeader(context),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Editable fields
                 _buildEditableFields(context),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Read-only system info
                 _buildSystemInfo(context),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Action buttons
                 _buildActionButtons(context),
               ],
@@ -144,7 +141,7 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
 
   Widget _buildDocumentHeader(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -160,9 +157,9 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
               ),
               child: _buildFileIcon(context),
             ),
-            
+
             const SizedBox(width: 16),
-            
+
             // File info
             Expanded(
               child: Column(
@@ -186,7 +183,9 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
                     Text(
                       '${widget.document.pageCount} pages',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.7,
+                        ),
                       ),
                     ),
                   ],
@@ -201,7 +200,7 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
 
   Widget _buildEditableFields(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -215,7 +214,7 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Title field
             TextFormField(
               controller: _titleController,
@@ -232,9 +231,9 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
                 return null;
               },
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Author field
             TextFormField(
               controller: _authorController,
@@ -245,9 +244,9 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
               ),
               textCapitalization: TextCapitalization.words,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Display name field
             TextFormField(
               controller: _renamedNameController,
@@ -259,9 +258,9 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
               ),
               textCapitalization: TextCapitalization.words,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // ISBN field
             TextFormField(
               controller: _isbnController,
@@ -285,9 +284,9 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
                 return null;
               },
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Year published field
             TextFormField(
               controller: _yearController,
@@ -323,7 +322,7 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
 
   Widget _buildSystemInfo(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -337,13 +336,22 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
-            _buildInfoRow('Created', _formatDateTime(widget.document.createdAt)),
-            _buildInfoRow('Modified', _formatDateTime(widget.document.updatedAt)),
+
+            _buildInfoRow(
+              'Created',
+              _formatDateTime(widget.document.createdAt),
+            ),
+            _buildInfoRow(
+              'Modified',
+              _formatDateTime(widget.document.updatedAt),
+            ),
             if (widget.document.relativePath != null)
               _buildInfoRow('Path', widget.document.relativePath!),
             if (widget.document.sha256 != null)
-              _buildInfoRow('Checksum', '${widget.document.sha256!.substring(0, 16)}...'),
+              _buildInfoRow(
+                'Checksum',
+                '${widget.document.sha256!.substring(0, 16)}...',
+              ),
           ],
         ),
       ),
@@ -352,7 +360,7 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
 
   Widget _buildInfoRow(String label, String value) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -368,12 +376,7 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
               ),
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
+          Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
         ],
       ),
     );
@@ -410,10 +413,10 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
 
   Widget _buildFileIcon(BuildContext context) {
     final extension = widget.document.extension?.toLowerCase() ?? '';
-    
+
     IconData iconData;
     Color iconColor;
-    
+
     switch (extension) {
       case 'pdf':
         iconData = Icons.picture_as_pdf;
@@ -434,24 +437,21 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
         break;
       default:
         iconData = Icons.insert_drive_file;
-        iconColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5);
+        iconColor = Theme.of(
+          context,
+        ).colorScheme.onSurface.withValues(alpha: 0.5);
     }
-    
-    return Center(
-      child: Icon(
-        iconData,
-        size: 32,
-        color: iconColor,
-      ),
-    );
+
+    return Center(child: Icon(iconData, size: 32, color: iconColor));
   }
 
   String _formatFileSize(int? bytes) {
     if (bytes == null) return 'Unknown size';
-    
+
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -461,24 +461,25 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
 
   Future<bool> _showDiscardChangesDialog() async {
     return await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Discard Changes?'),
-        content: const Text(
-          'You have unsaved changes. Are you sure you want to discard them?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Keep Editing'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Discard Changes?'),
+            content: const Text(
+              'You have unsaved changes. Are you sure you want to discard them?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Keep Editing'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Discard'),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Discard'),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
   }
 
   Future<void> _saveChanges() async {
@@ -492,14 +493,26 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
 
     try {
       final request = UpdateDocumentRequest(
-        title: _titleController.text.trim().isEmpty ? null : _titleController.text.trim(),
-        author: _authorController.text.trim().isEmpty ? null : _authorController.text.trim(),
-        renamedName: _renamedNameController.text.trim().isEmpty ? null : _renamedNameController.text.trim(),
-        isbn: _isbnController.text.trim().isEmpty ? null : _isbnController.text.trim(),
-        yearPublished: _yearController.text.trim().isEmpty ? null : int.tryParse(_yearController.text.trim()),
+        title: _titleController.text.trim().isEmpty
+            ? null
+            : _titleController.text.trim(),
+        author: _authorController.text.trim().isEmpty
+            ? null
+            : _authorController.text.trim(),
+        renamedName: _renamedNameController.text.trim().isEmpty
+            ? null
+            : _renamedNameController.text.trim(),
+        isbn: _isbnController.text.trim().isEmpty
+            ? null
+            : _isbnController.text.trim(),
+        yearPublished: _yearController.text.trim().isEmpty
+            ? null
+            : int.tryParse(_yearController.text.trim()),
       );
 
-      await ref.read(documentNotifierProvider.notifier).updateDocument(widget.document.id, request);
+      await ref
+          .read(documentNotifierProvider.notifier)
+          .updateDocument(widget.document.id, request);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -508,7 +521,7 @@ class _DocumentEditScreenState extends ConsumerState<DocumentEditScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Return the updated document
         final updatedDocument = ref.read(documentNotifierProvider).value;
         Navigator.of(context).pop(updatedDocument);

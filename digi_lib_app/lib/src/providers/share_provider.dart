@@ -1,14 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/entities/share.dart';
 import '../models/api/create_share_request.dart';
-import '../models/ui/share_event.dart' as ui;
 import '../services/share_service.dart';
 import '../services/share_api_service.dart';
-import '../services/job_queue_service.dart';
-import '../network/connectivity_service.dart';
-import '../network/api_client.dart';
-import '../database/repositories/share_repository.dart';
-import 'connectivity_provider.dart';
 
 // Provider for ShareApiService
 final shareApiServiceProvider = Provider<ShareApiService>((ref) {
@@ -29,17 +23,20 @@ final sharesProvider = StreamProvider.autoDispose<List<Share>>((ref) {
 });
 
 // Provider for shares shared with current user
-final sharedWithMeProvider = FutureProvider.autoDispose<List<Share>>((ref) async {
+final sharedWithMeProvider = FutureProvider.autoDispose<List<Share>>((
+  ref,
+) async {
   final shareService = ref.watch(shareServiceProvider);
   // TODO: Get current user email from auth provider
   return shareService.getSharedWithMe('user@example.com');
 });
 
 // Provider for shares of a specific subject (document/folder)
-final sharesBySubjectProvider = FutureProvider.autoDispose.family<List<Share>, String>((ref, subjectId) async {
-  final shareService = ref.watch(shareServiceProvider);
-  return shareService.getSharesBySubject(subjectId);
-});
+final sharesBySubjectProvider = FutureProvider.autoDispose
+    .family<List<Share>, String>((ref, subjectId) async {
+      final shareService = ref.watch(shareServiceProvider);
+      return shareService.getSharesBySubject(subjectId);
+    });
 
 // Provider for share events stream
 final shareEventsProvider = StreamProvider.autoDispose((ref) {
@@ -52,7 +49,8 @@ class ShareNotifier extends StateNotifier<AsyncValue<List<Share>>> {
   final ShareService _shareService;
   final String _ownerId;
 
-  ShareNotifier(this._shareService, this._ownerId) : super(const AsyncValue.loading()) {
+  ShareNotifier(this._shareService, this._ownerId)
+    : super(const AsyncValue.loading()) {
     _loadShares();
   }
 
@@ -74,7 +72,10 @@ class ShareNotifier extends StateNotifier<AsyncValue<List<Share>>> {
     }
   }
 
-  Future<void> updateSharePermission(String shareId, SharePermission permission) async {
+  Future<void> updateSharePermission(
+    String shareId,
+    SharePermission permission,
+  ) async {
     try {
       await _shareService.updateSharePermission(shareId, permission);
       await _loadShares(); // Refresh the list
@@ -98,25 +99,37 @@ class ShareNotifier extends StateNotifier<AsyncValue<List<Share>>> {
 }
 
 // Provider for share notifier
-final shareNotifierProvider = StateNotifierProvider.autoDispose.family<ShareNotifier, AsyncValue<List<Share>>, String>((ref, ownerId) {
-  final shareService = ref.watch(shareServiceProvider);
-  return ShareNotifier(shareService, ownerId);
-});
+final shareNotifierProvider = StateNotifierProvider.autoDispose
+    .family<ShareNotifier, AsyncValue<List<Share>>, String>((ref, ownerId) {
+      final shareService = ref.watch(shareServiceProvider);
+      return ShareNotifier(shareService, ownerId);
+    });
 
 // Provider for checking if a subject is shared
-final isSharedProvider = FutureProvider.autoDispose.family<bool, ({String subjectId, String userEmail})>((ref, params) async {
-  final shareService = ref.watch(shareServiceProvider);
-  return shareService.isSharedWithUser(params.subjectId, params.userEmail);
-});
+final isSharedProvider = FutureProvider.autoDispose
+    .family<bool, ({String subjectId, String userEmail})>((ref, params) async {
+      final shareService = ref.watch(shareServiceProvider);
+      return shareService.isSharedWithUser(params.subjectId, params.userEmail);
+    });
 
 // Provider for getting share permission
-final sharePermissionProvider = FutureProvider.autoDispose.family<SharePermission?, ({String subjectId, String userEmail})>((ref, params) async {
-  final shareService = ref.watch(shareServiceProvider);
-  return shareService.getSharePermission(params.subjectId, params.userEmail);
-});
+final sharePermissionProvider = FutureProvider.autoDispose
+    .family<SharePermission?, ({String subjectId, String userEmail})>((
+      ref,
+      params,
+    ) async {
+      final shareService = ref.watch(shareServiceProvider);
+      return shareService.getSharePermission(
+        params.subjectId,
+        params.userEmail,
+      );
+    });
 
 // Provider for shares count
-final sharesCountProvider = FutureProvider.autoDispose.family<int, String>((ref, subjectId) async {
+final sharesCountProvider = FutureProvider.autoDispose.family<int, String>((
+  ref,
+  subjectId,
+) async {
   final shareService = ref.watch(shareServiceProvider);
   return shareService.getSharesCount(subjectId);
 });

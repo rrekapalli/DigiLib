@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/entities/document.dart';
 import '../models/ui/reader_settings.dart';
 import '../models/ui/reader_state.dart' as reader_state;
-import '../models/ui/page_render_result.dart' as ui;
 import '../services/page_rendering_service.dart';
 import 'native_rendering_provider.dart';
 import '../services/reading_progress_service.dart';
@@ -22,24 +21,37 @@ final documentServiceProvider = Provider<DocumentService>((ref) {
 });
 
 /// Provider for reader settings
-final readerSettingsProvider = StateNotifierProvider<ReaderSettingsNotifier, ReaderSettings>((ref) {
-  return ReaderSettingsNotifier();
-});
+final readerSettingsProvider =
+    StateNotifierProvider<ReaderSettingsNotifier, ReaderSettings>((ref) {
+      return ReaderSettingsNotifier();
+    });
 
 /// Provider for reader state
-final readerStateProvider = StateNotifierProvider.family<ReaderStateNotifier, AsyncValue<reader_state.ReaderState>, String>((ref, documentId) {
-  return ReaderStateNotifier(
-    documentId: documentId,
-    pageRenderingService: ref.watch(pageRenderingServiceProvider),
-    readingProgressService: ref.watch(readingProgressServiceProvider),
-    documentService: ref.watch(documentServiceProvider),
-  );
-});
+final readerStateProvider =
+    StateNotifierProvider.family<
+      ReaderStateNotifier,
+      AsyncValue<reader_state.ReaderState>,
+      String
+    >((ref, documentId) {
+      return ReaderStateNotifier(
+        documentId: documentId,
+        pageRenderingService: ref.watch(pageRenderingServiceProvider),
+        readingProgressService: ref.watch(readingProgressServiceProvider),
+        documentService: ref.watch(documentServiceProvider),
+      );
+    });
 
 /// Provider for current document
-final currentDocumentProvider = FutureProvider.family<Document, String>((ref, documentId) async {
+final currentDocumentProvider = FutureProvider.family<Document, String>((
+  ref,
+  documentId,
+) async {
   final documentService = ref.watch(documentServiceProvider);
-  return await documentService.getDocument(documentId);
+  final document = await documentService.getDocument(documentId);
+  if (document == null) {
+    throw Exception('Document not found: $documentId');
+  }
+  return document;
 });
 
 /// Notifier for reader settings
@@ -113,7 +125,8 @@ class ReaderSettingsNotifier extends StateNotifier<ReaderSettings> {
 }
 
 /// Notifier for reader state
-class ReaderStateNotifier extends StateNotifier<AsyncValue<reader_state.ReaderState>> {
+class ReaderStateNotifier
+    extends StateNotifier<AsyncValue<reader_state.ReaderState>> {
   final String documentId;
   final PageRenderingService _pageRenderingService;
   final ReadingProgressService _readingProgressService;
@@ -141,6 +154,10 @@ class ReaderStateNotifier extends StateNotifier<AsyncValue<reader_state.ReaderSt
 
       // Get document information
       final document = await _documentService.getDocument(documentId);
+      if (document == null) {
+        state = AsyncValue.error('Document not found', StackTrace.current);
+        return;
+      }
       final totalPages = document.pageCount ?? 0;
 
       if (totalPages <= 0) {
@@ -149,7 +166,10 @@ class ReaderStateNotifier extends StateNotifier<AsyncValue<reader_state.ReaderSt
       }
 
       // Get reading progress
-      final progress = await _readingProgressService.getReadingProgress('current_user', documentId);
+      final progress = await _readingProgressService.getReadingProgress(
+        'current_user',
+        documentId,
+      );
       final currentPage = progress?.lastPage ?? 1;
 
       // Create initial state
@@ -239,10 +259,7 @@ class ReaderStateNotifier extends StateNotifier<AsyncValue<reader_state.ReaderSt
     if (currentState == null) return;
 
     state = AsyncValue.data(
-      currentState.copyWith(
-        scrollOffset: offset,
-        lastUpdated: DateTime.now(),
-      ),
+      currentState.copyWith(scrollOffset: offset, lastUpdated: DateTime.now()),
     );
   }
 
@@ -265,10 +282,7 @@ class ReaderStateNotifier extends StateNotifier<AsyncValue<reader_state.ReaderSt
       await _preloadPage(currentState.currentPage);
 
       state = AsyncValue.data(
-        currentState.copyWith(
-          isLoading: false,
-          lastUpdated: DateTime.now(),
-        ),
+        currentState.copyWith(isLoading: false, lastUpdated: DateTime.now()),
       );
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -325,7 +339,10 @@ class ReaderStateNotifier extends StateNotifier<AsyncValue<reader_state.ReaderSt
 }
 
 /// Provider for page image data
-final pageImageProvider = FutureProvider.family<ui.PageRenderResult, PageRequest>((ref, request) async {
+final pageImageProvider = FutureProvider.family<PageRenderResult, PageRequest>((
+  ref,
+  request,
+) async {
   final pageRenderingService = ref.watch(pageRenderingServiceProvider);
   return await pageRenderingService.renderPage(
     request.documentId,

@@ -5,6 +5,7 @@ import '../services/local_search_service.dart';
 import '../services/global_search_service.dart';
 import '../services/search_service.dart';
 import 'connectivity_provider.dart';
+import 'api_client_provider.dart';
 
 /// Provider for SearchApiService
 final searchApiServiceProvider = Provider<SearchApiService>((ref) {
@@ -22,7 +23,7 @@ final globalSearchServiceProvider = Provider<GlobalSearchService>((ref) {
   final searchApiService = ref.watch(searchApiServiceProvider);
   final localSearchService = ref.watch(localSearchServiceProvider);
   final connectivityService = ref.watch(connectivityServiceProvider);
-  
+
   return GlobalSearchService(
     searchApiService,
     localSearchService,
@@ -34,31 +35,23 @@ final globalSearchServiceProvider = Provider<GlobalSearchService>((ref) {
 final searchServiceProvider = Provider<SearchService>((ref) {
   final localSearchService = ref.watch(localSearchServiceProvider);
   final globalSearchService = ref.watch(globalSearchServiceProvider);
-  
-  return SearchService(
-    localSearchService,
-    globalSearchService,
-  );
+
+  return SearchService(localSearchService, globalSearchService);
 });
 
 // Note: These providers assume that apiClientProvider and connectivityServiceProvider
 // are defined elsewhere in the app. You may need to adjust the imports and provider names
 // based on your actual provider setup.
 
-/// Placeholder providers - replace with actual implementations
-final apiClientProvider = Provider<ApiClient>((ref) {
-  return MockApiClient();
-});
-
 // connectivityServiceProvider is now imported from connectivity_provider.dart
 
 /// Mock ApiClient for development
 class MockApiClient implements ApiClient {
   String? _authToken;
-  
+
   @override
   String get baseUrl => 'http://localhost:8080';
-  
+
   @override
   bool get hasAuthToken => _authToken != null;
 
@@ -69,7 +62,11 @@ class MockApiClient implements ApiClient {
   }
 
   @override
-  Future<T> post<T>(String path, {Object? body, Map<String, dynamic>? queryParams}) async {
+  Future<T> post<T>(
+    String path, {
+    Object? body,
+    Map<String, dynamic>? queryParams,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 500));
     throw UnimplementedError('Mock API client - POST not implemented');
   }

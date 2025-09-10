@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../models/entities/comment.dart';
 import '../models/api/create_comment_request.dart';
 import '../models/api/update_comment_request.dart';
+import '../models/ui/text_selection_anchor.dart';
 import '../database/repositories/comment_repository.dart';
 import '../network/connectivity_service.dart';
 import 'comment_api_service.dart';
@@ -20,43 +21,6 @@ class CommentException implements Exception {
   String toString() => 'CommentException: $message';
 }
 
-/// Model for text selection anchor data
-class TextSelectionAnchor {
-  final int startOffset;
-  final int endOffset;
-  final String selectedText;
-  final String? contextBefore;
-  final String? contextAfter;
-
-  const TextSelectionAnchor({
-    required this.startOffset,
-    required this.endOffset,
-    required this.selectedText,
-    this.contextBefore,
-    this.contextAfter,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'startOffset': startOffset,
-      'endOffset': endOffset,
-      'selectedText': selectedText,
-      'contextBefore': contextBefore,
-      'contextAfter': contextAfter,
-    };
-  }
-
-  factory TextSelectionAnchor.fromJson(Map<String, dynamic> json) {
-    return TextSelectionAnchor(
-      startOffset: json['startOffset'] as int,
-      endOffset: json['endOffset'] as int,
-      selectedText: json['selectedText'] as String,
-      contextBefore: json['contextBefore'] as String?,
-      contextAfter: json['contextAfter'] as String?,
-    );
-  }
-}
-
 /// Service for managing comments with API integration, local caching, and offline support
 class CommentService {
   final CommentApiService _apiService;
@@ -66,8 +30,10 @@ class CommentService {
   final Uuid _uuid = const Uuid();
 
   // Stream controllers for real-time updates
-  final StreamController<List<Comment>> _commentsController = StreamController<List<Comment>>.broadcast();
-  final StreamController<CommentEvent> _commentEventsController = StreamController<CommentEvent>.broadcast();
+  final StreamController<List<Comment>> _commentsController =
+      StreamController<List<Comment>>.broadcast();
+  final StreamController<CommentEvent> _commentEventsController =
+      StreamController<CommentEvent>.broadcast();
 
   CommentService({
     required CommentApiService apiService,
@@ -83,27 +49,40 @@ class CommentService {
   Stream<List<Comment>> get commentsStream => _commentsController.stream;
 
   /// Stream of comment events (create, update, delete)
-  Stream<CommentEvent> get commentEventsStream => _commentEventsController.stream;
+  Stream<CommentEvent> get commentEventsStream =>
+      _commentEventsController.stream;
 
   /// Get all comments for a specific document
-  Future<List<Comment>> getComments(String documentId, {int? pageNumber}) async {
+  Future<List<Comment>> getComments(
+    String documentId, {
+    int? pageNumber,
+  }) async {
     try {
       // Always return local data first for immediate UI response
       final localComments = pageNumber != null
-          ? await _repository.getCommentsByDocumentAndPage(documentId, pageNumber)
+          ? await _repository.getCommentsByDocumentAndPage(
+              documentId,
+              pageNumber,
+            )
           : await _repository.getCommentsByDocumentId(documentId);
-      
+
       // If online, try to sync with server
       if (_connectivityService.isConnected) {
         try {
-          final serverComments = await _apiService.getComments(documentId, pageNumber: pageNumber);
-          
+          final serverComments = await _apiService.getComments(
+            documentId,
+            pageNumber: pageNumber,
+          );
+
           // Update local cache with server data
           await _syncCommentsToLocal(serverComments);
-          
+
           // Return updated local data
           final updatedComments = pageNumber != null
-              ? await _repository.getCommentsByDocumentAndPage(documentId, pageNumber)
+              ? await _repository.getCommentsByDocumentAndPage(
+                  documentId,
+                  pageNumber,
+                )
               : await _repository.getCommentsByDocumentId(documentId);
           _commentsController.add(updatedComments);
           return updatedComments;
@@ -112,11 +91,14 @@ class CommentService {
           // Log the error but don't throw to maintain offline functionality
         }
       }
-      
+
       _commentsController.add(localComments);
       return localComments;
     } catch (e) {
-      throw CommentException('Failed to get comments: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CommentException(
+        'Failed to get comments: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -125,26 +107,30 @@ class CommentService {
     try {
       // Try to get from local database first
       final localComment = await _repository.getCommentById(commentId);
-      
+
       // If online and comment not found locally, try server
-      if (localComment == null && await _connectivityService.hasConnectivity()) {
+      if (localComment == null &&
+          await _connectivityService.hasConnectivity()) {
         try {
           final serverComment = await _apiService.getComment(commentId);
-          
+
           // Cache the comment locally
           await _repository.insertComment(serverComment);
           await _repository.markCommentAsSynced(serverComment.id);
-          
+
           return serverComment;
         } catch (e) {
           // If server request fails, return null
           return null;
         }
       }
-      
+
       return localComment;
     } catch (e) {
-      throw CommentException('Failed to get comment: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CommentException(
+        'Failed to get comment: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -179,13 +165,16 @@ class CommentService {
             content: content,
             anchor: anchor?.toJson(),
           );
-          final serverComment = await _apiService.addComment(documentId, request);
-          
+          final serverComment = await _apiService.addComment(
+            documentId,
+            request,
+          );
+
           // Update local comment with server ID and mark as synced
           final updatedComment = comment.copyWith(id: serverComment.id);
           await _repository.updateComment(updatedComment);
           await _repository.markCommentAsSynced(serverComment.id);
-          
+
           _commentEventsController.add(CommentEvent.created(updatedComment));
           return updatedComment;
         } catch (e) {
@@ -214,7 +203,10 @@ class CommentService {
       _commentEventsController.add(CommentEvent.created(comment));
       return comment;
     } catch (e) {
-      throw CommentException('Failed to add comment: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CommentException(
+        'Failed to add comment: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -229,7 +221,7 @@ class CommentService {
 
       // Create updated comment
       final updatedComment = currentComment.copyWith(content: content);
-      
+
       // Update local database immediately
       await _repository.updateComment(updatedComment);
       await _repository.markCommentAsUnsynced(commentId);
@@ -238,11 +230,14 @@ class CommentService {
       if (_connectivityService.isConnected) {
         try {
           final request = UpdateCommentRequest(content: content);
-          final serverComment = await _apiService.updateComment(commentId, request);
-          
+          final serverComment = await _apiService.updateComment(
+            commentId,
+            request,
+          );
+
           // Mark as synced
           await _repository.markCommentAsSynced(commentId);
-          
+
           _commentEventsController.add(CommentEvent.updated(serverComment));
           return serverComment;
         } catch (e) {
@@ -263,7 +258,10 @@ class CommentService {
       _commentEventsController.add(CommentEvent.updated(updatedComment));
       return updatedComment;
     } catch (e) {
-      throw CommentException('Failed to update comment: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CommentException(
+        'Failed to update comment: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -272,7 +270,7 @@ class CommentService {
     try {
       // Get comment before deletion for event notification
       final comment = await _repository.getCommentById(commentId);
-      
+
       // Delete from local database immediately
       await _repository.deleteComment(commentId);
 
@@ -297,7 +295,10 @@ class CommentService {
         _commentEventsController.add(CommentEvent.deleted(comment));
       }
     } catch (e) {
-      throw CommentException('Failed to delete comment: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CommentException(
+        'Failed to delete comment: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -306,7 +307,10 @@ class CommentService {
     try {
       return await _repository.getCommentsCountByDocumentId(documentId);
     } catch (e) {
-      throw CommentException('Failed to get comments count: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CommentException(
+        'Failed to get comments count: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -315,21 +319,33 @@ class CommentService {
     try {
       return await _repository.getCommentsCountByPage(documentId, pageNumber);
     } catch (e) {
-      throw CommentException('Failed to get page comments count: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CommentException(
+        'Failed to get page comments count: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
   /// Search comments by content
-  Future<List<Comment>> searchComments(String query, {String? documentId}) async {
+  Future<List<Comment>> searchComments(
+    String query, {
+    String? documentId,
+  }) async {
     try {
       // Search local database first
-      final localResults = await _repository.searchComments(query, documentId: documentId);
-      
+      final localResults = await _repository.searchComments(
+        query,
+        documentId: documentId,
+      );
+
       // If online, also search server
       if (_connectivityService.isConnected) {
         try {
-          final serverResults = await _apiService.searchComments(query, documentId: documentId);
-          
+          final serverResults = await _apiService.searchComments(
+            query,
+            documentId: documentId,
+          );
+
           // Merge and deduplicate results
           final allResults = <String, Comment>{};
           for (final comment in localResults) {
@@ -338,26 +354,35 @@ class CommentService {
           for (final comment in serverResults) {
             allResults[comment.id] = comment;
           }
-          
+
           return allResults.values.toList()
             ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
         } catch (e) {
           // If server search fails, return local results
         }
       }
-      
+
       return localResults;
     } catch (e) {
-      throw CommentException('Failed to search comments: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CommentException(
+        'Failed to search comments: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
   /// Get comments with anchor data (for text selection comments)
-  Future<List<Comment>> getCommentsWithAnchors(String documentId, int pageNumber) async {
+  Future<List<Comment>> getCommentsWithAnchors(
+    String documentId,
+    int pageNumber,
+  ) async {
     try {
       return await _repository.getCommentsWithAnchors(documentId, pageNumber);
     } catch (e) {
-      throw CommentException('Failed to get anchored comments: ${e.toString()}', cause: e is Exception ? e : null);
+      throw CommentException(
+        'Failed to get anchored comments: ${e.toString()}',
+        cause: e is Exception ? e : null,
+      );
     }
   }
 
@@ -369,16 +394,19 @@ class CommentService {
 
     try {
       final pendingJobs = await _jobQueueService.getPendingJobs();
-      final commentJobs = pendingJobs.where((job) => 
-        job.type == JobType.createComment ||
-        job.type == JobType.updateComment ||
-        job.type == JobType.deleteComment
-      ).toList();
+      final commentJobs = pendingJobs
+          .where(
+            (job) =>
+                job.type == JobType.createComment ||
+                job.type == JobType.updateComment ||
+                job.type == JobType.deleteComment,
+          )
+          .toList();
 
       for (final job in commentJobs) {
         try {
           await _jobQueueService.updateJobStatus(job.id, JobStatus.processing);
-          
+
           switch (job.type) {
             case JobType.createComment:
               await _processCreateCommentJob(job);
@@ -392,14 +420,20 @@ class CommentService {
             default:
               continue;
           }
-          
+
           await _jobQueueService.completeJob(job.id);
         } catch (e) {
-          await _jobQueueService.incrementJobAttempts(job.id, error: e.toString());
-          
+          await _jobQueueService.incrementJobAttempts(
+            job.id,
+            error: e.toString(),
+          );
+
           // Fail job after 3 attempts
           if (job.attempts >= 2) {
-            await _jobQueueService.failJob(job.id, 'Max attempts reached: ${e.toString()}');
+            await _jobQueueService.failJob(
+              job.id,
+              'Max attempts reached: ${e.toString()}',
+            );
           }
         }
       }
@@ -424,12 +458,12 @@ class CommentService {
       content: payload['content'] as String,
       anchor: payload['anchor'] as Map<String, dynamic>?,
     );
-    
+
     final serverComment = await _apiService.addComment(
       payload['document_id'] as String,
       request,
     );
-    
+
     // Update local comment with server ID
     final localCommentId = payload['comment_id'] as String;
     await _repository.deleteComment(localCommentId); // Remove old local comment
@@ -441,7 +475,7 @@ class CommentService {
   Future<void> _processUpdateCommentJob(Job job) async {
     final payload = job.payload;
     final request = UpdateCommentRequest(content: payload['content'] as String);
-    
+
     await _apiService.updateComment(payload['comment_id'] as String, request);
     await _repository.markCommentAsSynced(payload['comment_id'] as String);
   }
@@ -471,7 +505,10 @@ class CommentEvent {
 
   CommentEvent._(this.type, this.comment) : timestamp = DateTime.now();
 
-  factory CommentEvent.created(Comment comment) => CommentEvent._(CommentEventType.created, comment);
-  factory CommentEvent.updated(Comment comment) => CommentEvent._(CommentEventType.updated, comment);
-  factory CommentEvent.deleted(Comment comment) => CommentEvent._(CommentEventType.deleted, comment);
+  factory CommentEvent.created(Comment comment) =>
+      CommentEvent._(CommentEventType.created, comment);
+  factory CommentEvent.updated(Comment comment) =>
+      CommentEvent._(CommentEventType.updated, comment);
+  factory CommentEvent.deleted(Comment comment) =>
+      CommentEvent._(CommentEventType.deleted, comment);
 }
