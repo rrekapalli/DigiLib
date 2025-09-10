@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:digi_lib_app/src/services/secure_storage_service.dart';
-import 'package:digi_lib_app/src/services/connectivity_service.dart';
+import 'package:digi_lib_app/src/network/connectivity_service.dart';
 import 'package:digi_lib_app/src/services/notification_service.dart';
-import 'package:digi_lib_app/src/services/api_client.dart';
+import 'package:digi_lib_app/src/network/api_client.dart';
 import 'package:digi_lib_app/src/providers/providers.dart';
 
 /// Mock SecureStorageService for testing
@@ -88,7 +88,7 @@ class MockSecureStorageService implements SecureStorageService {
 /// Mock ConnectivityService for testing
 class MockConnectivityService implements ConnectivityService {
   bool _isConnected = true;
-  
+
   void setConnected(bool connected) {
     _isConnected = connected;
   }
@@ -105,9 +105,9 @@ class MockConnectivityService implements ConnectivityService {
 /// Mock NotificationService for testing
 class MockNotificationService implements NotificationService {
   final List<String> _notifications = [];
-  
+
   List<String> get notifications => List.unmodifiable(_notifications);
-  
+
   void clearNotifications() {
     _notifications.clear();
   }
@@ -138,7 +138,10 @@ class MockNotificationService implements NotificationService {
   }
 
   @override
-  Future<void> showScanProgressNotification(String libraryName, int progress) async {
+  Future<void> showScanProgressNotification(
+    String libraryName,
+    int progress,
+  ) async {
     _notifications.add('SCAN: $libraryName - $progress%');
   }
 
@@ -182,7 +185,11 @@ class MockApiClient implements ApiClient {
   }
 
   @override
-  Future<T> post<T>(String path, {Object? body, Map<String, dynamic>? queryParams}) async {
+  Future<T> post<T>(
+    String path, {
+    Object? body,
+    Map<String, dynamic>? queryParams,
+  }) async {
     if (_shouldThrowError) throw Exception('Mock API error');
     _requests.add('POST $path');
     return _responses[path] as T;

@@ -67,9 +67,14 @@ void main() {
         createTestWidget(
           DocumentCard(
             document: testDocument,
+            isSelected: false,
+            isMultiSelectMode: false,
             onTap: () {
               tapped = true;
             },
+            onLongPress: () {},
+            onSelectionChanged: (selected) {},
+            onContextMenu: () {},
           ),
         ),
       );
@@ -90,7 +95,15 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          DocumentCard(document: documentWithThumbnail, onTap: () {}),
+          DocumentCard(
+            document: documentWithThumbnail,
+            isSelected: false,
+            isMultiSelectMode: false,
+            onTap: () {},
+            onLongPress: () {},
+            onSelectionChanged: (selected) {},
+            onContextMenu: () {},
+          ),
         ),
       );
 
@@ -102,7 +115,17 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        createTestWidget(DocumentCard(document: testDocument, onTap: () {})),
+        createTestWidget(
+          DocumentCard(
+            document: testDocument,
+            isSelected: false,
+            isMultiSelectMode: false,
+            onTap: () {},
+            onLongPress: () {},
+            onSelectionChanged: (selected) {},
+            onContextMenu: () {},
+          ),
+        ),
       );
 
       // Should find a placeholder icon
@@ -111,7 +134,17 @@ void main() {
 
     testWidgets('should display file size', (WidgetTester tester) async {
       await tester.pumpWidget(
-        createTestWidget(DocumentCard(document: testDocument, onTap: () {})),
+        createTestWidget(
+          DocumentCard(
+            document: testDocument,
+            isSelected: false,
+            isMultiSelectMode: false,
+            onTap: () {},
+            onLongPress: () {},
+            onSelectionChanged: (selected) {},
+            onContextMenu: () {},
+          ),
+        ),
       );
 
       // Should display formatted file size (1.0 MB)
@@ -120,7 +153,17 @@ void main() {
 
     testWidgets('should display page count', (WidgetTester tester) async {
       await tester.pumpWidget(
-        createTestWidget(DocumentCard(document: testDocument, onTap: () {})),
+        createTestWidget(
+          DocumentCard(
+            document: testDocument,
+            isSelected: false,
+            isMultiSelectMode: false,
+            onTap: () {},
+            onLongPress: () {},
+            onSelectionChanged: (selected) {},
+            onContextMenu: () {},
+          ),
+        ),
       );
 
       // Should display page count

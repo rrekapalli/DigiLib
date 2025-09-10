@@ -32,16 +32,14 @@ class CommentBubble extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: isExpanded ? 280 : 200,
-        constraints: BoxConstraints(
-          maxHeight: isExpanded ? 300 : 80,
-        ),
+        constraints: BoxConstraints(maxHeight: isExpanded ? 300 : 80),
         decoration: BoxDecoration(
-          color: isSelected 
+          color: isSelected
               ? Theme.of(context).colorScheme.primaryContainer
               : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected 
+            color: isSelected
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.outline,
             width: isSelected ? 2 : 1,
@@ -62,7 +60,9 @@ class CommentBubble extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
               ),
               child: Row(
                 children: [
@@ -73,7 +73,7 @@ class CommentBubble extends StatelessWidget {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 4),
-                  
+
                   // Page indicator
                   Text(
                     'Page ${comment.pageNumber ?? '?'}',
@@ -82,9 +82,9 @@ class CommentBubble extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  
+
                   const Spacer(),
-                  
+
                   // Expand/collapse button
                   if (onExpand != null)
                     GestureDetector(
@@ -98,7 +98,7 @@ class CommentBubble extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Content
             Expanded(
               child: Padding(
@@ -120,15 +120,18 @@ class CommentBubble extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'No content',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            fontStyle: FontStyle.italic,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                                fontStyle: FontStyle.italic,
+                              ),
                         ),
                       ),
-                    
+
                     const SizedBox(height: 4),
-                    
+
                     // Timestamp
                     Text(
                       _formatTimestamp(comment.createdAt),
@@ -136,7 +139,7 @@ class CommentBubble extends StatelessWidget {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    
+
                     // Selected text indicator
                     if (comment.anchor != null && isExpanded)
                       _buildAnchorInfo(context),
@@ -144,16 +147,16 @@ class CommentBubble extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Actions
-            if (showActions && isExpanded && (onEdit != null || onDelete != null))
+            if (showActions &&
+                isExpanded &&
+                (onEdit != null || onDelete != null))
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   border: Border(
-                    top: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                    ),
+                    top: BorderSide(color: Theme.of(context).dividerColor),
                   ),
                 ),
                 child: Row(
@@ -187,7 +190,7 @@ class CommentBubble extends StatelessWidget {
     try {
       final anchor = comment.anchor!;
       final selectedText = anchor['selectedText'] as String?;
-      
+
       if (selectedText?.isNotEmpty == true) {
         return Container(
           margin: const EdgeInsets.only(top: 4),
@@ -223,14 +226,14 @@ class CommentBubble extends StatelessWidget {
     } catch (e) {
       // Ignore anchor parsing errors
     }
-    
+
     return const SizedBox.shrink();
   }
 
   String _formatTimestamp(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
-    
+
     if (difference.inMinutes < 1) {
       return 'Just now';
     } else if (difference.inHours < 1) {
@@ -260,23 +263,41 @@ class CommentChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ActionChip(
-      avatar: Icon(
-        Icons.comment,
-        size: 16,
-        color: Theme.of(context).colorScheme.primary,
-      ),
-      label: Text(
-        comment.content?.isNotEmpty == true 
-            ? comment.content!
-            : 'Comment on page ${comment.pageNumber ?? '?'}',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      onPressed: onTap,
-      deleteIcon: onDelete != null ? const Icon(Icons.close, size: 16) : null,
-      onDeleted: onDelete,
-    );
+    if (onDelete != null) {
+      return InputChip(
+        avatar: Icon(
+          Icons.comment,
+          size: 16,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        label: Text(
+          comment.content?.isNotEmpty == true
+              ? comment.content!
+              : 'Comment on page ${comment.pageNumber ?? '?'}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        onPressed: onTap,
+        deleteIcon: const Icon(Icons.close, size: 16),
+        onDeleted: onDelete,
+      );
+    } else {
+      return ActionChip(
+        avatar: Icon(
+          Icons.comment,
+          size: 16,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        label: Text(
+          comment.content?.isNotEmpty == true
+              ? comment.content!
+              : 'Comment on page ${comment.pageNumber ?? '?'}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        onPressed: onTap,
+      );
+    }
   }
 }
 
@@ -298,9 +319,7 @@ class CommentThread extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (comments.isEmpty) {
-      return const Center(
-        child: Text('No comments in this thread'),
-      );
+      return const Center(child: Text('No comments in this thread'));
     }
 
     return ListView.separated(

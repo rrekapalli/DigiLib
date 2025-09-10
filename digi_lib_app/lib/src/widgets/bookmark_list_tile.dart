@@ -70,7 +70,7 @@ class BookmarkListTile extends StatelessWidget {
         Expanded(
           child: Text(
             'Page ${bookmark.pageNumber ?? 'Unknown'}',
-            style: compact 
+            style: compact
                 ? Theme.of(context).textTheme.bodyMedium
                 : Theme.of(context).textTheme.titleMedium,
           ),
@@ -187,27 +187,49 @@ class BookmarkChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ActionChip(
-      avatar: CircleAvatar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        radius: 12,
-        child: Text(
-          '${bookmark.pageNumber ?? '?'}',
-          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+    if (onDelete != null) {
+      return InputChip(
+        avatar: CircleAvatar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          radius: 12,
+          child: Text(
+            '${bookmark.pageNumber ?? '?'}',
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+          ),
         ),
-      ),
-      label: Text(
-        bookmark.note?.isNotEmpty == true 
-            ? bookmark.note!
-            : 'Page ${bookmark.pageNumber ?? 'Unknown'}',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      onPressed: onTap,
-      deleteIcon: onDelete != null ? const Icon(Icons.close, size: 16) : null,
-      onDeleted: onDelete,
-    );
+        label: Text(
+          bookmark.note?.isNotEmpty == true
+              ? bookmark.note!
+              : 'Page ${bookmark.pageNumber ?? 'Unknown'}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        onPressed: onTap,
+        deleteIcon: const Icon(Icons.close, size: 16),
+        onDeleted: onDelete,
+      );
+    } else {
+      return ActionChip(
+        avatar: CircleAvatar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          radius: 12,
+          child: Text(
+            '${bookmark.pageNumber ?? '?'}',
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+          ),
+        ),
+        label: Text(
+          bookmark.note?.isNotEmpty == true
+              ? bookmark.note!
+              : 'Page ${bookmark.pageNumber ?? 'Unknown'}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        onPressed: onTap,
+      );
+    }
   }
 }
 
@@ -241,7 +263,10 @@ class BookmarkGridItem extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(12),
@@ -291,9 +316,9 @@ class BookmarkGridItem extends StatelessWidget {
                     ),
                 ],
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Note content
               Expanded(
                 child: bookmark.note?.isNotEmpty == true
@@ -311,9 +336,9 @@ class BookmarkGridItem extends StatelessWidget {
                         ),
                       ),
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Created date
               Text(
                 DateFormat.yMMMd().format(bookmark.createdAt),

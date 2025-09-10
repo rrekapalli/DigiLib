@@ -1,11 +1,10 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/ui/reader_settings.dart';
+import '../models/ui/reader_state.dart';
 import '../providers/reader_provider.dart';
 import '../services/page_rendering_service.dart';
-import 'text_selection_overlay.dart';
 import 'find_in_document.dart';
 import 'annotation_toolbar.dart';
 
@@ -34,20 +33,20 @@ class PageViewer extends ConsumerStatefulWidget {
   ConsumerState<PageViewer> createState() => _PageViewerState();
 }
 
-class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStateMixin {
+class _PageViewerState extends ConsumerState<PageViewer>
+    with TickerProviderStateMixin {
   late PageController _pageController;
   late TransformationController _transformationController;
   late AnimationController _animationController;
-  
+
   // Gesture handling
   TapDownDetails? _doubleTapDetails;
-  bool _isZooming = false;
-  
+
   // Text selection and search
   bool _showFindBar = false;
   List<SearchMatch> _searchMatches = [];
   int? _selectedMatchIndex;
-  
+
   @override
   void initState() {
     super.initState();
@@ -57,10 +56,10 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     // Listen to transformation changes
     _transformationController.addListener(_onTransformationChanged);
-    
+
     // Initialize find bar state
     _showFindBar = widget.showFindBar;
   }
@@ -76,18 +75,22 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
   void _onTransformationChanged() {
     final matrix = _transformationController.value;
     final scale = matrix.getMaxScaleOnAxis();
-    
+
     // Update zoom level in provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(readerStateProvider(widget.documentId).notifier).updateZoom(scale);
+      ref
+          .read(readerStateProvider(widget.documentId).notifier)
+          .updateZoom(scale);
     });
-    
+
     widget.onZoomChanged?.call();
   }
 
   void _onPageChanged(int page) {
     // Update current page in provider (1-indexed)
-    ref.read(readerStateProvider(widget.documentId).notifier).goToPage(page + 1);
+    ref
+        .read(readerStateProvider(widget.documentId).notifier)
+        .goToPage(page + 1);
     widget.onPageChanged?.call();
   }
 
@@ -100,52 +103,48 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
 
     final matrix = _transformationController.value;
     final currentScale = matrix.getMaxScaleOnAxis();
-    
+
     // Toggle between fit and zoom
     final targetScale = currentScale > 1.5 ? 1.0 : 2.5;
     final position = _doubleTapDetails!.localPosition;
-    
+
     _animateZoom(targetScale, position);
   }
 
   void _animateZoom(double targetScale, Offset focalPoint) {
-    _isZooming = true;
-    
+    // Zoom started
+
     final matrix = _transformationController.value;
     final currentScale = matrix.getMaxScaleOnAxis();
-    
-    final animation = Tween<double>(
-      begin: currentScale,
-      end: targetScale,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+
+    final animation = Tween<double>(begin: currentScale, end: targetScale)
+        .animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeInOut,
+          ),
+        );
 
     animation.addListener(() {
       final scale = animation.value;
       final newMatrix = Matrix4.identity()..scale(scale);
-      
+
       // Adjust translation to keep focal point centered
       if (targetScale > 1.0) {
         final translation = focalPoint * (1 - scale);
         newMatrix.translate(translation.dx, translation.dy);
       }
-      
+
       _transformationController.value = newMatrix;
     });
 
     animation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _isZooming = false;
+        // Zoom ended
       }
     });
 
     _animationController.forward(from: 0);
-  }
-
-  void _resetZoom() {
-    _animateZoom(1.0, Offset.zero);
   }
 
   void _toggleFindBar() {
@@ -167,18 +166,12 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
     final settings = ref.watch(readerSettingsProvider);
 
     return readerState.when(
-      loading: () => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red,
-            ),
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
               'Failed to load document',
@@ -193,7 +186,9 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                ref.read(readerStateProvider(widget.documentId).notifier).refresh();
+                ref
+                    .read(readerStateProvider(widget.documentId).notifier)
+                    .refresh();
               },
               child: const Text('Retry'),
             ),
@@ -203,7 +198,7 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
       data: (state) => Stack(
         children: [
           _buildPageViewer(context, state, settings),
-          
+
           // Find bar overlay
           if (_showFindBar)
             Positioned(
@@ -216,7 +211,7 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
                 onSearchResults: _onSearchResults,
               ),
             ),
-          
+
           // Annotation toolbar
           if (widget.enableAnnotations && settings.enableAnnotations)
             AnnotationToolbar(
@@ -229,7 +224,11 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
     );
   }
 
-  Widget _buildPageViewer(BuildContext context, ReaderState state, ReaderSettings settings) {
+  Widget _buildPageViewer(
+    BuildContext context,
+    ReaderState state,
+    ReaderSettings settings,
+  ) {
     if (settings.readingMode == ReadingMode.scroll) {
       return _buildScrollViewer(context, state, settings);
     } else {
@@ -237,7 +236,11 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
     }
   }
 
-  Widget _buildScrollViewer(BuildContext context, ReaderState state, ReaderSettings settings) {
+  Widget _buildScrollViewer(
+    BuildContext context,
+    ReaderState state,
+    ReaderSettings settings,
+  ) {
     return InteractiveViewer(
       transformationController: _transformationController,
       minScale: 0.5,
@@ -256,7 +259,11 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
     );
   }
 
-  Widget _buildPaginatedViewer(BuildContext context, ReaderState state, ReaderSettings settings) {
+  Widget _buildPaginatedViewer(
+    BuildContext context,
+    ReaderState state,
+    ReaderSettings settings,
+  ) {
     return GestureDetector(
       onDoubleTapDown: _handleDoubleTapDown,
       onDoubleTap: _handleDoubleTap,
@@ -270,9 +277,7 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
           itemCount: state.totalPages,
           itemBuilder: (context, index) {
             final pageNumber = index + 1;
-            return Center(
-              child: _buildPageWidget(pageNumber, settings),
-            );
+            return Center(child: _buildPageWidget(pageNumber, settings));
           },
         ),
       ),
@@ -290,7 +295,7 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
     return Consumer(
       builder: (context, ref, child) {
         final pageImage = ref.watch(pageImageProvider(pageRequest));
-        
+
         return pageImage.when(
           loading: () => Container(
             width: double.infinity,
@@ -299,9 +304,7 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
               color: Colors.grey[100],
               border: Border.all(color: Colors.grey[300]!),
             ),
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: const Center(child: CircularProgressIndicator()),
           ),
           error: (error, stackTrace) => Container(
             width: double.infinity,
@@ -313,11 +316,7 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 48,
-                  color: Colors.red[400],
-                ),
+                Icon(Icons.error_outline, size: 48, color: Colors.red[400]),
                 const SizedBox(height: 16),
                 Text(
                   'Failed to load page $pageNumber',
@@ -335,21 +334,11 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
           ),
           data: (result) => Stack(
             children: [
-              _buildPageImage(
-                context,
-                result,
-                pageNumber,
-                settings,
-              ),
-              
-              // Text selection overlay
+              _buildPageImage(context, result, pageNumber, settings),
+
+              // Text selection overlay (TODO: Implement properly)
               if (widget.enableTextSelection && settings.enableTextSelection)
-                TextSelectionOverlay(
-                  documentId: widget.documentId,
-                  pageNumber: pageNumber,
-                  pageText: 'Mock page text for page $pageNumber', // TODO: Get actual text
-                ),
-              
+                Container(), // Placeholder for text selection
               // Search highlights overlay
               if (_searchMatches.isNotEmpty)
                 SearchHighlightOverlay(
@@ -385,11 +374,7 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.broken_image,
-                size: 48,
-                color: Colors.red[400],
-              ),
+              Icon(Icons.broken_image, size: 48, color: Colors.red[400]),
               const SizedBox(height: 16),
               Text(
                 'Invalid image data for page $pageNumber',
@@ -453,11 +438,7 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
                 color: Colors.green.withOpacity(0.7),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: const Icon(
-                Icons.cached,
-                size: 16,
-                color: Colors.white,
-              ),
+              child: const Icon(Icons.cached, size: 16, color: Colors.white),
             ),
           ),
         ],
@@ -465,10 +446,7 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
     }
 
     return Container(
-      constraints: const BoxConstraints(
-        maxWidth: 800,
-        maxHeight: 1200,
-      ),
+      constraints: const BoxConstraints(maxWidth: 800, maxHeight: 1200),
       child: image,
     );
   }
@@ -513,10 +491,26 @@ class _PageViewerState extends ConsumerState<PageViewer> with TickerProviderStat
   Widget _applyBrightness(Widget image, double brightness) {
     return ColorFiltered(
       colorFilter: ColorFilter.matrix([
-        brightness, 0, 0, 0, 0,
-        0, brightness, 0, 0, 0,
-        0, 0, brightness, 0, 0,
-        0, 0, 0, 1, 0,
+        brightness,
+        0,
+        0,
+        0,
+        0,
+        0,
+        brightness,
+        0,
+        0,
+        0,
+        0,
+        0,
+        brightness,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
       ]),
       child: image,
     );
@@ -546,31 +540,37 @@ class PageNavigationControls extends ConsumerWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           border: Border(
-            top: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
+            top: BorderSide(color: Theme.of(context).dividerColor, width: 1),
           ),
         ),
         child: Row(
           children: [
             // Previous page button
             IconButton(
-              onPressed: state.isFirstPage ? null : () {
-                ref.read(readerStateProvider(documentId).notifier).previousPage();
-              },
+              onPressed: state.isFirstPage
+                  ? null
+                  : () {
+                      ref
+                          .read(readerStateProvider(documentId).notifier)
+                          .previousPage();
+                    },
               icon: const Icon(Icons.chevron_left),
               tooltip: 'Previous page',
             ),
-            
+
             // Page indicator
             Expanded(
               child: GestureDetector(
                 onTap: () => _showPageJumpDialog(context, ref, state),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -593,16 +593,20 @@ class PageNavigationControls extends ConsumerWidget {
                 ),
               ),
             ),
-            
+
             // Next page button
             IconButton(
-              onPressed: state.isLastPage ? null : () {
-                ref.read(readerStateProvider(documentId).notifier).nextPage();
-              },
+              onPressed: state.isLastPage
+                  ? null
+                  : () {
+                      ref
+                          .read(readerStateProvider(documentId).notifier)
+                          .nextPage();
+                    },
               icon: const Icon(Icons.chevron_right),
               tooltip: 'Next page',
             ),
-            
+
             // Settings button
             if (onSettingsPressed != null)
               IconButton(
@@ -616,9 +620,15 @@ class PageNavigationControls extends ConsumerWidget {
     );
   }
 
-  void _showPageJumpDialog(BuildContext context, WidgetRef ref, ReaderState state) {
-    final controller = TextEditingController(text: state.currentPage.toString());
-    
+  void _showPageJumpDialog(
+    BuildContext context,
+    WidgetRef ref,
+    ReaderState state,
+  ) {
+    final controller = TextEditingController(
+      text: state.currentPage.toString(),
+    );
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -666,10 +676,7 @@ class PageNavigationControls extends ConsumerWidget {
 class ReadingProgressIndicator extends ConsumerWidget {
   final String documentId;
 
-  const ReadingProgressIndicator({
-    super.key,
-    required this.documentId,
-  });
+  const ReadingProgressIndicator({super.key, required this.documentId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

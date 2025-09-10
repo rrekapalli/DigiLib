@@ -7,7 +7,9 @@ import '../../widgets/sync_progress_bar.dart';
 import '../../widgets/offline_mode_indicator.dart';
 import '../../widgets/sync_conflict_dialog.dart';
 import '../../services/sync_service.dart';
+import '../../services/job_queue_service.dart' as job_queue;
 import '../../models/ui/sync_status_models.dart' as ui;
+import '../../models/api/sync_models.dart';
 
 /// Screen that displays comprehensive sync status and management options
 class SyncStatusScreen extends ConsumerWidget {
@@ -115,7 +117,13 @@ class SyncStatusScreen extends ConsumerWidget {
             Row(
               children: [
                 SyncStatusIndicator(
-                  syncProgress: status.syncProgress,
+                  syncProgress: SyncProgress(
+                    status: _convertSyncStatus(status.syncProgress.status),
+                    totalChanges: status.syncProgress.totalItems ?? 0,
+                    processedChanges: status.syncProgress.processedItems ?? 0,
+                    message: status.syncProgress.currentOperation,
+                    error: status.syncProgress.error,
+                  ),
                   showText: false,
                   iconSize: 24.0,
                 ),
@@ -495,7 +503,7 @@ class SyncStatusScreen extends ConsumerWidget {
             ),
             _buildInfoRow(
               'Last Update',
-              status.jobQueueStatus.lastUpdated.toString() ?? 'Never',
+              status.jobQueueStatus.lastUpdated?.toString() ?? 'Never',
             ),
             _buildInfoRow(
               'Total Actions',
@@ -568,7 +576,10 @@ class SyncStatusScreen extends ConsumerWidget {
         onResolveConflict: (conflictId, resolution) {
           ref
               .read(syncActionsProvider.notifier)
-              .resolveConflict(conflictId, resolution);
+              .resolveConflict(
+                conflictId,
+                _convertJobQueueConflictResolution(resolution),
+              );
         },
       ),
     );
@@ -641,6 +652,20 @@ class SyncStatusScreen extends ConsumerWidget {
         return SyncStatus.error;
       case ui.SyncStatus.paused:
         return SyncStatus.offline; // Map paused to offline
+    }
+  }
+
+  /// Convert job queue ConflictResolution to UI ConflictResolution
+  ui.ConflictResolution _convertJobQueueConflictResolution(
+    job_queue.ConflictResolution jobResolution,
+  ) {
+    switch (jobResolution) {
+      case job_queue.ConflictResolution.useLocal:
+        return ui.ConflictResolution.useClient;
+      case job_queue.ConflictResolution.useServer:
+        return ui.ConflictResolution.useServer;
+      case job_queue.ConflictResolution.merge:
+        return ui.ConflictResolution.merge;
     }
   }
 }
