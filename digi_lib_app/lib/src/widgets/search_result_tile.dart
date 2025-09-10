@@ -39,7 +39,7 @@ class SearchResultTile extends StatelessWidget {
                   // Document thumbnail/icon
                   _buildDocumentIcon(context),
                   const SizedBox(width: 12),
-                  
+
                   // Document info
                   Expanded(
                     child: Column(
@@ -54,7 +54,7 @@ class SearchResultTile extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        
+
                         // Author and metadata
                         if (document.author != null) ...[
                           const SizedBox(height: 4),
@@ -65,9 +65,9 @@ class SearchResultTile extends StatelessWidget {
                             ),
                           ),
                         ],
-                        
+
                         const SizedBox(height: 8),
-                        
+
                         // File info
                         Row(
                           children: [
@@ -91,7 +91,7 @@ class SearchResultTile extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                             ],
-                            
+
                             if (document.sizeBytes != null) ...[
                               Text(
                                 FileUtils.formatFileSize(document.sizeBytes!),
@@ -101,7 +101,7 @@ class SearchResultTile extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                             ],
-                            
+
                             if (document.pageCount != null) ...[
                               Text(
                                 '${document.pageCount} pages',
@@ -115,7 +115,7 @@ class SearchResultTile extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   // Action button
                   IconButton(
                     onPressed: onTap,
@@ -124,7 +124,7 @@ class SearchResultTile extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               // Search highlights
               if (result.highlights.isNotEmpty) ...[
                 const SizedBox(height: 12),
@@ -174,14 +174,10 @@ class SearchResultTile extends StatelessWidget {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: iconColor.withOpacity(0.1),
+        color: iconColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(
-        iconData,
-        color: iconColor,
-        size: 24,
-      ),
+      child: Icon(iconData, color: iconColor, size: 24),
     );
   }
 
@@ -200,11 +196,11 @@ class SearchResultTile extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        
-        ...result.highlights.take(3).map((highlight) => 
-          _buildHighlightItem(context, highlight)
-        ),
-        
+
+        ...result.highlights
+            .take(3)
+            .map((highlight) => _buildHighlightItem(context, highlight)),
+
         if (result.highlights.length > 3) ...[
           const SizedBox(height: 4),
           Text(
@@ -244,21 +240,21 @@ class SearchResultTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          
+
           // Context with highlighting
           Expanded(
-            child: _buildHighlightedText(
-              context,
-              highlight.context,
-              query,
-            ),
+            child: _buildHighlightedText(context, highlight.context, query),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHighlightedText(BuildContext context, String text, String query) {
+  Widget _buildHighlightedText(
+    BuildContext context,
+    String text,
+    String query,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -274,39 +270,42 @@ class SearchResultTile extends StatelessWidget {
     final spans = <TextSpan>[];
     final lowerText = text.toLowerCase();
     final lowerQuery = query.toLowerCase();
-    
+
     int start = 0;
     int index = lowerText.indexOf(lowerQuery);
-    
+
     while (index != -1) {
       // Add text before match
       if (index > start) {
-        spans.add(TextSpan(
-          text: text.substring(start, index),
-          style: theme.textTheme.bodySmall,
-        ));
+        spans.add(
+          TextSpan(
+            text: text.substring(start, index),
+            style: theme.textTheme.bodySmall,
+          ),
+        );
       }
-      
+
       // Add highlighted match
-      spans.add(TextSpan(
-        text: text.substring(index, index + query.length),
-        style: theme.textTheme.bodySmall?.copyWith(
-          backgroundColor: colorScheme.primaryContainer,
-          color: colorScheme.onPrimaryContainer,
-          fontWeight: FontWeight.bold,
+      spans.add(
+        TextSpan(
+          text: text.substring(index, index + query.length),
+          style: theme.textTheme.bodySmall?.copyWith(
+            backgroundColor: colorScheme.primaryContainer,
+            color: colorScheme.onPrimaryContainer,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ));
-      
+      );
+
       start = index + query.length;
       index = lowerText.indexOf(lowerQuery, start);
     }
-    
+
     // Add remaining text
     if (start < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(start),
-        style: theme.textTheme.bodySmall,
-      ));
+      spans.add(
+        TextSpan(text: text.substring(start), style: theme.textTheme.bodySmall),
+      );
     }
 
     return RichText(

@@ -38,7 +38,7 @@ class _SearchResultsListState extends State<SearchResultsList> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= 
+    if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       _loadMore();
     }
@@ -46,7 +46,7 @@ class _SearchResultsListState extends State<SearchResultsList> {
 
   Future<void> _loadMore() async {
     if (_isLoadingMore || widget.onLoadMore == null) return;
-    
+
     final pagination = widget.results.pagination;
     if (pagination.page >= pagination.totalPages) return;
 
@@ -67,9 +67,6 @@ class _SearchResultsListState extends State<SearchResultsList> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     if (widget.results.isEmpty) {
       return _buildEmptyResults();
     }
@@ -90,7 +87,8 @@ class _SearchResultsListState extends State<SearchResultsList> {
                 return SearchResultTile(
                   result: widget.results.results[index],
                   query: widget.results.query,
-                  onTap: () => widget.onResultTap(widget.results.results[index]),
+                  onTap: () =>
+                      widget.onResultTap(widget.results.results[index]),
                 );
               } else {
                 return _buildLoadMoreIndicator();
@@ -112,9 +110,7 @@ class _SearchResultsListState extends State<SearchResultsList> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         border: Border(
-          bottom: BorderSide(
-            color: colorScheme.outline.withOpacity(0.2),
-          ),
+          bottom: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
         ),
       ),
       child: Column(
@@ -133,7 +129,7 @@ class _SearchResultsListState extends State<SearchResultsList> {
               _buildSourceIndicator(),
             ],
           ),
-          
+
           if (widget.results.hasLocalFallback || widget.results.hadError) ...[
             const SizedBox(height: 8),
             _buildStatusIndicator(),
@@ -148,11 +144,13 @@ class _SearchResultsListState extends State<SearchResultsList> {
     final colorScheme = theme.colorScheme;
 
     final isGlobal = widget.results.isFromGlobalSearch;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isGlobal ? colorScheme.primaryContainer : colorScheme.secondaryContainer,
+        color: isGlobal
+            ? colorScheme.primaryContainer
+            : colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -161,13 +159,17 @@ class _SearchResultsListState extends State<SearchResultsList> {
           Icon(
             isGlobal ? Icons.cloud : Icons.storage,
             size: 16,
-            color: isGlobal ? colorScheme.onPrimaryContainer : colorScheme.onSecondaryContainer,
+            color: isGlobal
+                ? colorScheme.onPrimaryContainer
+                : colorScheme.onSecondaryContainer,
           ),
           const SizedBox(width: 4),
           Text(
             isGlobal ? 'Global' : 'Local',
             style: theme.textTheme.labelSmall?.copyWith(
-              color: isGlobal ? colorScheme.onPrimaryContainer : colorScheme.onSecondaryContainer,
+              color: isGlobal
+                  ? colorScheme.onPrimaryContainer
+                  : colorScheme.onSecondaryContainer,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -249,16 +251,9 @@ class _SearchResultsListState extends State<SearchResultsList> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: colorScheme.outline,
-            ),
+            Icon(Icons.search_off, size: 64, color: colorScheme.outline),
             const SizedBox(height: 16),
-            Text(
-              'No Results Found',
-              style: theme.textTheme.headlineSmall,
-            ),
+            Text('No Results Found', style: theme.textTheme.headlineSmall),
             const SizedBox(height: 8),
             Text(
               'Try adjusting your search terms or filters',
@@ -292,9 +287,7 @@ class _SearchResultsListState extends State<SearchResultsList> {
     if (_isLoadingMore) {
       return const Padding(
         padding: EdgeInsets.all(AppConstants.defaultPadding),
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -309,13 +302,11 @@ class _SearchResultsListState extends State<SearchResultsList> {
 
 // Extension to add warning container colors if not available
 extension ColorSchemeExtension on ColorScheme {
-  Color get warningContainer => 
-      brightness == Brightness.light 
-          ? const Color(0xFFFFF8E1) 
-          : const Color(0xFF3E2723);
-  
-  Color get onWarningContainer => 
-      brightness == Brightness.light 
-          ? const Color(0xFF8A6914) 
-          : const Color(0xFFFFCC02);
+  Color get warningContainer => brightness == Brightness.light
+      ? const Color(0xFFFFF8E1)
+      : const Color(0xFF3E2723);
+
+  Color get onWarningContainer => brightness == Brightness.light
+      ? const Color(0xFF8A6914)
+      : const Color(0xFFFFCC02);
 }

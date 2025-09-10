@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../utils/constants.dart';
 
 /// Service for managing screen orientation and display settings on mobile
 class ScreenService {
@@ -16,9 +17,9 @@ class ScreenService {
 
     try {
       await SystemChrome.setPreferredOrientations(orientations);
-      print('Screen orientations set: $orientations');
+      AppLogger.info('Screen orientations set: $orientations');
     } catch (e) {
-      print('Error setting screen orientations: $e');
+      AppLogger.error('Error setting screen orientations: $e');
     }
   }
 
@@ -104,9 +105,9 @@ class ScreenService {
 
     try {
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-      print('System UI hidden');
+      AppLogger.info('System UI hidden');
     } catch (e) {
-      print('Error hiding system UI: $e');
+      AppLogger.error('Error hiding system UI: $e');
     }
   }
 
@@ -119,9 +120,9 @@ class ScreenService {
         SystemUiMode.manual,
         overlays: SystemUiOverlay.values,
       );
-      print('System UI shown');
+      AppLogger.info('System UI shown');
     } catch (e) {
-      print('Error showing system UI: $e');
+      AppLogger.error('Error showing system UI: $e');
     }
   }
 
@@ -145,7 +146,7 @@ class ScreenService {
         ),
       );
     } catch (e) {
-      print('Error setting system UI overlay style: $e');
+      AppLogger.error('Error setting system UI overlay style: $e');
     }
   }
 
@@ -161,9 +162,9 @@ class ScreenService {
       // For now, we'll just store the value
       _lockedBrightness = clampedBrightness;
 
-      print('Screen brightness set to: $clampedBrightness');
+      AppLogger.info('Screen brightness set to: $clampedBrightness');
     } catch (e) {
-      print('Error setting screen brightness: $e');
+      AppLogger.error('Error setting screen brightness: $e');
     }
   }
 
@@ -173,9 +174,9 @@ class ScreenService {
 
     try {
       _lockedBrightness = null;
-      print('Screen brightness reset to system default');
+      AppLogger.info('Screen brightness reset to system default');
     } catch (e) {
-      print('Error resetting screen brightness: $e');
+      AppLogger.error('Error resetting screen brightness: $e');
     }
   }
 
@@ -187,7 +188,7 @@ class ScreenService {
       // This would require a plugin to get actual brightness
       return _lockedBrightness ?? 1.0;
     } catch (e) {
-      print('Error getting screen brightness: $e');
+      AppLogger.error('Error getting screen brightness: $e');
       return 1.0;
     }
   }
@@ -218,9 +219,9 @@ class ScreenService {
         await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
       }
 
-      print('Reading mode enabled');
+      AppLogger.info('Reading mode enabled');
     } catch (e) {
-      print('Error enabling reading mode: $e');
+      AppLogger.error('Error enabling reading mode: $e');
     }
   }
 
@@ -238,9 +239,9 @@ class ScreenService {
       // Show system UI
       await showSystemUI();
 
-      print('Reading mode disabled');
+      AppLogger.info('Reading mode disabled');
     } catch (e) {
-      print('Error disabling reading mode: $e');
+      AppLogger.error('Error disabling reading mode: $e');
     }
   }
 
@@ -304,9 +305,9 @@ class ScreenService {
       await disableReadingMode();
       _lockedOrientation = null;
       _lockedBrightness = null;
-      print('Screen service disposed');
+      AppLogger.info('Screen service disposed');
     } catch (e) {
-      print('Error disposing screen service: $e');
+      AppLogger.error('Error disposing screen service: $e');
     }
   }
 

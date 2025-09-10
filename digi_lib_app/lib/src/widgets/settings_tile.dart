@@ -28,7 +28,7 @@ class SettingsTile extends StatelessWidget {
       title: Text(
         title,
         style: theme.textTheme.bodyLarge?.copyWith(
-          color: enabled ? null : colorScheme.onSurface.withOpacity(0.38),
+          color: enabled ? null : colorScheme.onSurface.withValues(alpha: 0.38),
         ),
       ),
       subtitle: subtitle != null
@@ -36,8 +36,8 @@ class SettingsTile extends StatelessWidget {
               subtitle!,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: enabled
-                    ? colorScheme.onSurface.withOpacity(0.6)
-                    : colorScheme.onSurface.withOpacity(0.38),
+                    ? colorScheme.onSurface.withValues(alpha: 0.6)
+                    : colorScheme.onSurface.withValues(alpha: 0.38),
               ),
             )
           : null,
@@ -45,8 +45,8 @@ class SettingsTile extends StatelessWidget {
           ? IconTheme(
               data: IconThemeData(
                 color: enabled
-                    ? colorScheme.onSurface.withOpacity(0.6)
-                    : colorScheme.onSurface.withOpacity(0.38),
+                    ? colorScheme.onSurface.withValues(alpha: 0.6)
+                    : colorScheme.onSurface.withValues(alpha: 0.38),
               ),
               child: leading!,
             )

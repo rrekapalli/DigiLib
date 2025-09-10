@@ -105,9 +105,9 @@ class AppStoreService {
     try {
       // This would use in_app_review package
       // await InAppReview.instance.requestReview();
-      print('Requesting app review');
+      AppLogger.info('Requesting app review');
     } catch (e) {
-      print('Error requesting review: $e');
+      AppLogger.error('Error requesting review: $e');
     }
   }
 
@@ -120,7 +120,7 @@ class AppStoreService {
       // return await InAppReview.instance.isAvailable();
       return true; // Placeholder
     } catch (e) {
-      print('Error checking review availability: $e');
+      AppLogger.error('Error checking review availability: $e');
       return false;
     }
   }
@@ -132,7 +132,7 @@ class AppStoreService {
     try {
       await AppSettings.openAppSettings();
     } catch (e) {
-      print('Error opening app settings: $e');
+      AppLogger.error('Error opening app settings: $e');
     }
   }
 
@@ -143,7 +143,7 @@ class AppStoreService {
     try {
       await AppSettings.openAppSettings(type: AppSettingsType.notification);
     } catch (e) {
-      print('Error opening notification settings: $e');
+      AppLogger.error('Error opening notification settings: $e');
     }
   }
 
@@ -154,7 +154,7 @@ class AppStoreService {
     try {
       await AppSettings.openAppSettings(type: AppSettingsType.location);
     } catch (e) {
-      print('Error opening location settings: $e');
+      AppLogger.error('Error opening location settings: $e');
     }
   }
 
@@ -168,7 +168,7 @@ class AppStoreService {
         packageName: _androidPackageName,
       );
     } catch (e) {
-      print('Error getting version info: $e');
+      AppLogger.error('Error getting version info: $e');
       return const AppVersionInfo(
         version: 'unknown',
         buildNumber: 'unknown',
@@ -193,7 +193,7 @@ class AppStoreService {
 
       return null;
     } catch (e) {
-      print('Error checking for updates: $e');
+      AppLogger.error('Error checking for updates: $e');
       return null;
     }
   }
@@ -205,7 +205,7 @@ class AppStoreService {
       // to check for available updates
       return null; // Placeholder
     } catch (e) {
-      print('Error checking Google Play updates: $e');
+      AppLogger.error('Error checking Google Play updates: $e');
       return null;
     }
   }
@@ -216,7 +216,7 @@ class AppStoreService {
       // This would query the iTunes API to check for updates
       return null; // Placeholder
     } catch (e) {
-      print('Error checking App Store updates: $e');
+      AppLogger.error('Error checking App Store updates: $e');
       return null;
     }
   }
@@ -228,9 +228,9 @@ class AppStoreService {
     try {
       // This would use in_app_update package
       // await InAppUpdate.startFlexibleUpdate();
-      print('Starting flexible update');
+      AppLogger.info('Starting flexible update');
     } catch (e) {
-      print('Error starting flexible update: $e');
+      AppLogger.error('Error starting flexible update: $e');
     }
   }
 
@@ -241,9 +241,9 @@ class AppStoreService {
     try {
       // This would use in_app_update package
       // await InAppUpdate.performImmediateUpdate();
-      print('Starting immediate update');
+      AppLogger.info('Starting immediate update');
     } catch (e) {
-      print('Error starting immediate update: $e');
+      AppLogger.error('Error starting immediate update: $e');
     }
   }
 
@@ -254,9 +254,9 @@ class AppStoreService {
     try {
       // This would use in_app_update package
       // await InAppUpdate.completeFlexibleUpdate();
-      print('Completing flexible update');
+      AppLogger.info('Completing flexible update');
     } catch (e) {
-      print('Error completing flexible update: $e');
+      AppLogger.error('Error completing flexible update: $e');
     }
   }
 

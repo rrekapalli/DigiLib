@@ -329,7 +329,7 @@ class OfflineAvailabilityCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Column(
@@ -405,7 +405,6 @@ class OfflineAvailabilityCard extends StatelessWidget {
       case OfflineAvailabilityStatus.failed:
         return 'Failed to download for offline access';
       case OfflineAvailabilityStatus.notAvailable:
-      default:
         return 'Not available offline';
     }
   }

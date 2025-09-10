@@ -17,13 +17,12 @@ class FeedbackService {
   /// Check if feedback should be requested
   Future<bool> shouldRequestFeedback() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Don't show if already shown recently
     final lastShown = prefs.getString(_lastFeedbackDateKey);
     if (lastShown != null) {
       final lastDate = DateTime.tryParse(lastShown);
-      if (lastDate != null && 
-          DateTime.now().difference(lastDate).inDays < 30) {
+      if (lastDate != null && DateTime.now().difference(lastDate).inDays < 30) {
         return false;
       }
     }
@@ -43,7 +42,10 @@ class FeedbackService {
   /// Mark feedback as shown
   Future<void> markFeedbackShown() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_lastFeedbackDateKey, DateTime.now().toIso8601String());
+    await prefs.setString(
+      _lastFeedbackDateKey,
+      DateTime.now().toIso8601String(),
+    );
   }
 
   /// Save user rating
@@ -68,17 +70,17 @@ class FeedbackService {
     try {
       // Simulate API call
       await Future.delayed(const Duration(seconds: 1));
-      
+
       // In a real app, this would send to your backend
       debugPrint('Feedback submitted:');
       debugPrint('Rating: $rating');
       debugPrint('Category: $category');
       debugPrint('Email: $email');
       debugPrint('Feedback: $feedback');
-      
+
       await saveUserRating(rating);
       await markFeedbackShown();
-      
+
       return true;
     } catch (e) {
       debugPrint('Failed to submit feedback: $e');
@@ -91,13 +93,11 @@ class FeedbackService {
 class FeedbackRequestDialog extends ConsumerStatefulWidget {
   final VoidCallback? onDismiss;
 
-  const FeedbackRequestDialog({
-    super.key,
-    this.onDismiss,
-  });
+  const FeedbackRequestDialog({super.key, this.onDismiss});
 
   @override
-  ConsumerState<FeedbackRequestDialog> createState() => _FeedbackRequestDialogState();
+  ConsumerState<FeedbackRequestDialog> createState() =>
+      _FeedbackRequestDialogState();
 }
 
 class _FeedbackRequestDialogState extends ConsumerState<FeedbackRequestDialog> {
@@ -122,7 +122,7 @@ class _FeedbackRequestDialogState extends ConsumerState<FeedbackRequestDialog> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppConstants.defaultPadding),
-          
+
           // Star rating
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -137,7 +137,7 @@ class _FeedbackRequestDialogState extends ConsumerState<FeedbackRequestDialog> {
               );
             }),
           ),
-          
+
           if (_rating > 0) ...[
             const SizedBox(height: 8),
             Text(
@@ -178,10 +178,10 @@ class _FeedbackRequestDialogState extends ConsumerState<FeedbackRequestDialog> {
           email: email,
           category: category,
         );
-        
-        if (context.mounted) {
+
+        if (mounted && context.mounted) {
           Navigator.of(context).pop();
-          
+
           if (success) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -197,7 +197,7 @@ class _FeedbackRequestDialogState extends ConsumerState<FeedbackRequestDialog> {
               ),
             );
           }
-          
+
           widget.onDismiss?.call();
         }
       },
@@ -259,7 +259,7 @@ class _FeedbackRequestDialogState extends ConsumerState<FeedbackRequestDialog> {
               final feedbackService = ref.read(feedbackServiceProvider);
               await feedbackService.saveUserRating(_rating);
               await feedbackService.markFeedbackShown();
-              
+
               if (context.mounted) {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
@@ -282,7 +282,7 @@ class _FeedbackRequestDialogState extends ConsumerState<FeedbackRequestDialog> {
   /// Show feedback request dialog if appropriate
   static Future<void> showIfAppropriate(BuildContext context) async {
     final feedbackService = FeedbackService();
-    
+
     if (await feedbackService.shouldRequestFeedback()) {
       if (context.mounted) {
         showDialog(
@@ -299,7 +299,8 @@ class _FeedbackRequestDialogState extends ConsumerState<FeedbackRequestDialog> {
 /// Detailed feedback dialog for collecting comprehensive feedback
 class DetailedFeedbackDialog extends StatefulWidget {
   final int initialRating;
-  final Function(String feedback, int rating, String? email, String? category) onSubmit;
+  final Function(String feedback, int rating, String? email, String? category)
+  onSubmit;
   final VoidCallback onCancel;
 
   const DetailedFeedbackDialog({
@@ -373,9 +374,9 @@ class _DetailedFeedbackDialogState extends State<DetailedFeedbackDialog> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: AppConstants.defaultPadding),
-            
+
             // Category selection
             DropdownButtonFormField<String>(
               initialValue: _selectedCategory,
@@ -384,16 +385,13 @@ class _DetailedFeedbackDialogState extends State<DetailedFeedbackDialog> {
                 hintText: 'Select feedback category',
               ),
               items: _categories.map((category) {
-                return DropdownMenuItem(
-                  value: category,
-                  child: Text(category),
-                );
+                return DropdownMenuItem(value: category, child: Text(category));
               }).toList(),
               onChanged: (value) => setState(() => _selectedCategory = value),
             ),
-            
+
             const SizedBox(height: AppConstants.defaultPadding),
-            
+
             // Email field
             TextField(
               controller: _emailController,
@@ -404,15 +402,16 @@ class _DetailedFeedbackDialogState extends State<DetailedFeedbackDialog> {
               ),
               keyboardType: TextInputType.emailAddress,
             ),
-            
+
             const SizedBox(height: AppConstants.defaultPadding),
-            
+
             // Feedback text
             TextField(
               controller: _feedbackController,
               decoration: const InputDecoration(
                 labelText: 'Your feedback',
-                hintText: 'Please share your thoughts, suggestions, or issues...',
+                hintText:
+                    'Please share your thoughts, suggestions, or issues...',
               ),
               maxLines: 4,
               textCapitalization: TextCapitalization.sentences,
@@ -494,7 +493,9 @@ class _DetailedFeedbackDialogState extends State<DetailedFeedbackDialog> {
       await widget.onSubmit(
         _feedbackController.text.trim(),
         _rating,
-        _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+        _emailController.text.trim().isEmpty
+            ? null
+            : _emailController.text.trim(),
         _selectedCategory,
       );
     } finally {
@@ -509,10 +510,7 @@ class _DetailedFeedbackDialogState extends State<DetailedFeedbackDialog> {
 class FeedbackPromptWidget extends ConsumerWidget {
   final Widget child;
 
-  const FeedbackPromptWidget({
-    super.key,
-    required this.child,
-  });
+  const FeedbackPromptWidget({super.key, required this.child});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -555,10 +553,7 @@ class _InAppRatingWidgetState extends ConsumerState<InAppRatingWidget> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              widget.title,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
               widget.subtitle,
@@ -567,7 +562,7 @@ class _InAppRatingWidgetState extends ConsumerState<InAppRatingWidget> {
               ),
             ),
             const SizedBox(height: AppConstants.defaultPadding),
-            
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(5, (index) {
@@ -575,7 +570,7 @@ class _InAppRatingWidgetState extends ConsumerState<InAppRatingWidget> {
                   onPressed: () {
                     setState(() => _rating = index + 1);
                     widget.onRatingChanged?.call(_rating);
-                    
+
                     // Save rating
                     final feedbackService = ref.read(feedbackServiceProvider);
                     feedbackService.saveUserRating(_rating);
@@ -588,7 +583,7 @@ class _InAppRatingWidgetState extends ConsumerState<InAppRatingWidget> {
                 );
               }),
             ),
-            
+
             if (_rating > 0) ...[
               const SizedBox(height: 8),
               Text(
@@ -632,15 +627,18 @@ extension FeedbackContext on BuildContext {
   /// Show detailed feedback dialog
   Future<void> showDetailedFeedback({
     int initialRating = 5,
-    Function(String feedback, int rating, String? email, String? category)? onSubmit,
+    Function(String feedback, int rating, String? email, String? category)?
+    onSubmit,
   }) {
     return showDialog<void>(
       context: this,
       builder: (context) => DetailedFeedbackDialog(
         initialRating: initialRating,
-        onSubmit: onSubmit ?? (feedback, rating, email, category) {
-          debugPrint('Feedback: $feedback, Rating: $rating');
-        },
+        onSubmit:
+            onSubmit ??
+            (feedback, rating, email, category) {
+              debugPrint('Feedback: $feedback, Rating: $rating');
+            },
         onCancel: () => Navigator.of(context).pop(),
       ),
     );

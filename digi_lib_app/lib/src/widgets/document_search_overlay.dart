@@ -19,13 +19,14 @@ class DocumentSearchOverlay extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<DocumentSearchOverlay> createState() => _DocumentSearchOverlayState();
+  ConsumerState<DocumentSearchOverlay> createState() =>
+      _DocumentSearchOverlayState();
 }
 
 class _DocumentSearchOverlayState extends ConsumerState<DocumentSearchOverlay> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  
+
   DocumentSearchResults? _searchResults;
   bool _isSearching = false;
   String _currentQuery = '';
@@ -87,7 +88,7 @@ class _DocumentSearchOverlayState extends ConsumerState<DocumentSearchOverlay> {
 
   void _navigateToHighlight(int index) {
     if (_searchResults == null || _searchResults!.highlights.isEmpty) return;
-    
+
     final clampedIndex = index.clamp(0, _searchResults!.highlights.length - 1);
     setState(() {
       _currentHighlightIndex = clampedIndex;
@@ -121,7 +122,7 @@ class _DocumentSearchOverlayState extends ConsumerState<DocumentSearchOverlay> {
           borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -142,10 +143,7 @@ class _DocumentSearchOverlayState extends ConsumerState<DocumentSearchOverlay> {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.search,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  Icon(Icons.search, color: colorScheme.onSurfaceVariant),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
@@ -207,13 +205,17 @@ class _DocumentSearchOverlayState extends ConsumerState<DocumentSearchOverlay> {
                         if (_searchResults!.highlights.isNotEmpty) ...[
                           IconButton(
                             icon: const Icon(Icons.keyboard_arrow_up),
-                            onPressed: _currentHighlightIndex > 0 ? _previousHighlight : null,
+                            onPressed: _currentHighlightIndex > 0
+                                ? _previousHighlight
+                                : null,
                             tooltip: 'Previous match',
                           ),
                           IconButton(
                             icon: const Icon(Icons.keyboard_arrow_down),
-                            onPressed: _currentHighlightIndex < _searchResults!.highlights.length - 1 
-                                ? _nextHighlight 
+                            onPressed:
+                                _currentHighlightIndex <
+                                    _searchResults!.highlights.length - 1
+                                ? _nextHighlight
                                 : null,
                             tooltip: 'Next match',
                           ),
@@ -249,11 +251,9 @@ class _DocumentSearchOverlayState extends ConsumerState<DocumentSearchOverlay> {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withOpacity(0.3),
+        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: colorScheme.primary.withOpacity(0.3),
-        ),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,39 +304,42 @@ class _DocumentSearchOverlayState extends ConsumerState<DocumentSearchOverlay> {
     final spans = <TextSpan>[];
     final lowerText = text.toLowerCase();
     final lowerQuery = query.toLowerCase();
-    
+
     int start = 0;
     int index = lowerText.indexOf(lowerQuery);
-    
+
     while (index != -1) {
       // Add text before match
       if (index > start) {
-        spans.add(TextSpan(
-          text: text.substring(start, index),
-          style: theme.textTheme.bodySmall,
-        ));
+        spans.add(
+          TextSpan(
+            text: text.substring(start, index),
+            style: theme.textTheme.bodySmall,
+          ),
+        );
       }
-      
+
       // Add highlighted match
-      spans.add(TextSpan(
-        text: text.substring(index, index + query.length),
-        style: theme.textTheme.bodySmall?.copyWith(
-          backgroundColor: colorScheme.primary,
-          color: colorScheme.onPrimary,
-          fontWeight: FontWeight.bold,
+      spans.add(
+        TextSpan(
+          text: text.substring(index, index + query.length),
+          style: theme.textTheme.bodySmall?.copyWith(
+            backgroundColor: colorScheme.primary,
+            color: colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ));
-      
+      );
+
       start = index + query.length;
       index = lowerText.indexOf(lowerQuery, start);
     }
-    
+
     // Add remaining text
     if (start < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(start),
-        style: theme.textTheme.bodySmall,
-      ));
+      spans.add(
+        TextSpan(text: text.substring(start), style: theme.textTheme.bodySmall),
+      );
     }
 
     return RichText(

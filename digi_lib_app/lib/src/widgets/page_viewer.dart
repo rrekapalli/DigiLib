@@ -127,12 +127,13 @@ class _PageViewerState extends ConsumerState<PageViewer>
 
     animation.addListener(() {
       final scale = animation.value;
-      final newMatrix = Matrix4.identity()..scale(scale);
+      final newMatrix = Matrix4.identity()
+        ..scaleByDouble(scale, scale, 1.0, 1.0);
 
       // Adjust translation to keep focal point centered
       if (targetScale > 1.0) {
         final translation = focalPoint * (1 - scale);
-        newMatrix.translate(translation.dx, translation.dy);
+        newMatrix.translateByDouble(translation.dx, translation.dy, 0.0);
       }
 
       _transformationController.value = newMatrix;
