@@ -1,0 +1,187 @@
+# Test configuration for Digital Library App
+name: digi_lib_app_tests
+description: Comprehensive test suite for the Digital Library App
+
+# Test categories and their configurations
+test_categories:
+  unit_tests:
+    description: Unit tests for individual components and services
+    timeout: 30s
+    retry_count: 2
+    coverage_threshold: 80
+    files:
+      - test/auth_provider_test.dart
+      - test/auth_state_test.dart
+      - test/cache_test.dart
+      - test/database_test.dart
+      - test/fts_test.dart
+      - test/models_test.dart
+      - test/secure_storage_test.dart
+      - test/services/**/*_test.dart
+
+  widget_tests:
+    description: Widget and UI component tests
+    timeout: 45s
+    retry_count: 1
+    coverage_threshold: 70
+    files:
+      - test/widgets/**/*_test.dart
+
+  integration_tests:
+    description: Integration tests for API and service interactions
+    timeout: 60s
+    retry_count: 3
+    coverage_threshold: 60
+    files:
+      - test/integration/**/*_test.dart
+
+  e2e_tests:
+    description: End-to-end user workflow tests
+    timeout: 300s
+    retry_count: 1
+    coverage_threshold: 50
+    files:
+      - test/e2e/**/*_test.dart
+
+# Test environment configurations
+environments:
+  development:
+    api_base_url: "http://localhost:8080"
+    mock_services: true
+    log_level: debug
+    
+  testing:
+    api_base_url: "https://api-test.example.com"
+    mock_services: false
+    log_level: info
+    
+  production:
+    api_base_url: "https://api.example.com"
+    mock_services: false
+    log_level: error
+
+# Mock configurations
+mocks:
+  api_client:
+    enabled: true
+    response_delay: 100ms
+    failure_rate: 0.1
+    
+  secure_storage:
+    enabled: true
+    simulate_platform_errors: false
+    
+  native_rendering:
+    enabled: true
+    use_mock_images: true
+    
+  connectivity:
+    enabled: true
+    simulate_offline: false
+
+# Coverage requirements
+coverage:
+  minimum_overall: 75
+  minimum_per_file: 60
+  exclude_patterns:
+    - "**/*.g.dart"
+    - "**/*.mocks.dart"
+    - "**/main.dart"
+    - "test/**"
+
+# Performance test thresholds
+performance:
+  api_response_time_ms: 1000
+  ui_render_time_ms: 16
+  memory_usage_mb: 100
+  startup_time_ms: 3000
+
+# Test data configurations
+test_data:
+  documents:
+    sample_pdf: "test/fixtures/sample.pdf"
+    sample_epub: "test/fixtures/sample.epub"
+    large_document: "test/fixtures/large.pdf"
+    
+  users:
+    test_user:
+      id: "test_user_123"
+      email: "test@example.com"
+      name: "Test User"
+      
+  libraries:
+    test_library:
+      id: "test_lib_123"
+      name: "Test Library"
+      type: "local"
+      
+# Reporting configurations
+reporting:
+  formats:
+    - junit
+    - html
+    - json
+    
+  output_directory: "test_reports"
+  
+  include_coverage: true
+  include_performance: true
+  include_screenshots: true
+
+# CI/CD specific configurations
+ci:
+  parallel_execution: true
+  max_parallel_jobs: 4
+  
+  fail_fast: false
+  
+  artifacts:
+    - "test_reports/**"
+    - "coverage/**"
+    - "screenshots/**"
+    
+  notifications:
+    on_failure: true
+    on_success: false
+
+# Platform-specific test configurations
+platforms:
+  android:
+    min_sdk: 21
+    target_sdk: 34
+    test_devices:
+      - "Pixel_4_API_30"
+      - "Pixel_6_API_33"
+      
+  ios:
+    min_version: "12.0"
+    target_version: "17.0"
+    test_devices:
+      - "iPhone_12"
+      - "iPhone_15"
+      
+  web:
+    browsers:
+      - chrome
+      - firefox
+      - safari
+      
+  desktop:
+    platforms:
+      - windows
+      - macos
+      - linux
+
+# Test execution order
+execution_order:
+  1: unit_tests
+  2: widget_tests
+  3: integration_tests
+  4: e2e_tests
+
+# Cleanup configurations
+cleanup:
+  clear_cache_after_tests: true
+  reset_database_after_tests: true
+  clear_secure_storage_after_tests: true
+  remove_test_files_after_tests: true

@@ -1,0 +1,1250 @@
+openapi: 3.0.3
+info:
+  title: Digital Library API
+  description: API for Digital Library App - document management, reading, and synchronization
+  version: 1.0.0
+  contact:
+    name: Digital Library Team
+servers:
+  - url: https://api.digitallibrary.com
+    description: Production server
+  - url: https://staging-api.digitallibrary.com
+    description: Staging server
+
+security:
+  - BearerAuth: []
+
+paths:
+  # Authentication endpoints
+  /auth/oauth2/{provider}:
+    post:
+      tags: [Authentication]
+      summary: Complete OAuth2 authentication
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google, microsoft, github]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                state:
+                  type: string
+                redirect_uri:
+                  type: string
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  # User endpoints
+  /api/users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  # Library endpoints
+  /api/libraries:
+    get:
+      tags: [Libraries]
+      summary: List user libraries
+      responses:
+        '200':
+          description: List of libraries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Library'
+    post:
+      tags: [Libraries]
+      summary: Create new library
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLibraryRequest'
+      responses:
+        '201':
+          description: Library created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Library'
+
+  /api/libraries/{libraryId}:
+    get:
+      tags: [Libraries]
+      summary: Get library details
+      parameters:
+        - $ref: '#/components/parameters/LibraryId'
+      responses:
+        '200':
+          description: Library details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Library'
+    delete:
+      tags: [Libraries]
+      summary: Delete library
+      parameters:
+        - $ref: '#/components/parameters/LibraryId'
+      responses:
+        '204':
+          description: Library deleted
+
+  /api/libraries/{libraryId}/scan:
+    post:
+      tags: [Libraries]
+      summary: Trigger library scan
+      parameters:
+        - $ref: '#/components/parameters/LibraryId'
+      responses:
+        '202':
+          description: Scan initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanJob'
+
+  # Document endpoints
+  /api/documents:
+    get:
+      tags: [Documents]
+      summary: List documents
+      parameters:
+        - name: library_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Paginated list of documents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentListResponse'
+
+  /api/documents/{documentId}:
+    get:
+      tags: [Documents]
+      summary: Get document details
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Document details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+    put:
+      tags: [Documents]
+      summary: Update document
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDocumentRequest'
+      responses:
+        '200':
+          description: Document updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+    delete:
+      tags: [Documents]
+      summary: Delete document
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '204':
+          description: Document deleted
+
+  /api/documents/{documentId}/pages:
+    get:
+      tags: [Documents]
+      summary: Get document pages
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: List of document pages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Page'
+
+  /api/documents/{documentId}/pages/{pageNumber}:
+    get:
+      tags: [Documents]
+      summary: Get specific page
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+        - name: pageNumber
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Page details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+
+  /api/documents/{documentId}/pages/{pageNumber}/text:
+    get:
+      tags: [Documents]
+      summary: Get page text content
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+        - name: pageNumber
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Page text content
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/documents/{documentId}/render:
+    post:
+      tags: [Documents]
+      summary: Get signed URL for page rendering
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: dpi
+          in: query
+          schema:
+            type: integer
+            default: 150
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [webp, png, jpg]
+            default: webp
+      responses:
+        '200':
+          description: Signed URL for rendered page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signed_url:
+                    type: string
+                  expires_at:
+                    type: string
+                    format: date-time
+
+  # Tag endpoints
+  /api/tags:
+    get:
+      tags: [Tags]
+      summary: List user tags
+      responses:
+        '200':
+          description: List of tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+    post:
+      tags: [Tags]
+      summary: Create new tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Tag created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+
+  /api/tags/{tagId}:
+    delete:
+      tags: [Tags]
+      summary: Delete tag
+      parameters:
+        - name: tagId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Tag deleted
+
+  /api/documents/{documentId}/tags:
+    get:
+      tags: [Tags]
+      summary: Get document tags
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Document tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+    post:
+      tags: [Tags]
+      summary: Add tag to document
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tag_id:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Tag added to document
+
+  /api/documents/{documentId}/tags/{tagId}:
+    delete:
+      tags: [Tags]
+      summary: Remove tag from document
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+        - name: tagId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Tag removed from document
+
+  # Bookmark endpoints
+  /api/documents/{documentId}/bookmarks:
+    get:
+      tags: [Bookmarks]
+      summary: Get document bookmarks
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Document bookmarks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bookmark'
+    post:
+      tags: [Bookmarks]
+      summary: Add bookmark
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookmarkRequest'
+      responses:
+        '201':
+          description: Bookmark created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+
+  /api/bookmarks/{bookmarkId}:
+    put:
+      tags: [Bookmarks]
+      summary: Update bookmark
+      parameters:
+        - name: bookmarkId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBookmarkRequest'
+      responses:
+        '200':
+          description: Bookmark updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bookmark'
+    delete:
+      tags: [Bookmarks]
+      summary: Delete bookmark
+      parameters:
+        - name: bookmarkId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Bookmark deleted
+
+  # Comment endpoints
+  /api/documents/{documentId}/comments:
+    get:
+      tags: [Comments]
+      summary: Get document comments
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+        - name: page_number
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Document comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+    post:
+      tags: [Comments]
+      summary: Add comment
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentRequest'
+      responses:
+        '201':
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
+  /api/comments/{commentId}:
+    put:
+      tags: [Comments]
+      summary: Update comment
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCommentRequest'
+      responses:
+        '200':
+          description: Comment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+    delete:
+      tags: [Comments]
+      summary: Delete comment
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Comment deleted
+
+  # Reading Progress endpoints
+  /api/documents/{documentId}/progress:
+    get:
+      tags: [Reading Progress]
+      summary: Get reading progress
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Reading progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingProgress'
+    put:
+      tags: [Reading Progress]
+      summary: Update reading progress
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                last_page:
+                  type: integer
+      responses:
+        '200':
+          description: Progress updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingProgress'
+
+  # Share endpoints
+  /api/shares:
+    get:
+      tags: [Shares]
+      summary: List shares created by user
+      responses:
+        '200':
+          description: List of shares
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Share'
+    post:
+      tags: [Shares]
+      summary: Create share
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShareRequest'
+      responses:
+        '201':
+          description: Share created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Share'
+
+  /api/shares/shared-with-me:
+    get:
+      tags: [Shares]
+      summary: List documents shared with user
+      responses:
+        '200':
+          description: List of shared documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Share'
+
+  /api/shares/{shareId}:
+    put:
+      tags: [Shares]
+      summary: Update share permissions
+      parameters:
+        - name: shareId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permission:
+                  $ref: '#/components/schemas/SharePermission'
+      responses:
+        '200':
+          description: Share updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Share'
+    delete:
+      tags: [Shares]
+      summary: Delete share
+      parameters:
+        - name: shareId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Share deleted
+
+  # Search endpoints
+  /api/search:
+    get:
+      tags: [Search]
+      summary: Search documents
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: library_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  # Sync endpoints
+  /api/sync/manifest:
+    get:
+      tags: [Sync]
+      summary: Get sync manifest
+      parameters:
+        - name: since
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Sync manifest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncManifest'
+
+  /api/sync/push:
+    post:
+      tags: [Sync]
+      summary: Push local changes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncPushRequest'
+      responses:
+        '200':
+          description: Changes synchronized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncPushResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    LibraryId:
+      name: libraryId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    DocumentId:
+      name: documentId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        provider:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        expires_in:
+          type: integer
+        token_type:
+          type: string
+          default: Bearer
+
+    Library:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum: [local, gdrive, onedrive, s3]
+        config:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+
+    CreateLibraryRequest:
+      type: object
+      required: [name, type]
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [local, gdrive, onedrive, s3]
+        config:
+          type: object
+
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        library_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        author:
+          type: string
+        filename:
+          type: string
+        relative_path:
+          type: string
+        full_path:
+          type: string
+        extension:
+          type: string
+        renamed_name:
+          type: string
+        isbn:
+          type: string
+        year_published:
+          type: integer
+        status:
+          type: string
+        cloud_id:
+          type: string
+        sha256:
+          type: string
+        size_bytes:
+          type: integer
+          format: int64
+        page_count:
+          type: integer
+        format:
+          type: string
+        image_url:
+          type: string
+        amazon_url:
+          type: string
+        review_url:
+          type: string
+        metadata_json:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    DocumentListResponse:
+      type: object
+      properties:
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    UpdateDocumentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        author:
+          type: string
+        renamed_name:
+          type: string
+        isbn:
+          type: string
+        year_published:
+          type: integer
+        metadata_json:
+          type: object
+
+    Page:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        doc_id:
+          type: string
+          format: uuid
+        page_number:
+          type: integer
+        text_content:
+          type: string
+        thumbnail_url:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Tag:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Bookmark:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        doc_id:
+          type: string
+          format: uuid
+        page_number:
+          type: integer
+        note:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CreateBookmarkRequest:
+      type: object
+      required: [page_number]
+      properties:
+        page_number:
+          type: integer
+        note:
+          type: string
+
+    UpdateBookmarkRequest:
+      type: object
+      properties:
+        note:
+          type: string
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        doc_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        page_number:
+          type: integer
+        anchor:
+          type: object
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CreateCommentRequest:
+      type: object
+      required: [page_number, content]
+      properties:
+        page_number:
+          type: integer
+        anchor:
+          type: object
+        content:
+          type: string
+
+    UpdateCommentRequest:
+      type: object
+      properties:
+        content:
+          type: string
+
+    ReadingProgress:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        doc_id:
+          type: string
+          format: uuid
+        last_page:
+          type: integer
+        updated_at:
+          type: string
+          format: date-time
+
+    Share:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        subject_id:
+          type: string
+          format: uuid
+        subject_type:
+          $ref: '#/components/schemas/ShareSubjectType'
+        owner_id:
+          type: string
+          format: uuid
+        grantee_email:
+          type: string
+          format: email
+        permission:
+          $ref: '#/components/schemas/SharePermission'
+        created_at:
+          type: string
+          format: date-time
+
+    ShareSubjectType:
+      type: string
+      enum: [document, folder]
+
+    SharePermission:
+      type: string
+      enum: [view, comment, full]
+
+    CreateShareRequest:
+      type: object
+      required: [subject_id, subject_type, grantee_email, permission]
+      properties:
+        subject_id:
+          type: string
+          format: uuid
+        subject_type:
+          $ref: '#/components/schemas/ShareSubjectType'
+        grantee_email:
+          type: string
+          format: email
+        permission:
+          $ref: '#/components/schemas/SharePermission'
+
+    SearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    SearchResult:
+      type: object
+      properties:
+        document:
+          $ref: '#/components/schemas/Document'
+        highlights:
+          type: array
+          items:
+            type: object
+            properties:
+              page_number:
+                type: integer
+              text:
+                type: string
+              context:
+                type: string
+
+    ScanJob:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        library_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        created_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+
+    SyncManifest:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncChange'
+        checksum:
+          type: string
+
+    SyncChange:
+      type: object
+      properties:
+        entity_type:
+          type: string
+          enum: [document, page, bookmark, comment, tag, reading_progress]
+        entity_id:
+          type: string
+          format: uuid
+        operation:
+          type: string
+          enum: [create, update, delete]
+        data:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+    SyncPushRequest:
+      type: object
+      properties:
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncChange'
+        client_timestamp:
+          type: string
+          format: date-time
+
+    SyncPushResponse:
+      type: object
+      properties:
+        accepted_changes:
+          type: array
+          items:
+            type: string
+            format: uuid
+        conflicts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncConflict'
+        server_timestamp:
+          type: string
+          format: date-time
+
+    SyncConflict:
+      type: object
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+        entity_type:
+          type: string
+        client_version:
+          type: object
+        server_version:
+          type: object
+        resolution:
+          type: string
+          enum: [server_wins, client_wins, merge_required]
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        total_pages:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
