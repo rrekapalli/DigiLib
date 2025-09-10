@@ -47,14 +47,14 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        
+
         const SizedBox(height: 8),
-        
+
         Container(
           decoration: BoxDecoration(
             border: Border.all(
-              color: _pathError != null 
-                  ? colorScheme.error 
+              color: _pathError != null
+                  ? colorScheme.error
                   : colorScheme.outline,
             ),
             borderRadius: BorderRadius.circular(8),
@@ -63,15 +63,15 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
             children: [
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 16,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (_selectedPath != null) ...[
-                        Text(
-                          _selectedPath!,
-                          style: theme.textTheme.bodyMedium,
-                        ),
+                        Text(_selectedPath!, style: theme.textTheme.bodyMedium),
                         if (_isValidPath) ...[
                           const SizedBox(height: 4),
                           Row(
@@ -103,7 +103,7 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
                   ),
                 ),
               ),
-              
+
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: FilledButton.icon(
@@ -115,16 +115,12 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
             ],
           ),
         ),
-        
+
         if (_pathError != null) ...[
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(
-                Icons.error,
-                size: 16,
-                color: colorScheme.error,
-              ),
+              Icon(Icons.error, size: 16, color: colorScheme.error),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
@@ -137,9 +133,9 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
             ],
           ),
         ],
-        
+
         const SizedBox(height: 8),
-        
+
         Text(
           'Select a folder containing your digital documents. The app will scan this folder for supported file types (PDF, EPUB, DOCX).',
           style: theme.textTheme.bodySmall?.copyWith(
@@ -153,13 +149,13 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
   Future<void> _pickFolder() async {
     try {
       String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-      
+
       if (selectedDirectory != null) {
         setState(() {
           _selectedPath = selectedDirectory;
           _pathError = null;
         });
-        
+
         _validatePath(selectedDirectory);
         widget.onPathSelected(selectedDirectory);
       }
@@ -174,7 +170,7 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
   void _validatePath(String path) {
     try {
       final directory = Directory(path);
-      
+
       if (!directory.existsSync()) {
         setState(() {
           _pathError = 'Selected folder does not exist';
@@ -182,7 +178,7 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
         });
         return;
       }
-      
+
       // Check if we can read the directory
       try {
         directory.listSync(recursive: false);
@@ -193,12 +189,11 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
         });
         return;
       }
-      
+
       setState(() {
         _pathError = null;
         _isValidPath = true;
       });
-      
     } catch (e) {
       setState(() {
         _pathError = 'Invalid folder path: $e';
