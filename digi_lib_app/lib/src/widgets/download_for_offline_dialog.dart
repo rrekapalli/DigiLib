@@ -173,49 +173,38 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
   }
 
   Widget _buildScopeOptions(ThemeData theme) {
-    return Column(
-      children: [
-        RadioListTile<DownloadScope>(
-          title: const Text('Full Document'),
-          subtitle: Text('Download all ${widget.totalPages} pages'),
-          value: DownloadScope.fullDocument,
-          groupValue: _selectedScope,
-          onChanged: (value) {
-            setState(() {
-              _selectedScope = value!;
-            });
-          },
-          dense: true,
-        ),
-        RadioListTile<DownloadScope>(
-          title: const Text('Page Range'),
-          subtitle: const Text('Download specific pages'),
-          value: DownloadScope.pageRange,
-          groupValue: _selectedScope,
-          onChanged: (value) {
-            setState(() {
-              _selectedScope = value!;
-            });
-          },
-          dense: true,
-        ),
-        if (widget.currentlyCachedPages != null &&
-            widget.currentlyCachedPages! < widget.totalPages)
+    return RadioGroup<DownloadScope>(
+      onChanged: (value) {
+        setState(() {
+          _selectedScope = value!;
+        });
+      },
+      child: Column(
+        children: [
           RadioListTile<DownloadScope>(
-            title: const Text('Missing Pages Only'),
-            subtitle: Text(
-              'Download ${widget.totalPages - widget.currentlyCachedPages!} uncached pages',
-            ),
-            value: DownloadScope.missingOnly,
-            groupValue: _selectedScope,
-            onChanged: (value) {
-              setState(() {
-                _selectedScope = value!;
-              });
-            },
+            title: const Text('Full Document'),
+            subtitle: Text('Download all ${widget.totalPages} pages'),
+            value: DownloadScope.fullDocument,
             dense: true,
           ),
-      ],
+          RadioListTile<DownloadScope>(
+            title: const Text('Page Range'),
+            subtitle: const Text('Download specific pages'),
+            value: DownloadScope.pageRange,
+            dense: true,
+          ),
+          if (widget.currentlyCachedPages != null &&
+              widget.currentlyCachedPages! < widget.totalPages)
+            RadioListTile<DownloadScope>(
+              title: const Text('Missing Pages Only'),
+              subtitle: Text(
+                'Download ${widget.totalPages - widget.currentlyCachedPages!} uncached pages',
+              ),
+              value: DownloadScope.missingOnly,
+              dense: true,
+            ),
+        ],
+      ),
     );
   }
 
@@ -249,45 +238,34 @@ class _DownloadForOfflineDialogState extends State<DownloadForOfflineDialog> {
   }
 
   Widget _buildQualityOptions(ThemeData theme) {
-    return Column(
-      children: [
-        RadioListTile<DownloadQuality>(
-          title: const Text('High Quality'),
-          subtitle: const Text('Best quality, larger file size (300 DPI)'),
-          value: DownloadQuality.high,
-          groupValue: _selectedQuality,
-          onChanged: (value) {
-            setState(() {
-              _selectedQuality = value!;
-            });
-          },
-          dense: true,
-        ),
-        RadioListTile<DownloadQuality>(
-          title: const Text('Medium Quality'),
-          subtitle: const Text('Good balance of quality and size (150 DPI)'),
-          value: DownloadQuality.medium,
-          groupValue: _selectedQuality,
-          onChanged: (value) {
-            setState(() {
-              _selectedQuality = value!;
-            });
-          },
-          dense: true,
-        ),
-        RadioListTile<DownloadQuality>(
-          title: const Text('Low Quality'),
-          subtitle: const Text('Smaller file size, lower quality (75 DPI)'),
-          value: DownloadQuality.low,
-          groupValue: _selectedQuality,
-          onChanged: (value) {
-            setState(() {
-              _selectedQuality = value!;
-            });
-          },
-          dense: true,
-        ),
-      ],
+    return RadioGroup<DownloadQuality>(
+      onChanged: (value) {
+        setState(() {
+          _selectedQuality = value!;
+        });
+      },
+      child: Column(
+        children: [
+          RadioListTile<DownloadQuality>(
+            title: const Text('High Quality'),
+            subtitle: const Text('Best quality, larger file size (300 DPI)'),
+            value: DownloadQuality.high,
+            dense: true,
+          ),
+          RadioListTile<DownloadQuality>(
+            title: const Text('Medium Quality'),
+            subtitle: const Text('Good balance of quality and size (150 DPI)'),
+            value: DownloadQuality.medium,
+            dense: true,
+          ),
+          RadioListTile<DownloadQuality>(
+            title: const Text('Low Quality'),
+            subtitle: const Text('Smaller file size, lower quality (75 DPI)'),
+            value: DownloadQuality.low,
+            dense: true,
+          ),
+        ],
+      ),
     );
   }
 

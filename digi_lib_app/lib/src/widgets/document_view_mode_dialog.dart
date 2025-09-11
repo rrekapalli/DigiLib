@@ -34,7 +34,7 @@ class _DocumentViewModeDialogState extends State<DocumentViewModeDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return AlertDialog(
       title: const Text('View Options'),
       content: Column(
@@ -48,35 +48,34 @@ class _DocumentViewModeDialogState extends State<DocumentViewModeDialog> {
             ),
           ),
           const SizedBox(height: 8),
-          
+
           // View mode options
-          RadioListTile<DocumentViewMode>(
-            title: const Text('List View'),
-            subtitle: const Text('Detailed list with metadata'),
-            value: DocumentViewMode.list,
-            groupValue: _viewMode,
+          RadioGroup<DocumentViewMode>(
             onChanged: (value) {
               setState(() {
                 _viewMode = value!;
               });
             },
-            contentPadding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                RadioListTile<DocumentViewMode>(
+                  title: const Text('List View'),
+                  subtitle: const Text('Detailed list with metadata'),
+                  value: DocumentViewMode.list,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                RadioListTile<DocumentViewMode>(
+                  title: const Text('Grid View'),
+                  subtitle: const Text('Compact grid with thumbnails'),
+                  value: DocumentViewMode.grid,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ],
+            ),
           ),
-          RadioListTile<DocumentViewMode>(
-            title: const Text('Grid View'),
-            subtitle: const Text('Compact grid with thumbnails'),
-            value: DocumentViewMode.grid,
-            groupValue: _viewMode,
-            onChanged: (value) {
-              setState(() {
-                _viewMode = value!;
-              });
-            },
-            contentPadding: EdgeInsets.zero,
-          ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Grid columns (only for grid view)
           if (_viewMode == DocumentViewMode.grid) ...[
             Text(
@@ -86,7 +85,7 @@ class _DocumentViewModeDialogState extends State<DocumentViewModeDialog> {
               ),
             ),
             const SizedBox(height: 8),
-            
+
             Row(
               children: [
                 Expanded(
@@ -113,10 +112,10 @@ class _DocumentViewModeDialogState extends State<DocumentViewModeDialog> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
           ],
-          
+
           Text(
             'Display Options',
             style: theme.textTheme.titleSmall?.copyWith(
@@ -124,7 +123,7 @@ class _DocumentViewModeDialogState extends State<DocumentViewModeDialog> {
             ),
           ),
           const SizedBox(height: 8),
-          
+
           // Display options
           CheckboxListTile(
             title: const Text('Show Thumbnails'),
@@ -139,7 +138,9 @@ class _DocumentViewModeDialogState extends State<DocumentViewModeDialog> {
           ),
           CheckboxListTile(
             title: const Text('Show Metadata'),
-            subtitle: const Text('Display file size, author, and other details'),
+            subtitle: const Text(
+              'Display file size, author, and other details',
+            ),
             value: _showMetadata,
             onChanged: (value) {
               setState(() {

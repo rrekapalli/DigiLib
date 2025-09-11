@@ -17,21 +17,22 @@ class SessionTimeoutDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Session Timeout'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: _timeouts.map((timeout) {
-          return RadioListTile<int>(
-            title: Text(_getTimeoutText(timeout)),
-            value: timeout,
-            groupValue: currentTimeout,
-            onChanged: (value) {
-              if (value != null) {
-                onTimeoutChanged(value);
-                Navigator.of(context).pop();
-              }
-            },
-          );
-        }).toList(),
+      content: RadioGroup<int>(
+        onChanged: (value) {
+          if (value != null) {
+            onTimeoutChanged(value);
+            Navigator.of(context).pop();
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: _timeouts.map((timeout) {
+            return RadioListTile<int>(
+              title: Text(_getTimeoutText(timeout)),
+              value: timeout,
+            );
+          }).toList(),
+        ),
       ),
       actions: [
         TextButton(

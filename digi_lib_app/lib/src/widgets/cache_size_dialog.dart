@@ -19,21 +19,22 @@ class CacheSizeDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(title),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: _sizes.map((size) {
-          return RadioListTile<int>(
-            title: Text(_getSizeText(size)),
-            value: size,
-            groupValue: currentSize,
-            onChanged: (value) {
-              if (value != null) {
-                onSizeChanged(value);
-                Navigator.of(context).pop();
-              }
-            },
-          );
-        }).toList(),
+      content: RadioGroup<int>(
+        onChanged: (value) {
+          if (value != null) {
+            onSizeChanged(value);
+            Navigator.of(context).pop();
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: _sizes.map((size) {
+            return RadioListTile<int>(
+              title: Text(_getSizeText(size)),
+              value: size,
+            );
+          }).toList(),
+        ),
       ),
       actions: [
         TextButton(

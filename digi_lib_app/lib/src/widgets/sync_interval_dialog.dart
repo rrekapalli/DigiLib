@@ -17,21 +17,22 @@ class SyncIntervalDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Sync Interval'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: _intervals.map((interval) {
-          return RadioListTile<int>(
-            title: Text(_getIntervalText(interval)),
-            value: interval,
-            groupValue: currentInterval,
-            onChanged: (value) {
-              if (value != null) {
-                onIntervalChanged(value);
-                Navigator.of(context).pop();
-              }
-            },
-          );
-        }).toList(),
+      content: RadioGroup<int>(
+        onChanged: (value) {
+          if (value != null) {
+            onIntervalChanged(value);
+            Navigator.of(context).pop();
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: _intervals.map((interval) {
+            return RadioListTile<int>(
+              title: Text(_getIntervalText(interval)),
+              value: interval,
+            );
+          }).toList(),
+        ),
       ),
       actions: [
         TextButton(

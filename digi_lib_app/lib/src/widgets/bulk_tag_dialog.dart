@@ -41,10 +41,7 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
             // Header
             Row(
               children: [
-                Icon(
-                  Icons.label,
-                  color: colorScheme.primary,
-                ),
+                Icon(Icons.label, color: colorScheme.primary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -71,9 +68,9 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Action selection
             Text(
               'Action',
@@ -82,45 +79,48 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
               ),
             ),
             const SizedBox(height: 8),
-            
+
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Column(
-                children: [
-                  RadioListTile<BulkTagAction>(
-                    title: const Text('Add tags to documents'),
-                    subtitle: const Text('Add selected tags to all documents'),
-                    value: BulkTagAction.add,
-                    groupValue: _action,
-                    onChanged: (value) => setState(() => _action = value!),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  RadioListTile<BulkTagAction>(
-                    title: const Text('Remove tags from documents'),
-                    subtitle: const Text('Remove selected tags from all documents'),
-                    value: BulkTagAction.remove,
-                    groupValue: _action,
-                    onChanged: (value) => setState(() => _action = value!),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  RadioListTile<BulkTagAction>(
-                    title: const Text('Replace all tags'),
-                    subtitle: const Text('Replace all existing tags with selected tags'),
-                    value: BulkTagAction.replace,
-                    groupValue: _action,
-                    onChanged: (value) => setState(() => _action = value!),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ],
+              child: RadioGroup<BulkTagAction>(
+                onChanged: (value) => setState(() => _action = value!),
+                child: Column(
+                  children: [
+                    RadioListTile<BulkTagAction>(
+                      title: const Text('Add tags to documents'),
+                      subtitle: const Text(
+                        'Add selected tags to all documents',
+                      ),
+                      value: BulkTagAction.add,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    RadioListTile<BulkTagAction>(
+                      title: const Text('Remove tags from documents'),
+                      subtitle: const Text(
+                        'Remove selected tags from all documents',
+                      ),
+                      value: BulkTagAction.remove,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    RadioListTile<BulkTagAction>(
+                      title: const Text('Replace all tags'),
+                      subtitle: const Text(
+                        'Replace all existing tags with selected tags',
+                      ),
+                      value: BulkTagAction.replace,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ],
+                ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Tag selection
             Text(
               'Tags',
@@ -129,7 +129,7 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
               ),
             ),
             const SizedBox(height: 8),
-            
+
             // Tag autocomplete
             TagAutocompleteField(
               hintText: 'Search or create tags...',
@@ -137,9 +137,9 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
               onTagSelected: _addTag,
               onTagCreated: _createAndAddTag,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Selected tags
             if (_selectedTags.isNotEmpty) ...[
               Text(
@@ -149,7 +149,7 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
                 ),
               ),
               const SizedBox(height: 8),
-              
+
               Container(
                 constraints: const BoxConstraints(maxHeight: 120),
                 child: SingleChildScrollView(
@@ -162,10 +162,10 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
             ],
-            
+
             // Document preview
             Text(
               'Documents to Update',
@@ -174,7 +174,7 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
               ),
             ),
             const SizedBox(height: 8),
-            
+
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(12),
@@ -197,7 +197,9 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
                         color: _getDocumentColor(document.extension),
                       ),
                       title: Text(
-                        document.title ?? document.filename ?? 'Unknown Document',
+                        document.title ??
+                            document.filename ??
+                            'Unknown Document',
                         style: theme.textTheme.bodyMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -206,7 +208,9 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
                           ? Text(
                               document.author!,
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -217,14 +221,16 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Actions
             Row(
               children: [
                 TextButton(
-                  onPressed: _isApplying ? null : () => Navigator.of(context).pop(),
+                  onPressed: _isApplying
+                      ? null
+                      : () => Navigator.of(context).pop(),
                   child: const Text('Cancel'),
                 ),
                 const SizedBox(width: 8),
@@ -235,7 +241,9 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
                   ),
                 const Spacer(),
                 FilledButton(
-                  onPressed: _isApplying || _selectedTags.isEmpty ? null : _applyTags,
+                  onPressed: _isApplying || _selectedTags.isEmpty
+                      ? null
+                      : _applyTags,
                   child: _isApplying
                       ? const SizedBox(
                           width: 16,
@@ -254,32 +262,20 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
 
   Widget _buildTagChip(Tag tag) {
     final tagColor = _getTagColor(tag.name);
-    
+
     return Chip(
       label: Text(
         tag.name,
-        style: TextStyle(
-          color: tagColor,
-          fontWeight: FontWeight.w500,
-        ),
+        style: TextStyle(color: tagColor, fontWeight: FontWeight.w500),
       ),
       avatar: Container(
         width: 16,
         height: 16,
-        decoration: BoxDecoration(
-          color: tagColor,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: tagColor, shape: BoxShape.circle),
       ),
       backgroundColor: tagColor.withValues(alpha: 0.1),
-      side: BorderSide(
-        color: tagColor.withValues(alpha: 0.3),
-      ),
-      deleteIcon: Icon(
-        Icons.close,
-        size: 16,
-        color: tagColor,
-      ),
+      side: BorderSide(color: tagColor.withValues(alpha: 0.3)),
+      deleteIcon: Icon(Icons.close, size: 16, color: tagColor),
       onDeleted: () => _removeTag(tag),
     );
   }
@@ -323,7 +319,7 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
 
     try {
       widget.onApply(_selectedTags.toList(), _action);
-      
+
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -363,7 +359,7 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
   String _getSuccessMessage() {
     final tagCount = _selectedTags.length;
     final docCount = widget.documents.length;
-    
+
     switch (_action) {
       case BulkTagAction.add:
         return 'Added $tagCount tag${tagCount == 1 ? '' : 's'} to $docCount document${docCount == 1 ? '' : 's'}';
@@ -423,8 +419,4 @@ class _BulkTagDialogState extends ConsumerState<BulkTagDialog> {
 }
 
 /// Actions that can be performed on multiple documents
-enum BulkTagAction {
-  add,
-  remove,
-  replace,
-}
+enum BulkTagAction { add, remove, replace }

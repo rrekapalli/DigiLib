@@ -16,22 +16,23 @@ class DataSharingDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Data Sharing Level'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: DataSharingLevel.values.map((level) {
-          return RadioListTile<DataSharingLevel>(
-            title: Text(_getLevelTitle(level)),
-            subtitle: Text(_getLevelDescription(level)),
-            value: level,
-            groupValue: currentLevel,
-            onChanged: (value) {
-              if (value != null) {
-                onLevelChanged(value);
-                Navigator.of(context).pop();
-              }
-            },
-          );
-        }).toList(),
+      content: RadioGroup<DataSharingLevel>(
+        onChanged: (value) {
+          if (value != null) {
+            onLevelChanged(value);
+            Navigator.of(context).pop();
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: DataSharingLevel.values.map((level) {
+            return RadioListTile<DataSharingLevel>(
+              title: Text(_getLevelTitle(level)),
+              subtitle: Text(_getLevelDescription(level)),
+              value: level,
+            );
+          }).toList(),
+        ),
       ),
       actions: [
         TextButton(

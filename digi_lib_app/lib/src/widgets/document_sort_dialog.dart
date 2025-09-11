@@ -30,7 +30,7 @@ class _DocumentSortDialogState extends State<DocumentSortDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return AlertDialog(
       title: const Text('Sort Documents'),
       content: Column(
@@ -44,24 +44,27 @@ class _DocumentSortDialogState extends State<DocumentSortDialog> {
             ),
           ),
           const SizedBox(height: 8),
-          
+
           // Sort options
-          ...DocumentSortBy.values.map((sortBy) {
-            return RadioListTile<DocumentSortBy>(
-              title: Text(_getSortDisplayName(sortBy)),
-              value: sortBy,
-              groupValue: _sortBy,
-              onChanged: (value) {
-                setState(() {
-                  _sortBy = value!;
-                });
-              },
-              contentPadding: EdgeInsets.zero,
-            );
-          }),
-          
+          RadioGroup<DocumentSortBy>(
+            onChanged: (value) {
+              setState(() {
+                _sortBy = value!;
+              });
+            },
+            child: Column(
+              children: DocumentSortBy.values.map((sortBy) {
+                return RadioListTile<DocumentSortBy>(
+                  title: Text(_getSortDisplayName(sortBy)),
+                  value: sortBy,
+                  contentPadding: EdgeInsets.zero,
+                );
+              }).toList(),
+            ),
+          ),
+
           const SizedBox(height: 16),
-          
+
           Text(
             'Order',
             style: theme.textTheme.titleSmall?.copyWith(
@@ -69,29 +72,28 @@ class _DocumentSortDialogState extends State<DocumentSortDialog> {
             ),
           ),
           const SizedBox(height: 8),
-          
+
           // Sort direction
-          RadioListTile<bool>(
-            title: const Text('Ascending (A-Z, 0-9)'),
-            value: true,
-            groupValue: _ascending,
+          RadioGroup<bool>(
             onChanged: (value) {
               setState(() {
                 _ascending = value!;
               });
             },
-            contentPadding: EdgeInsets.zero,
-          ),
-          RadioListTile<bool>(
-            title: const Text('Descending (Z-A, 9-0)'),
-            value: false,
-            groupValue: _ascending,
-            onChanged: (value) {
-              setState(() {
-                _ascending = value!;
-              });
-            },
-            contentPadding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                RadioListTile<bool>(
+                  title: const Text('Ascending (A-Z, 0-9)'),
+                  value: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                RadioListTile<bool>(
+                  title: const Text('Descending (Z-A, 9-0)'),
+                  value: false,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ],
+            ),
           ),
         ],
       ),

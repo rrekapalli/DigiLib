@@ -70,8 +70,17 @@ class _AddLibraryDialogState extends State<AddLibraryDialog> {
               ),
               const SizedBox(height: 12),
 
-              ...LibraryType.values.map(
-                (type) => _buildTypeOption(type, colorScheme),
+              RadioGroup<LibraryType>(
+                onChanged: (value) {
+                  if (!_isLoading && value != null) {
+                    setState(() => _selectedType = value);
+                  }
+                },
+                child: Column(
+                  children: LibraryType.values
+                      .map((type) => _buildTypeOption(type, colorScheme))
+                      .toList(),
+                ),
               ),
 
               // Error message
@@ -150,17 +159,7 @@ class _AddLibraryDialogState extends State<AddLibraryDialog> {
           ),
           child: Row(
             children: [
-              Radio<LibraryType>(
-                value: type,
-                groupValue: _selectedType,
-                onChanged: _isLoading
-                    ? null
-                    : (value) {
-                        if (value != null) {
-                          setState(() => _selectedType = value);
-                        }
-                      },
-              ),
+              Radio<LibraryType>(value: type),
               const SizedBox(width: 8),
               Icon(typeInfo.icon, color: typeInfo.color, size: 24),
               const SizedBox(width: 12),

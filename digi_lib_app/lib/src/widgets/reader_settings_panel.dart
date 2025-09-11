@@ -125,31 +125,26 @@ class ReaderSettingsPanel extends ConsumerWidget {
     WidgetRef ref,
     ReaderSettings settings,
   ) {
-    return Column(
-      children: [
-        RadioListTile<ReadingMode>(
-          title: const Text('Scroll Mode'),
-          subtitle: const Text('Continuous scrolling through pages'),
-          value: ReadingMode.scroll,
-          groupValue: settings.readingMode,
-          onChanged: (mode) {
-            if (mode != null) {
-              ref.read(readerSettingsProvider.notifier).updateReadingMode(mode);
-            }
-          },
-        ),
-        RadioListTile<ReadingMode>(
-          title: const Text('Page Mode'),
-          subtitle: const Text('Navigate page by page'),
-          value: ReadingMode.paginated,
-          groupValue: settings.readingMode,
-          onChanged: (mode) {
-            if (mode != null) {
-              ref.read(readerSettingsProvider.notifier).updateReadingMode(mode);
-            }
-          },
-        ),
-      ],
+    return RadioGroup<ReadingMode>(
+      onChanged: (mode) {
+        if (mode != null) {
+          ref.read(readerSettingsProvider.notifier).updateReadingMode(mode);
+        }
+      },
+      child: Column(
+        children: [
+          RadioListTile<ReadingMode>(
+            title: const Text('Scroll Mode'),
+            subtitle: const Text('Continuous scrolling through pages'),
+            value: ReadingMode.scroll,
+          ),
+          RadioListTile<ReadingMode>(
+            title: const Text('Page Mode'),
+            subtitle: const Text('Navigate page by page'),
+            value: ReadingMode.paginated,
+          ),
+        ],
+      ),
     );
   }
 

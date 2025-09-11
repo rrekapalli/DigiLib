@@ -15,46 +15,33 @@ class ThemeSelectionDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Select Theme'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          RadioListTile<ThemeMode>(
-            title: const Text('System'),
-            subtitle: const Text('Follow system theme'),
-            value: ThemeMode.system,
-            groupValue: currentTheme,
-            onChanged: (value) {
-              if (value != null) {
-                onThemeChanged(value);
-                Navigator.of(context).pop();
-              }
-            },
-          ),
-          RadioListTile<ThemeMode>(
-            title: const Text('Light'),
-            subtitle: const Text('Light theme'),
-            value: ThemeMode.light,
-            groupValue: currentTheme,
-            onChanged: (value) {
-              if (value != null) {
-                onThemeChanged(value);
-                Navigator.of(context).pop();
-              }
-            },
-          ),
-          RadioListTile<ThemeMode>(
-            title: const Text('Dark'),
-            subtitle: const Text('Dark theme'),
-            value: ThemeMode.dark,
-            groupValue: currentTheme,
-            onChanged: (value) {
-              if (value != null) {
-                onThemeChanged(value);
-                Navigator.of(context).pop();
-              }
-            },
-          ),
-        ],
+      content: RadioGroup<ThemeMode>(
+        onChanged: (value) {
+          if (value != null) {
+            onThemeChanged(value);
+            Navigator.of(context).pop();
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<ThemeMode>(
+              title: const Text('System'),
+              subtitle: const Text('Follow system theme'),
+              value: ThemeMode.system,
+            ),
+            RadioListTile<ThemeMode>(
+              title: const Text('Light'),
+              subtitle: const Text('Light theme'),
+              value: ThemeMode.light,
+            ),
+            RadioListTile<ThemeMode>(
+              title: const Text('Dark'),
+              subtitle: const Text('Dark theme'),
+              value: ThemeMode.dark,
+            ),
+          ],
+        ),
       ),
       actions: [
         TextButton(

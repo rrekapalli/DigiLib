@@ -325,19 +325,20 @@ class _TagManagementScreenState extends ConsumerState<TagManagementScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Sort Tags'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: TagSortOption.values.map((option) {
-            return RadioListTile<TagSortOption>(
-              title: Text(option.displayName),
-              value: option,
-              groupValue: _sortOption,
-              onChanged: (value) {
-                setState(() => _sortOption = value!);
-                Navigator.of(context).pop();
-              },
-            );
-          }).toList(),
+        content: RadioGroup<TagSortOption>(
+          onChanged: (value) {
+            setState(() => _sortOption = value!);
+            Navigator.of(context).pop();
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: TagSortOption.values.map((option) {
+              return RadioListTile<TagSortOption>(
+                title: Text(option.displayName),
+                value: option,
+              );
+            }).toList(),
+          ),
         ),
         actions: [
           TextButton(

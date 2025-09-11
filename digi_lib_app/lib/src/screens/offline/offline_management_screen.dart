@@ -609,40 +609,31 @@ class _OfflineManagementScreenState
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cache Quality'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<String>(
-              title: const Text('High (300 DPI)'),
-              subtitle: const Text('Best quality, larger files'),
-              value: 'high',
-              groupValue: 'medium', // TODO: Get from settings
-              onChanged: (value) {
-                // TODO: Update setting
-                Navigator.of(context).pop();
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('Medium (150 DPI)'),
-              subtitle: const Text('Good balance'),
-              value: 'medium',
-              groupValue: 'medium', // TODO: Get from settings
-              onChanged: (value) {
-                // TODO: Update setting
-                Navigator.of(context).pop();
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('Low (75 DPI)'),
-              subtitle: const Text('Smaller files, lower quality'),
-              value: 'low',
-              groupValue: 'medium', // TODO: Get from settings
-              onChanged: (value) {
-                // TODO: Update setting
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
+        content: RadioGroup<String>(
+          onChanged: (value) {
+            // TODO: Update setting
+            Navigator.of(context).pop();
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<String>(
+                title: const Text('High (300 DPI)'),
+                subtitle: const Text('Best quality, larger files'),
+                value: 'high',
+              ),
+              RadioListTile<String>(
+                title: const Text('Medium (150 DPI)'),
+                subtitle: const Text('Good balance'),
+                value: 'medium',
+              ),
+              RadioListTile<String>(
+                title: const Text('Low (75 DPI)'),
+                subtitle: const Text('Smaller files, lower quality'),
+                value: 'low',
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
