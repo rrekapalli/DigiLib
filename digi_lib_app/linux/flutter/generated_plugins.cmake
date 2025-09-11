@@ -3,13 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  desktop_drop
-  flutter_secure_storage_linux
-  hotkey_manager_linux
-  screen_retriever
-  system_tray
-  url_launcher_linux
-  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

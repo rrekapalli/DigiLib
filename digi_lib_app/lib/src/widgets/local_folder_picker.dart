@@ -150,15 +150,13 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
     try {
       String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
 
-      if (selectedDirectory != null) {
-        setState(() {
-          _selectedPath = selectedDirectory;
-          _pathError = null;
-        });
+      setState(() {
+        _selectedPath = selectedDirectory;
+        _pathError = null;
+      });
 
-        _validatePath(selectedDirectory);
-        widget.onPathSelected(selectedDirectory);
-      }
+      _validatePath(selectedDirectory);
+      widget.onPathSelected(selectedDirectory);
     } catch (e) {
       setState(() {
         _pathError = 'Failed to select folder: $e';
