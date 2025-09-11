@@ -139,19 +139,19 @@ class BackgroundService {
   /// Enable full background operations
   static void _enableFullBackgroundOperations() {
     // Implementation would enable all background tasks
-    print('Full background operations enabled');
+    debugPrint('Full background operations enabled');
   }
 
   /// Optimize background operations for battery/performance
   static void _optimizeBackgroundOperations() {
     // Implementation would reduce frequency of background tasks
-    print('Background operations optimized');
+    debugPrint('Background operations optimized');
   }
 
   /// Reduce battery usage by limiting background operations
   static void _reduceBatteryUsage() {
     // Implementation would minimize background operations
-    print('Battery usage reduced');
+    debugPrint('Battery usage reduced');
   }
 
   /// Schedule background sync task
@@ -166,11 +166,11 @@ class BackgroundService {
       // This would integrate with platform-specific background task scheduling
       // Android: WorkManager
       // iOS: Background App Refresh
-      print(
+      debugPrint(
         'Background sync scheduled with interval: ${interval.inMinutes} minutes',
       );
     } catch (e) {
-      print('Error scheduling background sync: $e');
+      debugPrint('Error scheduling background sync: $e');
     }
   }
 
@@ -180,9 +180,9 @@ class BackgroundService {
 
     try {
       await WakelockPlus.enable();
-      print('Wakelock enabled');
+      debugPrint('Wakelock enabled');
     } catch (e) {
-      print('Error enabling wakelock: $e');
+      debugPrint('Error enabling wakelock: $e');
     }
   }
 
@@ -192,9 +192,9 @@ class BackgroundService {
 
     try {
       await WakelockPlus.disable();
-      print('Wakelock disabled');
+      debugPrint('Wakelock disabled');
     } catch (e) {
-      print('Error disabling wakelock: $e');
+      debugPrint('Error disabling wakelock: $e');
     }
   }
 
@@ -205,7 +205,7 @@ class BackgroundService {
     try {
       return await WakelockPlus.enabled;
     } catch (e) {
-      print('Error checking wakelock status: $e');
+      debugPrint('Error checking wakelock status: $e');
       return false;
     }
   }
@@ -217,7 +217,7 @@ class BackgroundService {
     try {
       return await _connectivity.checkConnectivity();
     } catch (e) {
-      print('Error checking connectivity: $e');
+      debugPrint('Error checking connectivity: $e');
       return ConnectivityResult.none;
     }
   }
@@ -229,7 +229,7 @@ class BackgroundService {
     try {
       return await _battery.batteryLevel;
     } catch (e) {
-      print('Error getting battery level: $e');
+      debugPrint('Error getting battery level: $e');
       return 100;
     }
   }
@@ -241,7 +241,7 @@ class BackgroundService {
     try {
       return await _battery.batteryState;
     } catch (e) {
-      print('Error getting battery state: $e');
+      debugPrint('Error getting battery state: $e');
       return BatteryState.unknown;
     }
   }
@@ -296,9 +296,9 @@ class BackgroundService {
     try {
       await disableWakelock();
       _isInitialized = false;
-      print('Background service disposed');
+      debugPrint('Background service disposed');
     } catch (e) {
-      print('Error disposing background service: $e');
+      debugPrint('Error disposing background service: $e');
     }
   }
 

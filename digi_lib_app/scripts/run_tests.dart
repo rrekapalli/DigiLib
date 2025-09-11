@@ -1,15 +1,16 @@
 #!/usr/bin/env dart
+// ignore_for_file: avoid_print
 
 import 'dart:io';
 import 'dart:convert';
 
 /// Test runner script for the Digital Library App
-/// 
+///
 /// This script provides a comprehensive test execution framework with
 /// support for different test categories, environments, and reporting.
 class TestRunner {
   static const String version = '1.0.0';
-  
+
   // Test categories
   static const Map<String, List<String>> testCategories = {
     'unit': [
@@ -22,25 +23,17 @@ class TestRunner {
       'test/secure_storage_test.dart',
       'test/services/',
     ],
-    'widget': [
-      'test/widgets/',
-    ],
-    'integration': [
-      'test/integration/',
-    ],
-    'e2e': [
-      'test/e2e/',
-    ],
-    'network': [
-      'test/network/',
-    ],
+    'widget': ['test/widgets/'],
+    'integration': ['test/integration/'],
+    'e2e': ['test/e2e/'],
+    'network': ['test/network/'],
   };
 
   static Future<void> main(List<String> args) async {
     print('🧪 Digital Library App Test Runner v$version\n');
 
     final config = _parseArguments(args);
-    
+
     if (config['help'] == true) {
       _printHelp();
       return;
@@ -204,7 +197,7 @@ Examples:
     print('🚀 Running all test categories...\n');
 
     final results = <String, bool>{};
-    
+
     for (final category in testCategories.keys) {
       print('📂 Running $category tests...');
       try {
@@ -230,14 +223,17 @@ Examples:
     }
   }
 
-  static Future<void> _runCategoryTests(String category, Map<String, dynamic> config) async {
+  static Future<void> _runCategoryTests(
+    String category,
+    Map<String, dynamic> config,
+  ) async {
     final testPaths = testCategories[category];
     if (testPaths == null) {
       throw ArgumentError('Unknown test category: $category');
     }
 
     final commands = <String>[];
-    
+
     for (final path in testPaths) {
       if (path.endsWith('/')) {
         // Directory - find all test files
@@ -256,11 +252,11 @@ Examples:
 
     // Build flutter test command
     final flutterArgs = ['test'];
-    
+
     if (config['coverage'] == true) {
       flutterArgs.addAll(['--coverage']);
     }
-    
+
     if (config['verbose'] == true) {
       flutterArgs.add('--verbose');
     }
@@ -273,7 +269,7 @@ Examples:
 
     // Run tests
     final result = await Process.run('flutter', flutterArgs);
-    
+
     if (result.exitCode != 0) {
       print('STDOUT: ${result.stdout}');
       print('STDERR: ${result.stderr}');
@@ -288,7 +284,7 @@ Examples:
   static Future<List<String>> _findTestFiles(String directory) async {
     final testFiles = <String>[];
     final dir = Directory(directory);
-    
+
     if (!await dir.exists()) {
       return testFiles;
     }
@@ -330,12 +326,9 @@ Examples:
 
   static Future<void> _generateCoverageReport() async {
     print('   📊 Generating coverage report...');
-    
+
     // Convert coverage to LCOV format
-    final result = await Process.run('flutter', [
-      'test',
-      '--coverage',
-    ]);
+    final result = await Process.run('flutter', ['test', '--coverage']);
 
     if (result.exitCode == 0) {
       // Generate HTML coverage report
@@ -344,7 +337,7 @@ Examples:
         '-o',
         'coverage/html',
       ]);
-      
+
       print('   ✓ Coverage report available at coverage/html/index.html');
     }
   }

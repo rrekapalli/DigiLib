@@ -21,7 +21,8 @@ class ShareDialog extends ConsumerStatefulWidget {
   ConsumerState<ShareDialog> createState() => _ShareDialogState();
 }
 
-class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderStateMixin {
+class _ShareDialogState extends ConsumerState<ShareDialog>
+    with TickerProviderStateMixin {
   late TabController _tabController;
   final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -58,9 +59,9 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
             Row(
               children: [
                 Icon(
-                  widget.subjectType == ShareSubjectType.document 
-                    ? Icons.description 
-                    : Icons.folder,
+                  widget.subjectType == ShareSubjectType.document
+                      ? Icons.description
+                      : Icons.folder,
                   color: theme.colorScheme.primary,
                 ),
                 const SizedBox(width: 12),
@@ -137,7 +138,9 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
               if (value == null || value.isEmpty) {
                 return 'Please enter an email address';
               }
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+              if (!RegExp(
+                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+              ).hasMatch(value)) {
                 return 'Please enter a valid email address';
               }
               return null;
@@ -151,22 +154,23 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          Column(
-            children: SharePermission.values.map((permission) {
-              return RadioListTile<SharePermission>(
-                title: Text(_getPermissionTitle(permission)),
-                subtitle: Text(_getPermissionDescription(permission)),
-                value: permission,
-                groupValue: _selectedPermission,
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedPermission = value;
-                    });
-                  }
-                },
-              );
-            }).toList(),
+          RadioGroup<SharePermission>(
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  _selectedPermission = value;
+                });
+              }
+            },
+            child: Column(
+              children: SharePermission.values.map((permission) {
+                return RadioListTile<SharePermission>(
+                  title: Text(_getPermissionTitle(permission)),
+                  subtitle: Text(_getPermissionDescription(permission)),
+                  value: permission,
+                );
+              }).toList(),
+            ),
           ),
           const Spacer(),
 
@@ -182,12 +186,12 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
               ElevatedButton(
                 onPressed: _isCreatingShare ? null : _createShare,
                 child: _isCreatingShare
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Share'),
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Share'),
               ),
             ],
           ),
@@ -251,7 +255,8 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
             Text('Error loading shares: $error'),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => ref.refresh(sharesBySubjectProvider(widget.subjectId)),
+              onPressed: () =>
+                  ref.refresh(sharesBySubjectProvider(widget.subjectId)),
               child: const Text('Retry'),
             ),
           ],
@@ -262,7 +267,7 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
 
   Widget _buildShareLinkSection() {
     final shareLink = 'https://app.example.com/shared/${widget.subjectId}';
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -291,9 +296,9 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
                   Expanded(
                     child: Text(
                       shareLink,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontFamily: 'monospace',
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(fontFamily: 'monospace'),
                     ),
                   ),
                   IconButton(
@@ -320,9 +325,7 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
   Widget _buildShareListTile(Share share) {
     return ListTile(
       leading: CircleAvatar(
-        child: Text(
-          share.granteeEmail?.substring(0, 1).toUpperCase() ?? '?',
-        ),
+        child: Text(share.granteeEmail?.substring(0, 1).toUpperCase() ?? '?'),
       ),
       title: Text(share.granteeEmail ?? 'Unknown user'),
       subtitle: Text(_getPermissionTitle(share.permission)),
@@ -386,7 +389,9 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
       );
 
       // TODO: Get current user ID from auth provider
-      final shareNotifier = ref.read(shareNotifierProvider('current-user-id').notifier);
+      final shareNotifier = ref.read(
+        shareNotifierProvider('current-user-id').notifier,
+      );
       await shareNotifier.createShare(request);
 
       if (mounted) {
@@ -396,7 +401,7 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Clear form and switch to manage tab
         _emailController.clear();
         _selectedPermission = SharePermission.view;
@@ -445,7 +450,7 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
 
   void _showChangePermissionDialog(Share share) {
     SharePermission selectedPermission = share.permission;
-    
+
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -456,21 +461,24 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
             children: [
               Text('Change permission for ${share.granteeEmail}'),
               const SizedBox(height: 16),
-              ...SharePermission.values.map((permission) {
-                return RadioListTile<SharePermission>(
-                  title: Text(_getPermissionTitle(permission)),
-                  subtitle: Text(_getPermissionDescription(permission)),
-                  value: permission,
-                  groupValue: selectedPermission,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedPermission = value;
-                      });
-                    }
-                  },
-                );
-              }),
+              RadioGroup<SharePermission>(
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      selectedPermission = value;
+                    });
+                  }
+                },
+                child: Column(
+                  children: SharePermission.values.map((permission) {
+                    return RadioListTile<SharePermission>(
+                      title: Text(_getPermissionTitle(permission)),
+                      subtitle: Text(_getPermissionDescription(permission)),
+                      value: permission,
+                    );
+                  }).toList(),
+                ),
+              ),
             ],
           ),
           actions: [
@@ -521,10 +529,15 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
     );
   }
 
-  Future<void> _updateSharePermission(String shareId, SharePermission permission) async {
+  Future<void> _updateSharePermission(
+    String shareId,
+    SharePermission permission,
+  ) async {
     try {
       // TODO: Get current user ID from auth provider
-      final shareNotifier = ref.read(shareNotifierProvider('current-user-id').notifier);
+      final shareNotifier = ref.read(
+        shareNotifierProvider('current-user-id').notifier,
+      );
       await shareNotifier.updateSharePermission(shareId, permission);
 
       if (mounted) {
@@ -550,7 +563,9 @@ class _ShareDialogState extends ConsumerState<ShareDialog> with TickerProviderSt
   Future<void> _removeShare(String shareId) async {
     try {
       // TODO: Get current user ID from auth provider
-      final shareNotifier = ref.read(shareNotifierProvider('current-user-id').notifier);
+      final shareNotifier = ref.read(
+        shareNotifierProvider('current-user-id').notifier,
+      );
       await shareNotifier.deleteShare(shareId);
 
       if (mounted) {

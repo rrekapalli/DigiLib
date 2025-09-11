@@ -5,7 +5,8 @@ import '../models/api/sync_models.dart';
 /// Dialog for resolving sync conflicts
 class SyncConflictDialog extends StatefulWidget {
   final List<SyncConflict> conflicts;
-  final Function(String conflictId, ConflictResolution resolution) onResolveConflict;
+  final Function(String conflictId, ConflictResolution resolution)
+  onResolveConflict;
 
   const SyncConflictDialog({
     super.key,
@@ -34,14 +35,11 @@ class _SyncConflictDialogState extends State<SyncConflictDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final currentConflict = widget.conflicts[_currentConflictIndex];
-    
+
     return AlertDialog(
       title: Row(
         children: [
-          Icon(
-            Icons.merge_type,
-            color: theme.colorScheme.error,
-          ),
+          Icon(Icons.merge_type, color: theme.colorScheme.error),
           const SizedBox(width: 8.0),
           const Text('Sync Conflicts'),
         ],
@@ -66,12 +64,12 @@ class _SyncConflictDialogState extends State<SyncConflictDialog> {
               ),
               const SizedBox(height: 16.0),
             ],
-            
+
             // Conflict details
             _buildConflictDetails(currentConflict, theme),
-            
+
             const SizedBox(height: 16.0),
-            
+
             // Resolution options
             _buildResolutionOptions(currentConflict, theme),
           ],
@@ -113,10 +111,10 @@ class _SyncConflictDialogState extends State<SyncConflictDialog> {
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer.withOpacity(0.1),
+        color: theme.colorScheme.errorContainer.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8.0),
         border: Border.all(
-          color: theme.colorScheme.error.withOpacity(0.3),
+          color: theme.colorScheme.error.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -167,41 +165,57 @@ class _SyncConflictDialogState extends State<SyncConflictDialog> {
           ),
         ),
         const SizedBox(height: 12.0),
-        
-        // Use Server Version
-        _buildResolutionOption(
-          conflict: conflict,
-          resolution: ConflictResolution.useServer,
-          title: 'Use Server Version',
-          description: 'Keep the version from the server and discard your local changes.',
-          icon: Icons.cloud_download,
-          theme: theme,
-        ),
-        
-        const SizedBox(height: 8.0),
-        
-        // Use Local Version
-        _buildResolutionOption(
-          conflict: conflict,
-          resolution: ConflictResolution.useLocal,
-          title: 'Use Local Version',
-          description: 'Keep your local changes and overwrite the server version.',
-          icon: Icons.phone_android,
-          theme: theme,
-        ),
-        
-        const SizedBox(height: 8.0),
-        
-        // Merge (if supported)
-        if (_supportsMerge(conflict.entityType))
-          _buildResolutionOption(
-            conflict: conflict,
-            resolution: ConflictResolution.merge,
-            title: 'Merge Changes',
-            description: 'Attempt to combine both versions (may not always be possible).',
-            icon: Icons.merge,
-            theme: theme,
+
+        RadioGroup<ConflictResolution>(
+          onChanged: (value) {
+            if (value != null) {
+              setState(() {
+                _resolutions[conflict.entityId] = value;
+              });
+            }
+          },
+          child: Column(
+            children: [
+              // Use Server Version
+              _buildResolutionOption(
+                conflict: conflict,
+                resolution: ConflictResolution.useServer,
+                title: 'Use Server Version',
+                description:
+                    'Keep the version from the server and discard your local changes.',
+                icon: Icons.cloud_download,
+                theme: theme,
+              ),
+
+              const SizedBox(height: 8.0),
+
+              // Use Local Version
+              _buildResolutionOption(
+                conflict: conflict,
+                resolution: ConflictResolution.useLocal,
+                title: 'Use Local Version',
+                description:
+                    'Keep your local changes and overwrite the server version.',
+                icon: Icons.phone_android,
+                theme: theme,
+              ),
+
+              const SizedBox(height: 8.0),
+
+              // Merge (if supported)
+              if (_supportsMerge(conflict.entityType))
+                _buildResolutionOption(
+                  conflict: conflict,
+                  resolution: ConflictResolution.merge,
+                  title: 'Merge Changes',
+                  description:
+                      'Attempt to combine both versions (may not always be possible).',
+                  icon: Icons.merge,
+                  theme: theme,
+                ),
+            ],
           ),
+        ),
       ],
     );
   }
@@ -215,7 +229,7 @@ class _SyncConflictDialogState extends State<SyncConflictDialog> {
     required ThemeData theme,
   }) {
     final isSelected = _resolutions[conflict.entityId] == resolution;
-    
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -225,35 +239,27 @@ class _SyncConflictDialogState extends State<SyncConflictDialog> {
       child: Container(
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? theme.colorScheme.primaryContainer.withOpacity(0.3)
-              : theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          color: isSelected
+              ? theme.colorScheme.primaryContainer.withValues(alpha: 0.3)
+              : theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.3,
+                ),
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(
-            color: isSelected 
+            color: isSelected
                 ? theme.colorScheme.primary
-                : theme.colorScheme.outline.withOpacity(0.3),
+                : theme.colorScheme.outline.withValues(alpha: 0.3),
             width: isSelected ? 2.0 : 1.0,
           ),
         ),
         child: Row(
           children: [
-            Radio<ConflictResolution>(
-              value: resolution,
-              groupValue: _resolutions[conflict.entityId],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _resolutions[conflict.entityId] = value;
-                  });
-                }
-              },
-            ),
+            Radio<ConflictResolution>(value: resolution),
             const SizedBox(width: 8.0),
             Icon(
               icon,
               size: 20.0,
-              color: isSelected 
+              color: isSelected
                   ? theme.colorScheme.primary
                   : theme.colorScheme.onSurfaceVariant,
             ),
@@ -266,7 +272,7 @@ class _SyncConflictDialogState extends State<SyncConflictDialog> {
                     title,
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: isSelected 
+                      color: isSelected
                           ? theme.colorScheme.primary
                           : theme.colorScheme.onSurface,
                     ),
@@ -334,7 +340,8 @@ class _SyncConflictDialogState extends State<SyncConflictDialog> {
 
   void _resolveAllConflicts() {
     for (final conflict in widget.conflicts) {
-      final resolution = _resolutions[conflict.entityId] ?? ConflictResolution.useServer;
+      final resolution =
+          _resolutions[conflict.entityId] ?? ConflictResolution.useServer;
       widget.onResolveConflict(conflict.entityId, resolution);
     }
     Navigator.of(context).pop();
@@ -355,14 +362,14 @@ class SyncConflictSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     if (conflicts.isEmpty) {
       return const SizedBox.shrink();
     }
 
     return Card(
       margin: const EdgeInsets.all(8.0),
-      color: theme.colorScheme.errorContainer.withOpacity(0.1),
+      color: theme.colorScheme.errorContainer.withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -370,11 +377,7 @@ class SyncConflictSummary extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.warning,
-                  color: theme.colorScheme.error,
-                  size: 24.0,
-                ),
+                Icon(Icons.warning, color: theme.colorScheme.error, size: 24.0),
                 const SizedBox(width: 12.0),
                 Expanded(
                   child: Text(
@@ -424,7 +427,7 @@ class SyncConflictSummary extends StatelessWidget {
   Widget _buildConflictTypesSummary(ThemeData theme) {
     final conflictsByType = <String, int>{};
     for (final conflict in conflicts) {
-      conflictsByType[conflict.entityType] = 
+      conflictsByType[conflict.entityType] =
           (conflictsByType[conflict.entityType] ?? 0) + 1;
     }
 
@@ -433,12 +436,11 @@ class SyncConflictSummary extends StatelessWidget {
       runSpacing: 4.0,
       children: conflictsByType.entries.map((entry) {
         return Chip(
-          avatar: Icon(
-            _getEntityIcon(entry.key),
-            size: 16.0,
-          ),
+          avatar: Icon(_getEntityIcon(entry.key), size: 16.0),
           label: Text('${_getEntityDisplayName(entry.key)}: ${entry.value}'),
-          backgroundColor: theme.colorScheme.errorContainer.withOpacity(0.3),
+          backgroundColor: theme.colorScheme.errorContainer.withValues(
+            alpha: 0.3,
+          ),
         );
       }).toList(),
     );

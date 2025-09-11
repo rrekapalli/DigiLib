@@ -379,20 +379,23 @@ class _SharedDocumentOverlayState extends ConsumerState<SharedDocumentOverlay>
             children: [
               Text('Change permission for ${share.granteeEmail}'),
               const SizedBox(height: 16),
-              ...SharePermission.values.map((permission) {
-                return RadioListTile<SharePermission>(
-                  title: Text(_getPermissionLabel(permission)),
-                  value: permission,
-                  groupValue: selectedPermission,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedPermission = value;
-                      });
-                    }
-                  },
-                );
-              }),
+              RadioGroup<SharePermission>(
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      selectedPermission = value;
+                    });
+                  }
+                },
+                child: Column(
+                  children: SharePermission.values.map((permission) {
+                    return RadioListTile<SharePermission>(
+                      title: Text(_getPermissionLabel(permission)),
+                      value: permission,
+                    );
+                  }).toList(),
+                ),
+              ),
             ],
           ),
           actions: [

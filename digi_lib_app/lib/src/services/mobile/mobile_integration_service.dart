@@ -179,8 +179,9 @@ class MobileIntegrationService {
     required String documentTitle,
     required int progress,
   }) async {
-    if (!_isInitialized || !_notificationConfig.enableDownloadNotifications)
+    if (!_isInitialized || !_notificationConfig.enableDownloadNotifications) {
       return;
+    }
 
     await MobileNotificationService.showDownloadProgressNotification(
       documentTitle: documentTitle,
@@ -193,8 +194,9 @@ class MobileIntegrationService {
     required String title,
     required String message,
   }) async {
-    if (!_isInitialized || !_notificationConfig.enableErrorNotifications)
+    if (!_isInitialized || !_notificationConfig.enableErrorNotifications) {
       return;
+    }
 
     await MobileNotificationService.showErrorNotification(
       title: title,
