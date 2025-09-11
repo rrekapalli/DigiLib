@@ -83,12 +83,11 @@ class AuthState {
       error = null;
 
   /// Error state with error message
-  const AuthState.error(String error)
+  const AuthState.error(this.error)
     : status = AuthStatus.error,
       user = null,
       accessToken = null,
       tokenExpiresAt = null,
-      error = error,
       hasRefreshToken = false;
 
   /// Check if the current access token is expired or about to expire

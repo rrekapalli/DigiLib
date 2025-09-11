@@ -107,13 +107,13 @@ class BackgroundService {
   /// Handle battery level changes
   static void _handleBatteryLevelChange(int level) {
     if (level <= 20) {
-      print('Low battery ($level%) - reducing background operations');
+      debugPrint('Low battery ($level%) - reducing background operations');
       _reduceBatteryUsage();
     } else if (level <= 50) {
-      print('Medium battery ($level%) - optimizing background operations');
+      debugPrint('Medium battery ($level%) - optimizing background operations');
       _optimizeBackgroundOperations();
     } else {
-      print('Good battery ($level%) - normal background operations');
+      debugPrint('Good battery ($level%) - normal background operations');
       _enableFullBackgroundOperations();
     }
   }
@@ -133,7 +133,7 @@ class BackgroundService {
   /// Disable background sync
   static void _disableBackgroundSync() {
     // Implementation would disable sync operations
-    print('Background sync disabled');
+    debugPrint('Background sync disabled');
   }
 
   /// Enable full background operations

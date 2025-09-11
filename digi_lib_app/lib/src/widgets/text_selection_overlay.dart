@@ -20,13 +20,14 @@ class TextSelectionOverlay extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<TextSelectionOverlay> createState() => _TextSelectionOverlayState();
+  ConsumerState<TextSelectionOverlay> createState() =>
+      _TextSelectionOverlayState();
 }
 
 class _TextSelectionOverlayState extends ConsumerState<TextSelectionOverlay> {
   final TextEditingController _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  
+
   String? _selectedText;
   Rect? _selectionRect;
   bool _isSelecting = false;
@@ -53,18 +54,18 @@ class _TextSelectionOverlayState extends ConsumerState<TextSelectionOverlay> {
 
   void _onSelectionChanged() {
     final selection = _textController.selection;
-    
+
     if (selection.isValid && !selection.isCollapsed) {
       final selectedText = _textController.text.substring(
         selection.start,
         selection.end,
       );
-      
+
       setState(() {
         _selectedText = selectedText;
         _isSelecting = true;
       });
-      
+
       // Calculate selection rectangle (simplified)
       final renderBox = context.findRenderObject() as RenderBox?;
       if (renderBox != null) {
@@ -74,14 +75,14 @@ class _TextSelectionOverlayState extends ConsumerState<TextSelectionOverlay> {
           200, // Approximate width
           20, // Line height
         );
-        
+
         setState(() {
           _selectionRect = rect;
         });
-        
+
         widget.onTextSelected?.call(selectedText, rect);
       }
-      
+
       widget.onSelectionChanged?.call();
     } else {
       _clearSelection();
@@ -143,7 +144,7 @@ class _TextSelectionOverlayState extends ConsumerState<TextSelectionOverlay> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                _selectedText!.length > 100 
+                _selectedText!.length > 100
                     ? '${_selectedText!.substring(0, 100)}...'
                     : _selectedText!,
                 style: Theme.of(context).textTheme.bodySmall,
@@ -182,7 +183,7 @@ class _TextSelectionOverlayState extends ConsumerState<TextSelectionOverlay> {
 
   void _showCommentDialog() {
     final commentController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -203,7 +204,7 @@ class _TextSelectionOverlayState extends ConsumerState<TextSelectionOverlay> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                _selectedText!.length > 100 
+                _selectedText!.length > 100
                     ? '${_selectedText!.substring(0, 100)}...'
                     : _selectedText!,
                 style: Theme.of(context).textTheme.bodySmall,
@@ -290,7 +291,7 @@ class _TextSelectionOverlayState extends ConsumerState<TextSelectionOverlay> {
             ),
           ),
         ),
-        
+
         // Selection toolbar
         if (_isSelecting && _selectionRect != null)
           Positioned(
@@ -310,7 +311,7 @@ class _TextSelectionOverlayState extends ConsumerState<TextSelectionOverlay> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

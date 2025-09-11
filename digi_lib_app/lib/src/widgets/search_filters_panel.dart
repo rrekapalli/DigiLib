@@ -50,7 +50,7 @@ class _SearchFiltersPanelState extends ConsumerState<SearchFiltersPanel> {
       _selectedTags = List.from(filters.tags ?? []);
       _selectedFileTypes = List.from(filters.fileTypes ?? []);
       _selectedAuthors = List.from(filters.authors ?? []);
-      
+
       if (filters.dateFrom != null && filters.dateTo != null) {
         _dateRange = DateTimeRange(
           start: filters.dateFrom!,
@@ -62,7 +62,7 @@ class _SearchFiltersPanelState extends ConsumerState<SearchFiltersPanel> {
 
   void _updateFilters() {
     SearchFilters? filters;
-    
+
     if (_selectedLibraryId != null ||
         _selectedTags.isNotEmpty ||
         _selectedFileTypes.isNotEmpty ||
@@ -77,7 +77,7 @@ class _SearchFiltersPanelState extends ConsumerState<SearchFiltersPanel> {
         dateTo: _dateRange?.end,
       );
     }
-    
+
     widget.onFiltersChanged(filters);
   }
 
@@ -101,9 +101,7 @@ class _SearchFiltersPanelState extends ConsumerState<SearchFiltersPanel> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         border: Border(
-          bottom: BorderSide(
-            color: colorScheme.outline.withOpacity(0.2),
-          ),
+          bottom: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
         ),
       ),
       child: Column(
@@ -166,10 +164,7 @@ class _SearchFiltersPanelState extends ConsumerState<SearchFiltersPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Library',
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
+        Text('Library', style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         librariesAsync.when(
           data: (libraries) => _buildLibraryDropdown(libraries),
@@ -192,10 +187,12 @@ class _SearchFiltersPanelState extends ConsumerState<SearchFiltersPanel> {
           value: null,
           child: Text('All libraries'),
         ),
-        ...libraries.map((library) => DropdownMenuItem<String>(
-          value: library.id,
-          child: Text(library.name),
-        )),
+        ...libraries.map(
+          (library) => DropdownMenuItem<String>(
+            value: library.id,
+            child: Text(library.name),
+          ),
+        ),
       ],
       onChanged: (value) {
         setState(() {
@@ -212,10 +209,7 @@ class _SearchFiltersPanelState extends ConsumerState<SearchFiltersPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Tags',
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
+        Text('Tags', style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         tagsAsync.when(
           data: (tags) => _buildTagsSelection(tags),
@@ -258,10 +252,7 @@ class _SearchFiltersPanelState extends ConsumerState<SearchFiltersPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'File Type',
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
+        Text('File Type', style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -292,10 +283,7 @@ class _SearchFiltersPanelState extends ConsumerState<SearchFiltersPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Date Range',
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
+        Text('Date Range', style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         Row(
           children: [

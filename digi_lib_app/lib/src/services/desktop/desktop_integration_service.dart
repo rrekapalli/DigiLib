@@ -8,7 +8,6 @@ import 'menu_bar_service.dart';
 import 'system_tray_service.dart';
 import 'auto_updater_service.dart';
 import 'file_system_service.dart';
-import '../../utils/constants.dart';
 
 /// Main service for coordinating all desktop-specific integrations
 class DesktopIntegrationService {
@@ -124,15 +123,15 @@ class DesktopIntegrationService {
             _showUpdateNotification(version, releaseNotes);
           },
           onUpdateError: (error) {
-            print('Update error: $error');
+            debugPrint('Update error: $error');
           },
         );
       }
 
       _isInitialized = true;
-      print('Desktop integration services initialized successfully');
+      debugPrint('Desktop integration services initialized successfully');
     } catch (e) {
-      print('Error initializing desktop services: $e');
+      debugPrint('Error initializing desktop services: $e');
     }
   }
 
@@ -216,7 +215,7 @@ class DesktopIntegrationService {
 
     if (supportedFiles.isNotEmpty) {
       // Handle dropped files (e.g., add to library, open for reading)
-      print('Dropped ${supportedFiles.length} supported files');
+      debugPrint('Dropped ${supportedFiles.length} supported files');
       // Implementation would depend on your app's file handling logic
     }
   }
@@ -251,9 +250,9 @@ class DesktopIntegrationService {
       _callbacks.clear();
       _isInitialized = false;
 
-      print('Desktop integration services disposed');
+      debugPrint('Desktop integration services disposed');
     } catch (e) {
-      print('Error disposing desktop services: $e');
+      debugPrint('Error disposing desktop services: $e');
     }
   }
 

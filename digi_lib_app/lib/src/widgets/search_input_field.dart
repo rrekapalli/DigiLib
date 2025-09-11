@@ -31,9 +31,7 @@ class SearchInputField extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
-        border: Border.all(
-          color: colorScheme.outline.withOpacity(0.3),
-        ),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: TextField(
         controller: controller,
@@ -43,13 +41,8 @@ class SearchInputField extends StatelessWidget {
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: hintText ?? 'Search documents, authors, content...',
-          hintStyle: TextStyle(
-            color: colorScheme.onSurfaceVariant,
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+          prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
           suffixIcon: _buildSuffixIcon(context),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
@@ -73,9 +66,7 @@ class SearchInputField extends StatelessWidget {
           height: 20,
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              colorScheme.primary,
-            ),
+            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
           ),
         ),
       );
@@ -83,10 +74,7 @@ class SearchInputField extends StatelessWidget {
 
     if (controller.text.isNotEmpty) {
       return IconButton(
-        icon: Icon(
-          Icons.clear,
-          color: colorScheme.onSurfaceVariant,
-        ),
+        icon: Icon(Icons.clear, color: colorScheme.onSurfaceVariant),
         onPressed: onClear,
         tooltip: 'Clear search',
       );

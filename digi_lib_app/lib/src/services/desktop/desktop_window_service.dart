@@ -32,9 +32,9 @@ class DesktopWindowService {
 
       // Save to shared preferences or local storage
       // Implementation would depend on your storage service
-      print('Saving window state: ${bounds.toString()}');
+      debugPrint('Saving window state: ${bounds.toString()}');
     } catch (e) {
-      print('Error saving window state: $e');
+      debugPrint('Error saving window state: $e');
     }
   }
 
@@ -58,7 +58,7 @@ class DesktopWindowService {
       // TODO: Load saved state from preferences
       // For now, use default positioning
     } catch (e) {
-      print('Error restoring window state: $e');
+      debugPrint('Error restoring window state: $e');
     }
   }
 

@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
+import 'package:flutter/foundation.dart';
 
 import 'page_rendering_service.dart';
 import 'native_library_loader.dart';
@@ -63,7 +63,7 @@ class FFINativeRenderingWorker implements NativeRenderingWorker {
     } catch (e) {
       _isInitialized = false;
       // Don't throw here - just mark as unavailable
-      print('Warning: Failed to initialize native library: $e');
+      debugPrint('Warning: Failed to initialize native library: $e');
     }
   }
 
@@ -102,20 +102,20 @@ class FFINativeRenderingWorker implements NativeRenderingWorker {
       final result = resultPtr.ref;
 
       // Check for errors
-      if (result.error_code != 0) {
-        final errorMsg = result.error_message != nullptr
-            ? result.error_message.toDartString()
+      if (result.errorCode != 0) {
+        final errorMsg = result.errorMessage != nullptr
+            ? result.errorMessage.toDartString()
             : 'Unknown error';
         throw NativeRenderingException('Rendering failed', errorMsg);
       }
 
       // Copy image data
-      if (result.image_data == nullptr || result.image_size == 0) {
+      if (result.imageData == nullptr || result.imageSize == 0) {
         throw const NativeRenderingException('No image data returned');
       }
 
       final imageBytes = Uint8List.fromList(
-        result.image_data.asTypedList(result.image_size),
+        result.imageData.asTypedList(result.imageSize),
       );
 
       return imageBytes;
@@ -123,11 +123,11 @@ class FFINativeRenderingWorker implements NativeRenderingWorker {
       // Clean up memory
       malloc.free(filePathPtr);
       if (resultPtr != nullptr) {
-        if (resultPtr.ref.image_data != nullptr) {
-          _freeBuffer(resultPtr.ref.image_data);
+        if (resultPtr.ref.imageData != nullptr) {
+          _freeBuffer(resultPtr.ref.imageData);
         }
-        if (resultPtr.ref.error_message != nullptr) {
-          _freeString(resultPtr.ref.error_message);
+        if (resultPtr.ref.errorMessage != nullptr) {
+          _freeString(resultPtr.ref.errorMessage);
         }
         malloc.free(resultPtr);
       }
@@ -236,11 +236,11 @@ typedef _FreeBufferNative = void Function(Pointer<Uint8> ptr);
 // Native struct for render result
 final class RenderResult extends Struct {
   @Int32()
-  external int error_code;
+  external int errorCode;
 
-  external Pointer<Utf8> error_message;
-  external Pointer<Uint8> image_data;
+  external Pointer<Utf8> errorMessage;
+  external Pointer<Uint8> imageData;
 
   @Int32()
-  external int image_size;
+  external int imageSize;
 }
