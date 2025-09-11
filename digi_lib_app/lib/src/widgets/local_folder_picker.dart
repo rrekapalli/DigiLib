@@ -155,8 +155,10 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
         _pathError = null;
       });
 
-      _validatePath(selectedDirectory);
-      widget.onPathSelected(selectedDirectory);
+      if (selectedDirectory != null) {
+        _validatePath(selectedDirectory);
+        widget.onPathSelected(selectedDirectory);
+      }
     } catch (e) {
       setState(() {
         _pathError = 'Failed to select folder: $e';

@@ -3,6 +3,16 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  auto_updater
+  battery_plus
+  connectivity_plus
+  desktop_drop
+  flutter_secure_storage_windows
+  hotkey_manager_windows
+  screen_retriever
+  system_tray
+  url_launcher_windows
+  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
