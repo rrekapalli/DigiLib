@@ -1,63 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'src/models/entities/book.dart';
+import 'src/services/book_to_document_service.dart';
+import 'src/screens/reader/web_document_reader_screen.dart';
 
 // Application providers
 final booksProvider = StateProvider<List<Book>>((ref) => []);
 final searchQueryProvider = StateProvider<String>((ref) => '');
 final selectedBookProvider = StateProvider<Book?>((ref) => null);
-
-class Book {
-  final String id;
-  final String title;
-  final String author;
-  final String isbn;
-  final String genre;
-  final DateTime? publishDate;
-  final String description;
-  final String? coverUrl;
-  final bool isRead;
-  final double? rating;
-
-  Book({
-    required this.id,
-    required this.title,
-    required this.author,
-    this.isbn = '',
-    this.genre = '',
-    this.publishDate,
-    this.description = '',
-    this.coverUrl,
-    this.isRead = false,
-    this.rating,
-  });
-
-  Book copyWith({
-    String? id,
-    String? title,
-    String? author,
-    String? isbn,
-    String? genre,
-    DateTime? publishDate,
-    String? description,
-    String? coverUrl,
-    bool? isRead,
-    double? rating,
-  }) {
-    return Book(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      author: author ?? this.author,
-      isbn: isbn ?? this.isbn,
-      genre: genre ?? this.genre,
-      publishDate: publishDate ?? this.publishDate,
-      description: description ?? this.description,
-      coverUrl: coverUrl ?? this.coverUrl,
-      isRead: isRead ?? this.isRead,
-      rating: rating ?? this.rating,
-    );
-  }
-}
 
 void main() {
   debugPrint('Starting DigiLib Web Application');
@@ -468,7 +419,7 @@ class LibraryTab extends ConsumerWidget {
                               _handleMenuAction(context, ref, value, book),
                         ),
                         isThreeLine: book.genre.isNotEmpty,
-                        onTap: () => _showBookDetails(context, book),
+                        onTap: () => _openBookReader(context, book),
                       ),
                     );
                   },
@@ -602,42 +553,23 @@ class LibraryTab extends ConsumerWidget {
     }
   }
 
-  void _showBookDetails(BuildContext context, Book book) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(book.title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Author: ${book.author}'),
-            if (book.genre.isNotEmpty) Text('Genre: ${book.genre}'),
-            if (book.isbn.isNotEmpty) Text('ISBN: ${book.isbn}'),
-            if (book.rating != null)
-              Text('Rating: ${book.rating!.toStringAsFixed(1)}/5'),
-            if (book.publishDate != null)
-              Text('Published: ${book.publishDate!.year}'),
-            const SizedBox(height: 8),
-            Text('Status: ${book.isRead ? "Read" : "To Read"}'),
-            if (book.description.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              const Text(
-                'Description:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(book.description),
-            ],
-          ],
+  void _openBookReader(BuildContext context, Book book) {
+    try {
+      final document = BookToDocumentService.convertBookToDocument(book);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) =>
+              WebDocumentReaderScreen(documentId: document.id),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to open book: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }
 
@@ -866,7 +798,7 @@ class _SearchTabState extends ConsumerState<SearchTab> {
                                     ),
                                   )
                                 : null,
-                            onTap: () => _showBookDetails(context, book),
+                            onTap: () => _openBookReader(context, book),
                           ),
                         );
                       },
@@ -877,42 +809,23 @@ class _SearchTabState extends ConsumerState<SearchTab> {
     );
   }
 
-  void _showBookDetails(BuildContext context, Book book) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(book.title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Author: ${book.author}'),
-            if (book.genre.isNotEmpty) Text('Genre: ${book.genre}'),
-            if (book.isbn.isNotEmpty) Text('ISBN: ${book.isbn}'),
-            if (book.rating != null)
-              Text('Rating: ${book.rating!.toStringAsFixed(1)}/5'),
-            if (book.publishDate != null)
-              Text('Published: ${book.publishDate!.year}'),
-            const SizedBox(height: 8),
-            Text('Status: ${book.isRead ? "Read" : "To Read"}'),
-            if (book.description.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              const Text(
-                'Description:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(book.description),
-            ],
-          ],
+  void _openBookReader(BuildContext context, Book book) {
+    try {
+      final document = BookToDocumentService.convertBookToDocument(book);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) =>
+              WebDocumentReaderScreen(documentId: document.id),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to open book: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override

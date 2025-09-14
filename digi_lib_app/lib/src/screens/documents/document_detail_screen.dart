@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/entities/document.dart';
@@ -6,6 +7,8 @@ import '../../widgets/document_detail_view.dart';
 import '../../widgets/error_dialog.dart';
 import '../../widgets/loading_states.dart';
 import 'document_edit_screen.dart';
+import '../reader/document_reader_screen.dart';
+import '../reader/web_document_reader_screen.dart';
 
 /// Screen for displaying detailed document information
 class DocumentDetailScreen extends ConsumerStatefulWidget {
@@ -19,7 +22,8 @@ class DocumentDetailScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<DocumentDetailScreen> createState() => _DocumentDetailScreenState();
+  ConsumerState<DocumentDetailScreen> createState() =>
+      _DocumentDetailScreenState();
 }
 
 class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
@@ -29,12 +33,16 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
     // Load document if not provided initially
     if (widget.initialDocument == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(documentNotifierProvider.notifier).loadDocument(widget.documentId);
+        ref
+            .read(documentNotifierProvider.notifier)
+            .loadDocument(widget.documentId);
       });
     } else {
       // Set initial document in provider
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(documentNotifierProvider.notifier).setDocument(widget.initialDocument);
+        ref
+            .read(documentNotifierProvider.notifier)
+            .setDocument(widget.initialDocument);
       });
     }
   }
@@ -47,25 +55,16 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
       data: (document) {
         if (document == null) {
           return Scaffold(
-            appBar: AppBar(
-              title: const Text('Document Not Found'),
-            ),
+            appBar: AppBar(title: const Text('Document Not Found')),
             body: const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Colors.grey,
-                  ),
+                  Icon(Icons.error_outline, size: 64, color: Colors.grey),
                   SizedBox(height: 16),
                   Text(
                     'Document not found',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey,
-                    ),
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                 ],
               ),
@@ -83,26 +82,16 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
         );
       },
       loading: () => Scaffold(
-        appBar: AppBar(
-          title: const Text('Loading...'),
-        ),
-        body: const Center(
-          child: LoadingSpinner(),
-        ),
+        appBar: AppBar(title: const Text('Loading...')),
+        body: const Center(child: LoadingSpinner()),
       ),
       error: (error, stackTrace) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Error'),
-        ),
+        appBar: AppBar(title: const Text('Error')),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red,
-              ),
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
               Text(
                 'Failed to load document',
@@ -112,9 +101,9 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
               Text(
                 error.toString(),
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -144,9 +133,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
   void _shareDocument(BuildContext context, Document document) {
     // TODO: Implement document sharing
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Document sharing not implemented yet'),
-      ),
+      const SnackBar(content: Text('Document sharing not implemented yet')),
     );
   }
 
@@ -168,10 +155,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
             const SizedBox(height: 16),
             const Text(
               'This action cannot be undone.',
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.w500,
-              ),
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -182,9 +166,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Delete'),
           ),
         ],
@@ -193,8 +175,10 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
 
     if (confirmed == true) {
       try {
-        await ref.read(documentNotifierProvider.notifier).deleteDocument(document.id);
-        
+        await ref
+            .read(documentNotifierProvider.notifier)
+            .deleteDocument(document.id);
+
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -202,7 +186,7 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          
+
           // Navigate back after successful deletion
           Navigator.of(context).pop();
         }
@@ -223,17 +207,17 @@ class _DocumentDetailScreenState extends ConsumerState<DocumentDetailScreen> {
   void _addTags(BuildContext context, Document document) {
     // TODO: Implement tag management
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Tag management not implemented yet'),
-      ),
+      const SnackBar(content: Text('Tag management not implemented yet')),
     );
   }
 
   void _openDocument(BuildContext context, Document document) {
-    // TODO: Navigate to document reader
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Document reader not implemented yet'),
+    // Use web-compatible reader for web platform, native reader for others
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => kIsWeb
+            ? WebDocumentReaderScreen(documentId: document.id)
+            : DocumentReaderScreen(documentId: document.id),
       ),
     );
   }

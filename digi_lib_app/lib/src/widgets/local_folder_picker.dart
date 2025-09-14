@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+import '../services/web_compatible_folder_picker.dart';
 
 /// Widget for picking local folders on desktop platforms
 class LocalFolderPicker extends StatefulWidget {
@@ -148,7 +148,10 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
 
   Future<void> _pickFolder() async {
     try {
-      String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+      String? selectedDirectory = await WebCompatibleFolderPicker.pickDirectory(
+        dialogTitle: 'Select Library Folder',
+        context: context,
+      );
 
       setState(() {
         _selectedPath = selectedDirectory;
@@ -156,14 +159,62 @@ class _LocalFolderPickerState extends State<LocalFolderPicker> {
       });
 
       if (selectedDirectory != null) {
-        _validatePath(selectedDirectory);
-        widget.onPathSelected(selectedDirectory);
+        if (selectedDirectory == 'web-upload') {
+          // Handle web upload alternative
+          _showWebUploadOption();
+        } else {
+          _validatePath(selectedDirectory);
+          widget.onPathSelected(selectedDirectory);
+        }
       }
     } catch (e) {
       setState(() {
         _pathError = 'Failed to select folder: $e';
         _isValidPath = false;
       });
+    }
+  }
+
+  void _showWebUploadOption() {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Web file upload will be available in the next step. You can add files individually.',
+        ),
+        duration: Duration(seconds: 4),
+      ),
+    );
+    // For web, we can trigger file upload instead
+    _pickFilesForWeb();
+  }
+
+  Future<void> _pickFilesForWeb() async {
+    final files = await WebCompatibleFolderPicker.pickFiles(
+      dialogTitle: 'Select Document Files',
+      allowedExtensions: ['pdf', 'epub', 'docx', 'txt'],
+      allowMultiple: true,
+    );
+
+    if (files != null && files.isNotEmpty) {
+      setState(() {
+        _selectedPath = '${files.length} files selected for upload';
+        _pathError = null;
+        _isValidPath = true;
+      });
+
+      // Pass file information to parent widget
+      widget.onPathSelected('web-files:${files.length}');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${files.length} files selected for upload'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     }
   }
 

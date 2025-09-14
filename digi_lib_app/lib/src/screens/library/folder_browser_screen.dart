@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/entities/library.dart';
@@ -14,6 +15,8 @@ import '../../widgets/document_list_tile.dart';
 import '../../widgets/document_detail_view.dart';
 import '../../widgets/document_sort_dialog.dart';
 import '../../widgets/document_view_mode_dialog.dart';
+import '../reader/document_reader_screen.dart';
+import '../reader/web_document_reader_screen.dart';
 
 /// Screen for browsing documents in a folder structure
 class FolderBrowserScreen extends ConsumerStatefulWidget {
@@ -391,13 +394,11 @@ class _FolderBrowserScreenState extends ConsumerState<FolderBrowserScreen> {
   }
 
   void _openDocumentReader(Document document) {
-    // TODO: Navigate to document reader
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Opening reader for: ${document.title ?? document.filename}',
-        ),
-        action: SnackBarAction(label: 'OK', onPressed: () {}),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => kIsWeb
+            ? WebDocumentReaderScreen(documentId: document.id)
+            : DocumentReaderScreen(documentId: document.id),
       ),
     );
   }

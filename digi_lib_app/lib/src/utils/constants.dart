@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 
 /// Application constants for the Digital Library App
@@ -10,15 +8,8 @@ class AppConstants {
 
   // API Configuration
   static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:9090';
-    } else if (Platform.isAndroid) {
-      return 'http://10.0.2.2:9090';
-    } else if (Platform.isIOS) {
-      return 'http://localhost:9090';
-    } else {
-      return 'http://localhost:9090';
-    }
+    // Use localhost:9090 for all platforms
+    return 'http://localhost:9090';
   }
 
   static const String apiVersion = 'v1';
