@@ -297,7 +297,7 @@ These technological advances promise to make digital libraries more intelligent,
                   ],
                 ),
               );
-            }).toList(),
+            }),
 
             // End of document
             Container(
